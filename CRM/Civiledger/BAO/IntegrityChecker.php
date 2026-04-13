@@ -41,6 +41,8 @@ class CRM_Civiledger_BAO_IntegrityChecker {
     foreach ($results as $key => $rows) {
       $summary[$key] = count($rows);
     }
+    // Alias used by Dashboard.tpl
+    $summary['missing_eft_financial_item'] = $summary['missing_financial_item_link'];
     $summary['total'] = array_sum($summary);
     return $summary;
   }

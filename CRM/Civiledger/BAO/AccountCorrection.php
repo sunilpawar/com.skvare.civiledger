@@ -82,10 +82,10 @@ class CRM_Civiledger_BAO_AccountCorrection {
 
       $tx->commit();
       return [
-        'success' => TRUE,
-        'reversal_id' => $reversalId,
-        'correction_id' => $correctionId,
-        'message' => "Success. Reversal #{$reversalId} and Correction #{$correctionId} created.",
+        'success'          => TRUE,
+        'reversal_trxn_id' => $reversalId,
+        'new_trxn_id'      => $correctionId,
+        'message'          => "Success. Reversal #{$reversalId} and Correction #{$correctionId} created.",
       ];
     }
     catch (Exception $e) {
@@ -147,6 +147,44 @@ class CRM_Civiledger_BAO_AccountCorrection {
        VALUES ('civicrm_financial_trxn', %1, %2, %3, NOW())",
       [1 => [$origId, 'Integer'], 2 => [$data, 'String'], 3 => [(int) $userId, 'Integer']]
     );
+  }
+
+  /**
+   * Get all financial accounts for dropdown selection.
+   */
+  public static function getFinancialAccounts(): array {
+    $sql = "
+      SELECT fa.id, fa.name, fa.accounting_code, fa.is_active,
+             fat.label AS account_type
+      FROM civicrm_financial_account fa
+      LEFT JOIN civicrm_option_value fat
+        ON fat.value = fa.financial_account_type_id
+        AND fat.option_group_id = (
+          SELECT id FROM civicrm_option_group WHERE name = 'financial_account_type'
+        )
+      WHERE fa.is_active = 1
+      ORDER BY fa.name
+    ";
+    return CRM_Core_DAO::executeQuery($sql)->fetchAll();
+  }
+
+  /**
+   * Get all financial transactions linked to a contribution.
+   */
+  public static function getContributionTrxns(int $contributionId): array {
+    $sql = "
+      SELECT ft.id, ft.total_amount, ft.currency, ft.trxn_date,
+             ft.is_payment, ft.trxn_id AS processor_ref,
+             ft.from_financial_account_id, fa_from.name AS from_account_name,
+             ft.to_financial_account_id,   fa_to.name   AS to_account_name
+      FROM civicrm_entity_financial_trxn eft
+      INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
+      LEFT JOIN civicrm_financial_account fa_from ON fa_from.id = ft.from_financial_account_id
+      LEFT JOIN civicrm_financial_account fa_to   ON fa_to.id   = ft.to_financial_account_id
+      WHERE eft.entity_table = 'civicrm_contribution' AND eft.entity_id = %1
+      ORDER BY ft.trxn_date DESC
+    ";
+    return CRM_Core_DAO::executeQuery($sql, [1 => [$contributionId, 'Integer']])->fetchAll();
   }
 
   /**

@@ -48,13 +48,13 @@
               <div class="flow-from">
                 <span class="flow-label">FROM</span>
                 <span class="flow-value">{$trxn.from_account_name|default:'(none)'}</span>
-                <span class="flow-id text-muted">[ID: {$trxn.from_account_id}]</span>
+                <span class="flow-id text-muted">[ID: {$trxn.from_account_name} ({$trxn.from_financial_account_id})]</span>
               </div>
               <div class="flow-arrow">→</div>
               <div class="flow-to">
                 <span class="flow-label">TO</span>
                 <span class="flow-value">{$trxn.to_account_name|default:'(none)'}</span>
-                <span class="flow-id text-muted">[ID: {$trxn.to_account_id}]</span>
+                <span class="flow-id text-muted">[ID: {$trxn.to_account_name} ({$trxn.to_financial_account_id})]</span>
               </div>
             </div>
 
@@ -73,10 +73,10 @@
                     <div class="correction-fields">
                       <div class="correction-field">
                         <label>New FROM Account:
-                          <select name="from_account_id">
+                          <select name="from_financial_account_id">
                             <option value="">— Keep current ({$trxn.from_account_name|default:'none'}) —</option>
                               {foreach from=$accounts item=acct}
-                                <option value="{$acct.id}" {if $acct.id == $trxn.from_account_id}selected{/if}>
+                                <option value="{$acct.id}" {if $acct.id == $trxn.from_financial_account_id}selected{/if}>
                                   [{$acct.account_type}] {$acct.name}
                                 </option>
                               {/foreach}
@@ -85,10 +85,10 @@
                       </div>
                       <div class="correction-field">
                         <label>New TO Account:
-                          <select name="to_account_id">
+                          <select name="to_financial_account_id">
                             <option value="">— Keep current ({$trxn.to_account_name|default:'none'}) —</option>
                               {foreach from=$accounts item=acct}
-                                <option value="{$acct.id}" {if $acct.id == $trxn.to_account_id}selected{/if}>
+                                <option value="{$acct.id}" {if $acct.id == $trxn.to_financial_account_id}selected{/if}>
                                   [{$acct.account_type}] {$acct.name}
                                 </option>
                               {/foreach}

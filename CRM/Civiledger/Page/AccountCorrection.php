@@ -29,7 +29,7 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
     // If a contribution is specified, show its transactions
     if ($contributionId) {
       $trxns = CRM_Civiledger_BAO_AccountCorrection::getContributionTrxns($contributionId);
-      $contribution = CRM_Core_DAO::executeQuery("
+      $contributionDAO = CRM_Core_DAO::executeQuery("
         SELECT c.id, c.total_amount, c.receive_date, c.currency,
                CONCAT(ct.first_name, ' ', ct.last_name) AS contact_name,
                ft.name AS financial_type
@@ -37,7 +37,13 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
         LEFT JOIN civicrm_contact ct ON ct.id = c.contact_id
         LEFT JOIN civicrm_financial_type ft ON ft.id = c.financial_type_id
         WHERE c.id = %1
-      ", [1 => [$contributionId, 'Integer']])->fetchRow(DB_FETCHMODE_ASSOC);
+      ", [1 => [$contributionId, 'Integer']]);
+      $contribution = [];
+      while ($contributionDAO->fetch()) {
+        $contribution = $contributionDAO->toArray();
+        // Just fetch the first row since we only need contribution-level info
+        break;
+      }
 
       $this->assign('trxns', $trxns);
       $this->assign('contribution', $contribution);
