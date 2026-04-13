@@ -1,0 +1,219 @@
+/**
+ * CiviLedger - Financial Audit & Integrity Extension
+ * Main stylesheet — com.skvare.civiledger
+ */
+
+/* -----------------------------------------------------------------------
+   Layout & Wrapper
+   ----------------------------------------------------------------------- */
+.civiledger-wrap {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.civiledger-header {
+  background: linear-gradient(135deg, #1a3a5c 0%, #2a6496 100%);
+  color: #fff;
+  padding: 24px 32px;
+  border-radius: 6px 6px 0 0;
+  margin-bottom: 20px;
+}
+
+.civiledger-header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; color: #fff; }
+.civiledger-header p  { margin: 0; opacity: 0.85; font-size: 14px; }
+
+.civiledger-section {
+  background: #fff;
+  border: 1px solid #dde3ea;
+  border-radius: 6px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.civiledger-section h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* -----------------------------------------------------------------------
+   Health Banner
+   ----------------------------------------------------------------------- */
+.civiledger-health-banner {
+  padding: 14px 20px; border-radius: 5px; font-size: 15px;
+  font-weight: 500; margin-bottom: 20px;
+}
+.civiledger-health-good     { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+.civiledger-health-warning  { background:#fff3cd; color:#856404; border:1px solid #ffeeba; }
+.civiledger-health-critical { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+
+/* -----------------------------------------------------------------------
+   Filter Bar
+   ----------------------------------------------------------------------- */
+.civiledger-filter-bar {
+  background: #f8f9fa; border: 1px solid #e9ecef; border-radius: 5px;
+  padding: 12px 16px; margin-bottom: 20px;
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.civiledger-filter-bar label { font-size: 13px; font-weight: 500; color: #555; display:flex; align-items:center; gap:6px; }
+.civiledger-filter-bar input[type="date"],
+.civiledger-filter-bar select { border:1px solid #ced4da; border-radius:4px; padding:5px 9px; font-size:13px; }
+
+/* -----------------------------------------------------------------------
+   Stat Cards (Dashboard)
+   ----------------------------------------------------------------------- */
+.civiledger-stats-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:24px; }
+
+.civiledger-stat-card {
+  flex: 1; min-width: 150px; background: #f8f9fa;
+  border: 1px solid #e9ecef; border-radius: 6px; padding: 16px 18px;
+  text-align: center; transition: box-shadow 0.2s;
+}
+.civiledger-stat-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.civiledger-stat-ok    { border-left: 4px solid #28a745; }
+.civiledger-stat-alert { border-left: 4px solid #dc3545; background: #fff5f5; }
+
+.stat-number { font-size: 28px; font-weight: 700; color: #2c3e50; line-height: 1.1; }
+.stat-label  { font-size: 12px; color: #6c757d; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+/* Quick links */
+.civiledger-quick-links { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; align-items:center; }
+.civiledger-quick-links h4 { margin:0; font-size:14px; color:#555; white-space:nowrap; }
+
+/* -----------------------------------------------------------------------
+   Tables
+   ----------------------------------------------------------------------- */
+.civiledger-table { width:100%; border-collapse:collapse; font-size:13px; margin-top:10px; }
+.civiledger-table th {
+  background:#f1f4f8; color:#2c3e50; font-weight:600; padding:9px 12px;
+  text-align:left; border-bottom:2px solid #dde3ea; white-space:nowrap;
+}
+.civiledger-table td { padding:8px 12px; border-bottom:1px solid #eef0f3; vertical-align:middle; }
+.civiledger-table tr:hover td { background:#f8f9fa; }
+.civiledger-table tr.row-critical td { background:#fff5f5; }
+.civiledger-table tr.row-warning  td { background:#fffdf0; }
+.civiledger-table .text-right  { text-align:right; }
+.civiledger-table .text-center { text-align:center; }
+
+/* -----------------------------------------------------------------------
+   Badges
+   ----------------------------------------------------------------------- */
+.issue-count {
+  display:inline-block; min-width:28px; padding:2px 7px;
+  border-radius:12px; font-size:13px; font-weight:700; text-align:center;
+}
+.count-ok  { background:#d4edda; color:#155724; }
+.count-bad { background:#f8d7da; color:#721c24; }
+
+.badge-critical { background:#dc3545; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; }
+.badge-warning  { background:#ffc107; color:#333; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; }
+
+.integrity-summary, .mismatch-summary {
+  padding:14px 18px; border-radius:5px; font-size:14px; margin-bottom:20px;
+  display:flex; align-items:center; gap:12px;
+}
+.summary-good { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+.summary-bad  { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+
+/* -----------------------------------------------------------------------
+   Audit Trail
+   ----------------------------------------------------------------------- */
+.audit-layer { margin-bottom:16px; }
+
+.audit-layer-title {
+  font-weight:700; color:#1a3a5c; font-size:13px; text-transform:uppercase;
+  letter-spacing:0.06em; margin-bottom:8px; padding:6px 10px;
+  background:#eef2f8; border-radius:4px; border-left:4px solid #2a6496;
+}
+
+.audit-node {
+  margin-left:20px; padding:8px 12px; border-left:2px solid #dde3ea;
+  margin-bottom:6px; background:#fdfdfe; border-radius:0 4px 4px 0;
+}
+.audit-node .node-title { font-weight:600; color:#333; margin-bottom:4px; }
+.audit-node .node-meta  { color:#666; font-size:12px; display:flex; flex-wrap:wrap; gap:12px; }
+.audit-node.node-missing { border-left-color:#dc3545; background:#fff5f5; }
+.audit-node.node-ok      { border-left-color:#28a745; }
+
+.money-flow {
+  display:flex; align-items:center; gap:10px; font-size:13px;
+  padding:6px 10px; background:#f0f8ff; border-radius:4px; margin-bottom:4px;
+}
+.money-flow .account-from { color:#856404; font-weight:600; }
+.money-flow .flow-arrow   { color:#2a6496; font-size:18px; }
+.money-flow .account-to   { color:#155724; font-weight:600; }
+.money-flow .flow-amount  { margin-left:auto; font-weight:700; color:#2c3e50; }
+
+.integrity-flag { display:inline-flex; align-items:center; gap:5px; font-size:12px; padding:3px 8px; border-radius:4px; margin:2px; }
+.flag-ok    { background:#d4edda; color:#155724; }
+.flag-error { background:#f8d7da; color:#721c24; }
+
+/* -----------------------------------------------------------------------
+   Account Correction
+   ----------------------------------------------------------------------- */
+.correction-before-after { display:flex; gap:20px; margin:14px 0; flex-wrap:wrap; }
+.correction-box { flex:1; min-width:220px; padding:14px 16px; border-radius:5px; font-size:13px; }
+.correction-box h4 { margin:0 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:0.05em; color:#555; }
+.correction-box-before { background:#fff3cd; border:1px solid #ffeeba; }
+.correction-box-after  { background:#d4edda; border:1px solid #c3e6cb; }
+
+.correction-history-item {
+  padding:8px 12px; background:#f8f9fa; border-left:3px solid #6c757d;
+  margin-bottom:6px; font-size:12px; color:#555;
+}
+
+/* -----------------------------------------------------------------------
+   Repair Log
+   ----------------------------------------------------------------------- */
+.repair-log {
+  font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;
+  padding: 12px; background: #1e1e1e; color: #d4d4d4; border-radius: 5px; margin-top: 12px;
+}
+.log-fixed   { color: #4ec9b0; }
+.log-skip    { color: #808080; }
+.log-info    { color: #9cdcfe; }
+.log-warning { color: #ce9178; }
+.log-error   { color: #f48771; font-weight: bold; }
+
+/* -----------------------------------------------------------------------
+   Status Badges
+   ----------------------------------------------------------------------- */
+.status-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; }
+.status-completed { background:#d4edda; color:#155724; }
+.status-pending   { background:#fff3cd; color:#856404; }
+.status-cancelled { background:#f8d7da; color:#721c24; }
+.status-refunded  { background:#d1ecf1; color:#0c5460; }
+
+/* -----------------------------------------------------------------------
+   Misc
+   ----------------------------------------------------------------------- */
+.help-tip {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:18px; height:18px; background:#6c757d; color:#fff;
+  border-radius:50%; font-size:11px; font-weight:700; cursor:help; vertical-align:middle;
+}
+.civiledger-empty { text-align:center; padding:30px; color:#6c757d; font-style:italic; }
+.civiledger-loading { text-align:center; padding:20px; color:#6c757d; }
+.civiledger-spinner {
+  display:inline-block; width:24px; height:24px;
+  border:3px solid #dee2e6; border-top-color:#2a6496; border-radius:50%;
+  animation: spin 0.8s linear infinite; vertical-align:middle; margin-right:8px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .civiledger-stats-row,
+  .correction-before-after,
+  .civiledger-quick-links { flex-direction: column; align-items: flex-start; }
+  .civiledger-table { font-size:12px; }
+  .civiledger-table th, .civiledger-table td { padding:6px 8px; }
+}

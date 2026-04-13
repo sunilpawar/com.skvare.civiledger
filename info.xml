@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<extension key="com.skvare.civiledger" type="module">
+  <file>civiledger</file>
+  <name>CiviLedger - Financial Audit and Integrity</name>
+  <description>
+    A comprehensive financial audit, integrity checking, and correction tool for CiviCRM.
+    Features: broken chain detection and repair, per-contribution audit trail, account balance
+    dashboard, amount mismatch detection, and FROM/TO account correction with proper reversal entries.
+  </description>
+  <license>AGPL-3.0</license>
+  <maintainer>
+    <author>Sunil Pawar</author>
+    <email>sunil@skvare.com</email>
+  </maintainer>
+  <urls>
+    <url desc="Main Extension Page">https://github.com/skvare/com.skvare.civiledger</url>
+    <url desc="Documentation">https://github.com/skvare/com.skvare.civiledger/wiki</url>
+    <url desc="Support">https://github.com/skvare/com.skvare.civiledger/issues</url>
+  </urls>
+  <releaseDate>2026-04-13</releaseDate>
+  <version>1.0.0</version>
+  <develStage>stable</develStage>
+  <compatibility>
+    <ver>6.0</ver>
+  </compatibility>
+  <comments>
+    Requires CiviCRM 6.0+.
+    Provides six financial management features not available in CiviCRM core:
+    1. Integrity Checker - detect broken financial chains
+    2. Chain Repair Tool - auto-fix missing links
+    3. Audit Trail UI - per-contribution money flow drill-down
+    4. Account Balance Dashboard - live balances per financial account
+    5. Amount Mismatch Detector - flag contribution amount inconsistencies
+    6. Account Correction Tool - edit FROM/TO accounts with proper reversal
+  </comments>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi"/>
+    <psr0 prefix="CRM_" path="."/>
+  </classloader>
+  <civix>
+    <namespace>CRM/Civiledger</namespace>
+    <format>23.02.1</format>
+  </civix>
+  <mixins>
+    <mixin>smarty-v2@1.0.1</mixin>
+  </mixins>
+</extension>
