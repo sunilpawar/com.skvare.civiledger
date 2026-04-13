@@ -12,24 +12,24 @@ class CRM_Civiledger_Page_Dashboard extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('CiviLedger — Financial Dashboard'));
 
     $dateFrom = CRM_Utils_Request::retrieve('date_from', 'String') ?: date('Y-m-01');
-    $dateTo   = CRM_Utils_Request::retrieve('date_to',   'String') ?: date('Y-m-d');
+    $dateTo = CRM_Utils_Request::retrieve('date_to', 'String') ?: date('Y-m-d');
 
-    $balances         = CRM_Civiledger_BAO_AccountBalance::getBalances($dateFrom, $dateTo);
-    $stats            = CRM_Civiledger_BAO_AccountBalance::getSummaryStats($dateFrom, $dateTo);
+    $balances = CRM_Civiledger_BAO_AccountBalance::getBalances($dateFrom, $dateTo);
+    $stats = CRM_Civiledger_BAO_AccountBalance::getSummaryStats($dateFrom, $dateTo);
     $integritySummary = CRM_Civiledger_BAO_IntegrityChecker::getSummary();
-    $mismatchCounts   = CRM_Civiledger_BAO_MismatchDetector::getMismatchCounts();
+    $mismatchCounts = CRM_Civiledger_BAO_MismatchDetector::getMismatchCounts();
 
     $totalIssues = array_sum($integritySummary) + array_sum($mismatchCounts);
     $healthScore = $totalIssues === 0 ? 'good' : ($totalIssues < 10 ? 'warning' : 'critical');
 
-    $this->assign('dateFrom',         $dateFrom);
-    $this->assign('dateTo',           $dateTo);
-    $this->assign('balances',         $balances);
-    $this->assign('stats',            $stats);
+    $this->assign('dateFrom', $dateFrom);
+    $this->assign('dateTo', $dateTo);
+    $this->assign('balances', $balances);
+    $this->assign('stats', $stats);
     $this->assign('integritySummary', $integritySummary);
-    $this->assign('mismatchCounts',   $mismatchCounts);
-    $this->assign('totalIssues',      $totalIssues);
-    $this->assign('healthScore',      $healthScore);
+    $this->assign('mismatchCounts', $mismatchCounts);
+    $this->assign('totalIssues', $totalIssues);
+    $this->assign('healthScore', $healthScore);
 
     parent::run();
   }

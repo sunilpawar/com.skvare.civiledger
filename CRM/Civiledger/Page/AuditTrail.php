@@ -20,19 +20,21 @@ class CRM_Civiledger_Page_AuditTrail extends CRM_Core_Page {
     else {
       // Show search form + recent contributions
       $params = [
-        'date_from'  => CRM_Utils_Request::retrieve('date_from', 'String'),
-        'date_to'    => CRM_Utils_Request::retrieve('date_to', 'String'),
+        'date_from' => CRM_Utils_Request::retrieve('date_from', 'String'),
+        'date_to' => CRM_Utils_Request::retrieve('date_to', 'String'),
         'contact_id' => CRM_Utils_Request::retrieve('contact_id', 'Positive'),
-        'limit'      => 25,
+        'limit' => 25,
       ];
       if (!empty(array_filter($params))) {
         $contributions = CRM_Civiledger_BAO_AuditTrail::searchContributions($params);
       }
     }
 
-    $this->assign('contributionId',  $contributionId);
-    $this->assign('trail',           $trail);
-    $this->assign('contributions',   $contributions);
+    $correctionUrl = CRM_Utils_System::url('civicrm/civiledger/correct-accounts');
+    $this->assign('contributionId', $contributionId);
+    $this->assign('chain', $trail);
+    $this->assign('contributions', $contributions);
+    $this->assign('correctionUrl', $correctionUrl);
 
     parent::run();
   }

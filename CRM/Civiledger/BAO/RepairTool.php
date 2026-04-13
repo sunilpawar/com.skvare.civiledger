@@ -202,15 +202,15 @@ class CRM_Civiledger_BAO_RepairTool {
          currency, is_payment, trxn_id, status_id, payment_instrument_id)
       VALUES (%1, %2, %3, %4, %5, %6, %7, 1, %8, %9, %10)
     ", [
-      1  => [$fromAccountId, 'Integer'],
-      2  => [$toAccountId, 'Integer'],
-      3  => [$contribution['receive_date'] ?? date('Y-m-d H:i:s'), 'String'],
-      4  => [$contribution['total_amount'], 'Money'],
-      5  => [$contribution['fee_amount'] ?? 0, 'Money'],
-      6  => [$contribution['net_amount'] ?? $contribution['total_amount'], 'Money'],
-      7  => [$contribution['currency'] ?? 'USD', 'String'],
-      8  => [$contribution['trxn_id'] ?? '', 'String'],
-      9  => [1, 'Integer'], // Completed
+      1 => [$fromAccountId, 'Integer'],
+      2 => [$toAccountId, 'Integer'],
+      3 => [$contribution['receive_date'] ?? date('Y-m-d H:i:s'), 'String'],
+      4 => [$contribution['total_amount'], 'Money'],
+      5 => [$contribution['fee_amount'] ?? 0, 'Money'],
+      6 => [$contribution['net_amount'] ?? $contribution['total_amount'], 'Money'],
+      7 => [$contribution['currency'] ?? 'USD', 'String'],
+      8 => [$contribution['trxn_id'] ?? '', 'String'],
+      9 => [1, 'Integer'], // Completed
       10 => [$contribution['payment_instrument_id'] ?? 1, 'Integer'],
     ]);
 
@@ -348,7 +348,7 @@ class CRM_Civiledger_BAO_RepairTool {
    */
   private static function logRepair(int $contributionId, array $actions): void {
     $session = CRM_Core_Session::singleton();
-    $userId  = $session->get('userID') ?? 0;
+    $userId = $session->get('userID') ?? 0;
     CRM_Core_DAO::executeQuery("
       INSERT INTO civicrm_civiledger_audit_log
         (contribution_id, action, notes, created_by)

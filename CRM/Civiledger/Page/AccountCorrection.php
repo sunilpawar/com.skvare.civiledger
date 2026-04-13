@@ -12,9 +12,9 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
       ->addScriptFile('com.skvare.civiledger', 'js/civiledger.js');
     CRM_Utils_System::setTitle(ts('CiviLedger — Account Correction Tool'));
 
-    $action         = CRM_Utils_Request::retrieve('action', 'String') ?? '';
+    $action = CRM_Utils_Request::retrieve('action', 'String') ?? '';
     $contributionId = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
-    $trxnId         = (int) CRM_Utils_Request::retrieve('trxn_id', 'Integer');
+    $trxnId = (int) CRM_Utils_Request::retrieve('trxn_id', 'Integer');
 
     // Handle form submission
     if ($action === 'correct' && $trxnId) {
@@ -28,7 +28,7 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
 
     // If a contribution is specified, show its transactions
     if ($contributionId) {
-      $trxns       = CRM_Civiledger_BAO_AccountCorrection::getContributionTrxns($contributionId);
+      $trxns = CRM_Civiledger_BAO_AccountCorrection::getContributionTrxns($contributionId);
       $contribution = CRM_Core_DAO::executeQuery("
         SELECT c.id, c.total_amount, c.receive_date, c.currency,
                CONCAT(ct.first_name, ' ', ct.last_name) AS contact_name,
@@ -55,21 +55,21 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
 
   private function handleCorrection(int $trxnId): void {
     $newFromId = (int) CRM_Utils_Request::retrieve('from_account_id', 'Integer');
-    $newToId   = (int) CRM_Utils_Request::retrieve('to_account_id', 'Integer');
-    $notes     = CRM_Utils_Request::retrieve('notes', 'String') ?? '';
-    $cid       = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+    $newToId = (int) CRM_Utils_Request::retrieve('to_account_id', 'Integer');
+    $notes = CRM_Utils_Request::retrieve('notes', 'String') ?? '';
+    $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
 
     $result = CRM_Civiledger_BAO_AccountCorrection::correctAccounts(
       $trxnId,
       $newFromId ?: NULL,
-      $newToId   ?: NULL,
+      $newToId ?: NULL,
       $notes
     );
 
     if ($result['success']) {
       CRM_Core_Session::setStatus(
         ts('Account correction applied successfully. Reversal trxn #%1, new trxn #%2.',
-           [1 => $result['reversal_trxn_id'], 2 => $result['new_trxn_id']]),
+          [1 => $result['reversal_trxn_id'], 2 => $result['new_trxn_id']]),
         ts('Success'),
         'success'
       );

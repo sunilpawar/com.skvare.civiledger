@@ -12,11 +12,11 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
 
     $filters = [
       'date_from' => CRM_Utils_Request::retrieve('date_from', 'String') ?? '',
-      'date_to'   => CRM_Utils_Request::retrieve('date_to', 'String') ?? '',
+      'date_to' => CRM_Utils_Request::retrieve('date_to', 'String') ?? '',
     ];
 
     $mismatches = CRM_Civiledger_BAO_MismatchDetector::detect($filters);
-    $summary    = CRM_Civiledger_BAO_MismatchDetector::getSummary($filters);
+    $summary = CRM_Civiledger_BAO_MismatchDetector::getSummary($filters);
 
     $this->assign('mismatches', $mismatches);
     $this->assign('summary', $summary);

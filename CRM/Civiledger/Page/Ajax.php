@@ -10,7 +10,7 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
 
     switch ($action) {
       case 'repair_contribution':
-        $cid    = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
         $result = CRM_Civiledger_BAO_RepairTool::repairContribution($cid);
         CRM_Utils_JSON::output($result);
         break;

@@ -88,7 +88,7 @@ class CRM_Civiledger_BAO_ChainRepair {
     foreach ($contributionIds as $id) {
       $log = self::repairContribution((int) $id);
       $results[$id] = [
-        'log'         => $log,
+        'log' => $log,
         'fixed_count' => count(array_filter($log, fn($l) => isset($l['fixed']))),
         'error_count' => count(array_filter($log, fn($l) => isset($l['error']))),
       ];
@@ -129,15 +129,15 @@ class CRM_Civiledger_BAO_ChainRepair {
   private static function createDefaultLineItem(array $contribution): array {
     // Minimal line item derived from the contribution itself
     $params = [
-      'entity_table'     => 'civicrm_contribution',
-      'entity_id'        => $contribution['id'],
-      'contribution_id'  => $contribution['id'],
-      'price_field_id'   => NULL,
-      'label'            => 'Contribution',
-      'qty'              => 1,
-      'unit_price'       => $contribution['total_amount'],
-      'line_total'       => $contribution['total_amount'],
-      'financial_type_id'=> $contribution['financial_type_id'],
+      'entity_table' => 'civicrm_contribution',
+      'entity_id' => $contribution['id'],
+      'contribution_id' => $contribution['id'],
+      'price_field_id' => NULL,
+      'label' => 'Contribution',
+      'qty' => 1,
+      'unit_price' => $contribution['total_amount'],
+      'line_total' => $contribution['total_amount'],
+      'financial_type_id' => $contribution['financial_type_id'],
     ];
 
     $lineItem = new CRM_Price_DAO_LineItem();
@@ -171,16 +171,16 @@ class CRM_Civiledger_BAO_ChainRepair {
     }
 
     $fiParams = [
-      'created_date'         => date('Y-m-d H:i:s'),
-      'transaction_date'     => $contribution['receive_date'] ?? date('Y-m-d H:i:s'),
-      'contact_id'           => $contribution['contact_id'],
-      'description'          => $lineItem['label'] ?? 'Contribution Line Item',
-      'amount'               => $lineItem['line_total'],
-      'currency'             => $contribution['currency'],
+      'created_date' => date('Y-m-d H:i:s'),
+      'transaction_date' => $contribution['receive_date'] ?? date('Y-m-d H:i:s'),
+      'contact_id' => $contribution['contact_id'],
+      'description' => $lineItem['label'] ?? 'Contribution Line Item',
+      'amount' => $lineItem['line_total'],
+      'currency' => $contribution['currency'],
       'financial_account_id' => $incomeAccountId,
-      'status_id'            => 1, // Paid
-      'entity_table'         => 'civicrm_line_item',
-      'entity_id'            => $lineItemId,
+      'status_id' => 1, // Paid
+      'entity_table' => 'civicrm_line_item',
+      'entity_id' => $lineItemId,
     ];
 
     $fi = new CRM_Financial_DAO_FinancialItem();
@@ -223,21 +223,21 @@ class CRM_Civiledger_BAO_ChainRepair {
     }
 
     // No trxn found — create one
-    $toAccount   = self::getPaymentAccount($contribution);
+    $toAccount = self::getPaymentAccount($contribution);
     $fromAccount = self::getARAccount((int) $contribution['financial_type_id']);
 
     $ftParams = [
       'from_financial_account_id' => $fromAccount,
-      'to_financial_account_id'   => $toAccount,
-      'trxn_date'                 => $contribution['receive_date'] ?? date('Y-m-d H:i:s'),
-      'total_amount'              => $contribution['total_amount'],
-      'fee_amount'                => $contribution['fee_amount'] ?? 0,
-      'net_amount'                => $contribution['net_amount'] ?? $contribution['total_amount'],
-      'currency'                  => $contribution['currency'],
-      'is_payment'                => 1,
-      'trxn_id'                   => $contribution['trxn_id'],
-      'status_id'                 => 1, // Completed
-      'payment_instrument_id'     => $contribution['payment_instrument_id'],
+      'to_financial_account_id' => $toAccount,
+      'trxn_date' => $contribution['receive_date'] ?? date('Y-m-d H:i:s'),
+      'total_amount' => $contribution['total_amount'],
+      'fee_amount' => $contribution['fee_amount'] ?? 0,
+      'net_amount' => $contribution['net_amount'] ?? $contribution['total_amount'],
+      'currency' => $contribution['currency'],
+      'is_payment' => 1,
+      'trxn_id' => $contribution['trxn_id'],
+      'status_id' => 1, // Completed
+      'payment_instrument_id' => $contribution['payment_instrument_id'],
     ];
 
     $ft = new CRM_Financial_DAO_FinancialTrxn();
@@ -251,10 +251,10 @@ class CRM_Civiledger_BAO_ChainRepair {
 
   private static function ensureEntityFinancialTrxn(
     string $entityTable,
-    int $entityId,
-    int $financialTrxnId,
-    float $amount,
-    array &$log
+    int    $entityId,
+    int    $financialTrxnId,
+    float  $amount,
+    array  &$log
   ): array {
     $innerLog = [];
 

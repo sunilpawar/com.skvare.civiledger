@@ -10,8 +10,8 @@ class CRM_Civiledger_BAO_AccountBalance {
   /**
    * Get balances for all active financial accounts.
    *
-   * @param string|null $dateFrom  Y-m-d
-   * @param string|null $dateTo    Y-m-d
+   * @param string|null $dateFrom Y-m-d
+   * @param string|null $dateTo Y-m-d
    * @return array
    */
   public static function getBalances($dateFrom = NULL, $dateTo = NULL) {
@@ -49,11 +49,11 @@ class CRM_Civiledger_BAO_AccountBalance {
   /**
    * Get movement details for a specific account.
    *
-   * @param int         $accountId
+   * @param int $accountId
    * @param string|null $dateFrom
    * @param string|null $dateTo
-   * @param int         $limit
-   * @param int         $offset
+   * @param int $limit
+   * @param int $offset
    * @return array
    */
   public static function getAccountMovements(int $accountId, $dateFrom = NULL, $dateTo = NULL, $limit = 50, $offset = 0) {
@@ -162,8 +162,12 @@ class CRM_Civiledger_BAO_AccountBalance {
 
   private static function buildDateWhere($dateFrom, $dateTo) {
     $parts = [];
-    if ($dateFrom) $parts[] = 'AND ft.trxn_date >= \'' . CRM_Core_DAO::escapeString($dateFrom) . ' 00:00:00\'';
-    if ($dateTo)   $parts[] = 'AND ft.trxn_date <= \'' . CRM_Core_DAO::escapeString($dateTo) . ' 23:59:59\'';
+    if ($dateFrom) {
+      $parts[] = 'AND ft.trxn_date >= \'' . CRM_Core_DAO::escapeString($dateFrom) . ' 00:00:00\'';
+    }
+    if ($dateTo) {
+      $parts[] = 'AND ft.trxn_date <= \'' . CRM_Core_DAO::escapeString($dateTo) . ' 23:59:59\'';
+    }
     return implode(' ', $parts);
   }
 

@@ -19,16 +19,16 @@ class CRM_Civiledger_BAO_IntegrityChecker {
   /**
    * Run full integrity check and return results grouped by issue type.
    *
-   * @param array $filters  Optional filters: date_from, date_to, status_id
+   * @param array $filters Optional filters: date_from, date_to, status_id
    * @return array
    */
   public static function runCheck(array $filters = []): array {
     return [
-      'missing_line_items'             => self::getMissingLineItems($filters),
-      'missing_financial_items'        => self::getMissingFinancialItems($filters),
+      'missing_line_items' => self::getMissingLineItems($filters),
+      'missing_financial_items' => self::getMissingFinancialItems($filters),
       'missing_contribution_trxn_link' => self::getMissingContributionTrxnLink($filters),
-      'missing_financial_item_link'    => self::getMissingFinancialItemLink($filters),
-      'orphaned_financial_trxn'        => self::getOrphanedFinancialTrxn($filters),
+      'missing_financial_item_link' => self::getMissingFinancialItemLink($filters),
+      'orphaned_financial_trxn' => self::getOrphanedFinancialTrxn($filters),
     ];
   }
 
@@ -206,12 +206,12 @@ class CRM_Civiledger_BAO_IntegrityChecker {
   public static function runAll(array $filters = []): array {
     $results = self::runCheck($filters);
     $results['summary'] = [
-      'missing_line_items'             => count($results['missing_line_items']),
-      'missing_financial_items'        => count($results['missing_financial_items']),
+      'missing_line_items' => count($results['missing_line_items']),
+      'missing_financial_items' => count($results['missing_financial_items']),
       'missing_contribution_trxn_link' => count($results['missing_contribution_trxn_link']),
       'missing_financial_item_trxn_link' => count($results['missing_financial_item_link']),
-      'missing_financial_item'         => count($results['missing_financial_items']),
-      'orphaned_financial_trxn'        => count($results['orphaned_financial_trxn']),
+      'missing_financial_item' => count($results['missing_financial_items']),
+      'orphaned_financial_trxn' => count($results['orphaned_financial_trxn']),
     ];
     // Merge renamed key for templates
     $results['missing_financial_item_trxn_link'] = $results['missing_financial_item_link'];
@@ -289,9 +289,9 @@ class CRM_Civiledger_BAO_IntegrityChecker {
       $row = $dao->toArray();
       $row['issue_type'] = $issueType;
       if (!empty($row['contribution_id'])) {
-        $row['contribution_url']  = CRM_Civiledger_BAO_Utils::getContributionUrl($row['contribution_id']);
-        $row['audit_trail_url']   = CRM_Civiledger_BAO_Utils::getAuditTrailUrl($row['contribution_id']);
-        $row['repair_url']        = CRM_Utils_System::url('civicrm/civiledger/chain-repair',
+        $row['contribution_url'] = CRM_Civiledger_BAO_Utils::getContributionUrl($row['contribution_id']);
+        $row['audit_trail_url'] = CRM_Civiledger_BAO_Utils::getAuditTrailUrl($row['contribution_id']);
+        $row['repair_url'] = CRM_Utils_System::url('civicrm/civiledger/chain-repair',
           "reset=1&contribution_id={$row['contribution_id']}");
         if (!empty($row['contribution_status_id'])) {
           $row['status_label'] = CRM_Civiledger_BAO_Utils::getContributionStatusName(

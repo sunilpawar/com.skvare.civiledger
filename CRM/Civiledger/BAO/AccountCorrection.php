@@ -40,9 +40,9 @@ class CRM_Civiledger_BAO_AccountCorrection {
   /**
    * Apply account correction via reversal + repost.
    *
-   * @param int    $trxnId
-   * @param int    $newFromAccountId  0 = no change
-   * @param int    $newToAccountId    0 = no change
+   * @param int $trxnId
+   * @param int $newFromAccountId 0 = no change
+   * @param int $newToAccountId 0 = no change
    * @param string $reason
    * @return array
    */
@@ -53,10 +53,10 @@ class CRM_Civiledger_BAO_AccountCorrection {
     }
 
     $finalFromId = $newFromAccountId ?: (int) $original['from_financial_account_id'];
-    $finalToId   = $newToAccountId   ?: (int) $original['to_financial_account_id'];
+    $finalToId = $newToAccountId ?: (int) $original['to_financial_account_id'];
 
     $fromChanged = $newFromAccountId && $newFromAccountId != (int) $original['from_financial_account_id'];
-    $toChanged   = $newToAccountId   && $newToAccountId   != (int) $original['to_financial_account_id'];
+    $toChanged = $newToAccountId && $newToAccountId != (int) $original['to_financial_account_id'];
 
     if (!$fromChanged && !$toChanged) {
       return ['success' => FALSE, 'message' => 'No changes detected — selected accounts match the original.'];
@@ -65,7 +65,7 @@ class CRM_Civiledger_BAO_AccountCorrection {
     $tx = new CRM_Core_Transaction();
     try {
       // Step 1: reversal on old accounts (negative amount)
-      $reversalId = self::insertTrxn($original, (int)$original['from_financial_account_id'], (int)$original['to_financial_account_id'], -1);
+      $reversalId = self::insertTrxn($original, (int) $original['from_financial_account_id'], (int) $original['to_financial_account_id'], -1);
 
       // Step 2: correction on new accounts (positive amount)
       $correctionId = self::insertTrxn($original, $finalFromId, $finalToId, 1);
@@ -73,8 +73,8 @@ class CRM_Civiledger_BAO_AccountCorrection {
       // Step 3: link to contribution
       if (!empty($original['contribution_id'])) {
         $cid = (int) $original['contribution_id'];
-        self::linkToContribution($reversalId,   $cid, -1 * (float)$original['total_amount']);
-        self::linkToContribution($correctionId, $cid,       (float)$original['total_amount']);
+        self::linkToContribution($reversalId, $cid, -1 * (float) $original['total_amount']);
+        self::linkToContribution($correctionId, $cid, (float) $original['total_amount']);
       }
 
       // Step 4: log
@@ -82,10 +82,10 @@ class CRM_Civiledger_BAO_AccountCorrection {
 
       $tx->commit();
       return [
-        'success'        => TRUE,
-        'reversal_id'    => $reversalId,
-        'correction_id'  => $correctionId,
-        'message'        => "Success. Reversal #{$reversalId} and Correction #{$correctionId} created.",
+        'success' => TRUE,
+        'reversal_id' => $reversalId,
+        'correction_id' => $correctionId,
+        'message' => "Success. Reversal #{$reversalId} and Correction #{$correctionId} created.",
       ];
     }
     catch (Exception $e) {
@@ -104,16 +104,16 @@ class CRM_Civiledger_BAO_AccountCorrection {
     ";
     $prefix = $sign < 0 ? 'REVERSAL-' : 'CORRECTION-';
     CRM_Core_DAO::executeQuery($sql, [
-      1  => [$fromId, 'Integer'],
-      2  => [$toId, 'Integer'],
-      3  => [$sign * (float)$o['total_amount'], 'Float'],
-      4  => [$sign * (float)($o['fee_amount'] ?? 0), 'Float'],
-      5  => [$sign * (float)($o['net_amount'] ?? 0), 'Float'],
-      6  => [$o['currency'] ?? 'USD', 'String'],
-      7  => [(int)($o['is_payment'] ?? 0), 'Integer'],
-      8  => [$prefix . ($o['processor_ref'] ?? $o['id']), 'String'],
-      9  => [(int)($o['status_id'] ?? 1), 'Integer'],
-      10 => [(int)($o['payment_instrument_id'] ?? 0), 'Integer'],
+      1 => [$fromId, 'Integer'],
+      2 => [$toId, 'Integer'],
+      3 => [$sign * (float) $o['total_amount'], 'Float'],
+      4 => [$sign * (float) ($o['fee_amount'] ?? 0), 'Float'],
+      5 => [$sign * (float) ($o['net_amount'] ?? 0), 'Float'],
+      6 => [$o['currency'] ?? 'USD', 'String'],
+      7 => [(int) ($o['is_payment'] ?? 0), 'Integer'],
+      8 => [$prefix . ($o['processor_ref'] ?? $o['id']), 'String'],
+      9 => [(int) ($o['status_id'] ?? 1), 'Integer'],
+      10 => [(int) ($o['payment_instrument_id'] ?? 0), 'Integer'],
       11 => [$o['check_number'] ?? '', 'String'],
     ]);
     return (int) CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
@@ -123,29 +123,29 @@ class CRM_Civiledger_BAO_AccountCorrection {
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_entity_financial_trxn (entity_table, entity_id, financial_trxn_id, amount)
        VALUES ('civicrm_contribution', %1, %2, %3)",
-      [1 => [$cid,'Integer'], 2 => [$trxnId,'Integer'], 3 => [$amount,'Float']]
+      [1 => [$cid, 'Integer'], 2 => [$trxnId, 'Integer'], 3 => [$amount, 'Float']]
     );
   }
 
   private static function logCorrection(int $origId, int $revId, int $corId, array $o, int $newFrom, int $newTo, string $reason) {
     $userId = CRM_Core_Session::singleton()->get('userID');
-    $data   = json_encode([
-      'action'         => 'account_correction',
-      'original'       => $origId,
-      'reversal'       => $revId,
-      'correction'     => $corId,
-      'old_from'       => $o['from_financial_account_id'],
-      'old_to'         => $o['to_financial_account_id'],
-      'new_from'       => $newFrom,
-      'new_to'         => $newTo,
-      'reason'         => $reason,
-      'by'             => $userId,
-      'at'             => date('Y-m-d H:i:s'),
+    $data = json_encode([
+      'action' => 'account_correction',
+      'original' => $origId,
+      'reversal' => $revId,
+      'correction' => $corId,
+      'old_from' => $o['from_financial_account_id'],
+      'old_to' => $o['to_financial_account_id'],
+      'new_from' => $newFrom,
+      'new_to' => $newTo,
+      'reason' => $reason,
+      'by' => $userId,
+      'at' => date('Y-m-d H:i:s'),
     ]);
     CRM_Core_DAO::executeQuery(
       "INSERT INTO civicrm_log (entity_table, entity_id, data, modified_id, modified_date)
        VALUES ('civicrm_financial_trxn', %1, %2, %3, NOW())",
-      [1 => [$origId,'Integer'], 2 => [$data,'String'], 3 => [(int)$userId,'Integer']]
+      [1 => [$origId, 'Integer'], 2 => [$data, 'String'], 3 => [(int) $userId, 'Integer']]
     );
   }
 
@@ -160,7 +160,7 @@ class CRM_Civiledger_BAO_AccountCorrection {
       WHERE cl.entity_table = 'civicrm_financial_trxn' AND cl.entity_id = %1
       ORDER BY cl.modified_date DESC
     ";
-    $rows = CRM_Core_DAO::executeQuery($sql, [1 => [$trxnId,'Integer']])->fetchAll();
+    $rows = CRM_Core_DAO::executeQuery($sql, [1 => [$trxnId, 'Integer']])->fetchAll();
     foreach ($rows as &$row) {
       $row['data'] = json_decode($row['data'], TRUE);
     }
@@ -171,25 +171,27 @@ class CRM_Civiledger_BAO_AccountCorrection {
    * Search financial transactions.
    */
   public static function searchTransactions(array $params = []) {
-    $where = ['1=1']; $qp = []; $i = 1;
+    $where = ['1=1'];
+    $qp = [];
+    $i = 1;
     if (!empty($params['contribution_id'])) {
       $where[] = "eft.entity_table='civicrm_contribution' AND eft.entity_id=%{$i}";
-      $qp[$i++] = [(int)$params['contribution_id'], 'Integer'];
+      $qp[$i++] = [(int) $params['contribution_id'], 'Integer'];
     }
     if (!empty($params['trxn_id'])) {
       $where[] = "ft.id=%{$i}";
-      $qp[$i++] = [(int)$params['trxn_id'], 'Integer'];
+      $qp[$i++] = [(int) $params['trxn_id'], 'Integer'];
     }
     if (!empty($params['date_from'])) {
       $where[] = "ft.trxn_date>=%{$i}";
-      $qp[$i++] = [$params['date_from'].' 00:00:00', 'String'];
+      $qp[$i++] = [$params['date_from'] . ' 00:00:00', 'String'];
     }
     if (!empty($params['date_to'])) {
       $where[] = "ft.trxn_date<=%{$i}";
-      $qp[$i++] = [$params['date_to'].' 23:59:59', 'String'];
+      $qp[$i++] = [$params['date_to'] . ' 23:59:59', 'String'];
     }
-    $limit  = (int)($params['limit'] ?? 25);
-    $offset = (int)($params['offset'] ?? 0);
+    $limit = (int) ($params['limit'] ?? 25);
+    $offset = (int) ($params['offset'] ?? 0);
     $sql = "
       SELECT DISTINCT ft.id, ft.total_amount, ft.currency, ft.trxn_date,
              ft.is_payment, ft.trxn_id AS processor_ref,

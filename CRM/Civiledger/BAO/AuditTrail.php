@@ -20,10 +20,11 @@ class CRM_Civiledger_BAO_AuditTrail {
     }
 
     $trail = [
-      'contribution'    => $contribution,
-      'line_items'      => [],
-      'transactions'    => self::getTransactions($contributionId),
-      'chain_status'    => self::getChainStatus($contributionId),
+      'contribution' => $contribution,
+      'line_items' => [],
+      'trxns' => self::getTransactions($contributionId),
+      'health' => self::getChainStatus($contributionId),
+      'audit_log' => self::getAuditLog($contributionId),
     ];
 
     $lineItems = self::getLineItems($contributionId);
@@ -151,8 +152,8 @@ class CRM_Civiledger_BAO_AuditTrail {
       SELECT ft.id, ft.total_amount, ft.fee_amount, ft.net_amount,
              ft.trxn_date, ft.trxn_id AS processor_trxn_id,
              ft.is_payment, ft.currency, ft.check_number, ft.pan_truncation,
-             fa_from.name AS from_account,
-             fa_to.name   AS to_account,
+             fa_from.name AS from_account_name,
+             fa_to.name   AS to_account_name,
              eft.amount   AS allocated_amount
       FROM civicrm_entity_financial_trxn eft
       INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
@@ -169,12 +170,13 @@ class CRM_Civiledger_BAO_AuditTrail {
    */
   private static function getChainStatus(int $contributionId) {
     $status = [
-      'has_line_items'       => FALSE,
-      'has_financial_items'  => FALSE,
+      'has_line_items' => FALSE,
+      'has_financial_items' => FALSE,
       'has_eft_contribution' => FALSE,
-      'has_eft_fi'           => FALSE,
-      'has_financial_trxn'   => FALSE,
-      'is_complete'          => FALSE,
+      'has_eft_fi' => FALSE,
+      'has_trxns' => FALSE,
+      'amounts_match' => FALSE,
+      'is_complete' => FALSE,
     ];
 
     $status['has_line_items'] = (bool) CRM_Core_DAO::singleValueQuery(
@@ -203,20 +205,66 @@ class CRM_Civiledger_BAO_AuditTrail {
       [1 => [$contributionId, 'Integer']]
     );
 
-    $status['has_financial_trxn'] = (bool) CRM_Core_DAO::singleValueQuery(
+    $status['has_trxns'] = (bool) CRM_Core_DAO::singleValueQuery(
       "SELECT COUNT(*) FROM civicrm_entity_financial_trxn eft
        INNER JOIN civicrm_financial_trxn ft ON ft.id=eft.financial_trxn_id
        WHERE eft.entity_table='civicrm_contribution' AND eft.entity_id = %1",
       [1 => [$contributionId, 'Integer']]
     );
 
+    $contributionTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT total_amount FROM civicrm_contribution WHERE id = %1",
+      [1 => [$contributionId, 'Integer']]
+    );
+    $trxnTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT COALESCE(SUM(ft.total_amount), 0)
+       FROM civicrm_entity_financial_trxn eft
+       INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
+       WHERE eft.entity_table = 'civicrm_contribution' AND eft.entity_id = %1",
+      [1 => [$contributionId, 'Integer']]
+    );
+    $status['amounts_match'] = (abs($contributionTotal - $trxnTotal) < 0.01);
+
     $status['is_complete'] = $status['has_line_items']
       && $status['has_financial_items']
       && $status['has_eft_contribution']
       && $status['has_eft_fi']
-      && $status['has_financial_trxn'];
+      && $status['has_trxns']
+      && $status['amounts_match'];
 
     return $status;
+  }
+
+  /**
+   * Get CiviLedger audit log entries for a contribution.
+   */
+  private static function getAuditLog(int $contributionId) {
+    $tableExists = CRM_Core_DAO::singleValueQuery(
+      "SELECT COUNT(*) FROM information_schema.tables
+       WHERE table_schema = DATABASE() AND table_name = 'civicrm_civiledger_audit_log'"
+    );
+    if (!$tableExists) {
+      return [];
+    }
+    $sql = "
+      SELECT al.id, al.action, al.notes, al.created_date,
+             al.old_from_account_id, al.new_from_account_id,
+             al.old_to_account_id, al.new_to_account_id,
+             fa_old_from.name AS old_from_name,
+             fa_new_from.name AS new_from_name,
+             fa_old_to.name   AS old_to_name,
+             fa_new_to.name   AS new_to_name,
+             con.display_name AS performed_by
+      FROM civicrm_civiledger_audit_log al
+      LEFT JOIN civicrm_financial_account fa_old_from ON fa_old_from.id = al.old_from_account_id
+      LEFT JOIN civicrm_financial_account fa_new_from ON fa_new_from.id = al.new_from_account_id
+      LEFT JOIN civicrm_financial_account fa_old_to   ON fa_old_to.id   = al.old_to_account_id
+      LEFT JOIN civicrm_financial_account fa_new_to   ON fa_new_to.id   = al.new_to_account_id
+      LEFT JOIN civicrm_contact con ON con.id = al.contact_id
+      WHERE al.contribution_id = %1
+      ORDER BY al.created_date DESC
+    ";
+    return CRM_Core_DAO::executeQuery($sql, [1 => [$contributionId, 'Integer']])->fetchAll();
   }
 
   /**

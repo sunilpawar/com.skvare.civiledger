@@ -25,8 +25,8 @@ class CRM_Civiledger_Page_IntegrityChecker extends CRM_Core_Page {
 
   private function getFilters(): array {
     return [
-      'date_from'              => CRM_Utils_Request::retrieve('date_from', 'String') ?? '',
-      'date_to'                => CRM_Utils_Request::retrieve('date_to', 'String') ?? '',
+      'date_from' => CRM_Utils_Request::retrieve('date_from', 'String') ?? '',
+      'date_to' => CRM_Utils_Request::retrieve('date_to', 'String') ?? '',
       'contribution_status_id' => CRM_Utils_Request::retrieve('status_id', 'Integer') ?? '',
     ];
   }

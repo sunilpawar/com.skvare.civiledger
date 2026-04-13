@@ -102,15 +102,21 @@ class CRM_Civiledger_BAO_MismatchDetector {
   public static function getSummary(array $filters = []): array {
     $rows = self::detect($filters);
     $summary = [
-      'total'                 => count($rows),
-      'line_item_mismatch'    => 0,
+      'total' => count($rows),
+      'line_item_mismatch' => 0,
       'financial_item_mismatch' => 0,
-      'trxn_mismatch'         => 0,
+      'trxn_mismatch' => 0,
     ];
     foreach ($rows as $row) {
-      if ($row['line_item_diff'] > 0.01)       { $summary['line_item_mismatch']++; }
-      if ($row['financial_item_diff'] > 0.01)  { $summary['financial_item_mismatch']++; }
-      if ($row['trxn_diff'] > 0.01)            { $summary['trxn_mismatch']++; }
+      if ($row['line_item_diff'] > 0.01) {
+        $summary['line_item_mismatch']++;
+      }
+      if ($row['financial_item_diff'] > 0.01) {
+        $summary['financial_item_mismatch']++;
+      }
+      if ($row['trxn_diff'] > 0.01) {
+        $summary['trxn_mismatch']++;
+      }
     }
     return $summary;
   }

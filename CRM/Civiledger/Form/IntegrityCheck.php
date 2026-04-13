@@ -8,8 +8,8 @@ class CRM_Civiledger_Form_IntegrityCheck extends CRM_Core_Form {
     CRM_Utils_System::setTitle(ts('CiviLedger — Financial Integrity Check'));
 
     $checkType = CRM_Utils_Request::retrieve('check_type', 'String') ?: 'all';
-    $summary   = CRM_Civiledger_BAO_IntegrityChecker::getSummary();
-    $rows      = [];
+    $summary = CRM_Civiledger_BAO_IntegrityChecker::getSummary();
+    $rows = [];
 
     if ($checkType === 'missing_financial_items' || $checkType === 'all') {
       $rows['missing_financial_items'] = CRM_Civiledger_BAO_IntegrityChecker::getMissingFinancialItems(50);
@@ -21,12 +21,13 @@ class CRM_Civiledger_Form_IntegrityCheck extends CRM_Core_Form {
       $rows['missing_line_items'] = CRM_Civiledger_BAO_IntegrityChecker::getMissingLineItems(50);
     }
 
-    $this->assign('summary',   $summary);
-    $this->assign('rows',      $rows);
+    $this->assign('summary', $summary);
+    $this->assign('rows', $rows);
     $this->assign('checkType', $checkType);
 
     $this->addButtons([['type' => 'cancel', 'name' => ts('Back')]]);
   }
 
-  public function postProcess() {}
+  public function postProcess() {
+  }
 }
