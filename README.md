@@ -94,12 +94,12 @@ Direct URLs:
 | Tool | URL |
 |---|---|
 | Dashboard | `/civicrm/civiledger/dashboard` |
-| Integrity Checker | `/civicrm/civiledger/integrity` |
-| Chain Repair | `/civicrm/civiledger/repair` |
-| Audit Trail | `/civicrm/civiledger/audittrail` |
+| Integrity Checker | `/civicrm/civiledger/integrity-check` |
+| Chain Repair | `/civicrm/civiledger/chain-repair` |
+| Audit Trail | `/civicrm/civiledger/audit-trail` |
 | Account Balance | `/civicrm/civiledger/balance` |
-| Mismatch Detector | `/civicrm/civiledger/mismatch` |
-| Account Correction | `/civicrm/civiledger/correction` |
+| Mismatch Detector | `/civicrm/civiledger/mismatch-detector` |
+| Account Correction | `/civicrm/civiledger/account-correction` |
 
 ---
 
@@ -109,7 +109,7 @@ Direct URLs:
 
 ### Feature 1 — 🔍 Integrity Checker
 
-**URL:** `/civicrm/civiledger/integrity`
+**URL:** `/civicrm/civiledger/integrity-check`
 
 Scans your database and detects five categories of broken financial chains:
 
@@ -129,7 +129,7 @@ Each broken record has a direct **Repair** button and an **Audit Trail** link.
 
 ### Feature 2 — 🛠️ Chain Repair Tool
 
-**URL:** `/civicrm/civiledger/repair`
+**URL:** `/civicrm/civiledger/chain-repair`
 
 Automatically reconstructs the complete financial chain for broken contributions.
 
@@ -159,7 +159,7 @@ A real-time repair log is shown on screen with colour-coded entries:
 
 ### Feature 3 — 📊 Audit Trail UI
 
-**URL:** `/civicrm/civiledger/audittrail?contribution_id=XXX`
+**URL:** `/civicrm/civiledger/audit-trail?contribution_id=XXX`
 
 Shows the complete financial hierarchy for any single contribution across all six tables, as a layered drill-down:
 
@@ -222,7 +222,7 @@ Calculates live balances for every active financial account by summing all `civi
 
 ### Feature 5 — ⚠️ Amount Mismatch Detector
 
-**URL:** `/civicrm/civiledger/mismatch`
+**URL:** `/civicrm/civiledger/mismatch-detector`
 
 Enforces the CiviCRM financial golden rule:
 
@@ -249,7 +249,7 @@ Each mismatch row shows all four amounts side-by-side so you can see exactly whe
 
 ### Feature 6 — ✏️ Account Correction Tool
 
-**URL:** `/civicrm/civiledger/correction`
+**URL:** `/civicrm/civiledger/account-correction`
 
 Allows authorised administrators to correct a wrong `from_financial_account_id` or `to_financial_account_id` on any financial transaction — using **proper double-entry reversal**, not a direct edit.
 

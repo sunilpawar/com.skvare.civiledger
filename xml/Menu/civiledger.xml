@@ -1,76 +1,60 @@
 <?xml version="1.0"?>
 <menu>
-
   <!-- Dashboard -->
   <item>
     <path>civicrm/civiledger/dashboard</path>
     <title>CiviLedger Dashboard</title>
     <page_callback>CRM_Civiledger_Page_Dashboard</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 1: Integrity Checker -->
   <item>
-    <path>civicrm/civiledger/integrity</path>
+    <path>civicrm/civiledger/integrity-check</path>
     <title>Financial Integrity Checker</title>
     <page_callback>CRM_Civiledger_Page_IntegrityChecker</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 2: Chain Repair -->
   <item>
-    <path>civicrm/civiledger/repair</path>
+    <path>civicrm/civiledger/chain-repair</path>
     <title>Financial Chain Repair</title>
     <page_callback>CRM_Civiledger_Page_RepairTool</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 3: Audit Trail -->
   <item>
-    <path>civicrm/civiledger/audittrail</path>
+    <path>civicrm/civiledger/audit-trail</path>
     <title>Financial Audit Trail</title>
     <page_callback>CRM_Civiledger_Page_AuditTrail</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 4: Account Balance Dashboard -->
   <item>
     <path>civicrm/civiledger/balance</path>
     <title>Account Balance Dashboard</title>
     <page_callback>CRM_Civiledger_Page_AccountBalance</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 5: Mismatch Detector -->
   <item>
-    <path>civicrm/civiledger/mismatch</path>
+    <path>civicrm/civiledger/mismatch-detector</path>
     <title>Amount Mismatch Detector</title>
     <page_callback>CRM_Civiledger_Page_MismatchDetector</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- Feature 6: Account Correction -->
   <item>
-    <path>civicrm/civiledger/correction</path>
+    <path>civicrm/civiledger/account-correction</path>
     <title>Account Correction Tool</title>
     <page_callback>CRM_Civiledger_Page_AccountCorrection</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
-
   <!-- AJAX handler -->
   <item>
     <path>civicrm/civiledger/ajax</path>
     <title>CiviLedger Ajax</title>
     <page_callback>CRM_Civiledger_Page_Ajax</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
-    <is_public>0</is_public>
   </item>
 
 </menu>

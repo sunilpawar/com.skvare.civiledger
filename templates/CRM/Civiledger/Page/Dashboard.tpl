@@ -9,9 +9,9 @@
       {if $healthScore == 'good'}
         ✅ {ts}All financial chains are healthy. No issues detected.{/ts}
       {elseif $healthScore == 'warning'}
-        ⚠️ {ts}%1 issue(s) detected. Review integrity and mismatch reports.{/ts 1=$totalIssues}
+        ⚠️ {ts 1=$totalIssues}%1 issue(s) detected. Review integrity and mismatch reports.{/ts}
       {else}
-        🚨 {ts}%1 critical issues found. Immediate review recommended.{/ts 1=$totalIssues}
+        🚨 {ts 1=$totalIssues}%1 critical issues found. Immediate review recommended.{/ts}
       {/if}
     </div>
 

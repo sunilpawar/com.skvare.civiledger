@@ -90,7 +90,7 @@ class CRM_Civiledger_BAO_Utils {
    * Build an audit trail URL for a contribution.
    */
   public static function getAuditTrailUrl(int $contributionId): string {
-    return CRM_Utils_System::url('civicrm/civiledger/audittrail',
+    return CRM_Utils_System::url('civicrm/civiledger/audit-trail',
       "reset=1&contribution_id=$contributionId");
   }
 }

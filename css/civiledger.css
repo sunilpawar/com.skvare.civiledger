@@ -21,7 +21,7 @@
 }
 
 .civiledger-header h1 { margin: 0 0 6px; font-size: 22px; font-weight: 600; color: #fff; }
-.civiledger-header p  { margin: 0; opacity: 0.85; font-size: 14px; }
+.civiledger-header p  { margin: 0; opacity: 0.85; font-size: 14px; color: #fff; }
 
 .civiledger-section {
   background: #fff;

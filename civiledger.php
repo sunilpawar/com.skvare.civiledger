@@ -63,7 +63,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
       'attributes' => [
         'label'      => ts('Integrity Checker'),
         'name'       => 'civiledger_integrity',
-        'url'        => 'civicrm/civiledger/integrity',
+        'url'        => 'civicrm/civiledger/integrity-check',
         'permission' => 'administer CiviCRM',
         'operator'   => NULL,
         'separator'  => NULL,
@@ -74,7 +74,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
       'attributes' => [
         'label'      => ts('Mismatch Detector'),
         'name'       => 'civiledger_mismatch',
-        'url'        => 'civicrm/civiledger/mismatch',
+        'url'        => 'civicrm/civiledger/mismatch-detector',
         'permission' => 'administer CiviCRM',
         'operator'   => NULL,
         'separator'  => NULL,
@@ -96,7 +96,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
       'attributes' => [
         'label'      => ts('Account Correction Tool'),
         'name'       => 'civiledger_correction',
-        'url'        => 'civicrm/civiledger/correction',
+        'url'        => 'civicrm/civiledger/account-correction',
         'permission' => 'administer CiviCRM',
         'operator'   => NULL,
         'separator'  => NULL,

@@ -78,7 +78,7 @@
       </span>
       Line items missing financial_item records
     </h2>
-    {if $results.missing_financial_item}
+    {if $results.missing_financial_items}
     <table class="civiledger-table">
       <thead>
         <tr><th>Contribution</th><th>Line Item ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr>

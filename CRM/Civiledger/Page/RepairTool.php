@@ -34,7 +34,7 @@ class CRM_Civiledger_Page_RepairTool extends CRM_Core_Page {
     $this->assign('brokenContributions', $broken);
     $this->assign('brokenItems', $brokenItems);
     $this->assign('totalBroken', count($broken) + count($brokenItems));
-    $this->assign('integrityUrl', CRM_Utils_System::url('civicrm/civiledger/integrity'));
+    $this->assign('integrityUrl', CRM_Utils_System::url('civicrm/civiledger/integrity-check'));
 
     parent::run();
   }

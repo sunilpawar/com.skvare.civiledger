@@ -84,7 +84,7 @@ class CRM_Civiledger_BAO_IntegrityChecker {
              c.contact_id,
              ct.display_name AS contact_name,
              li.id AS line_item_id,
-             li.total_amount AS line_total
+             li.line_total AS line_total
       FROM civicrm_contribution c
       LEFT JOIN civicrm_contact ct ON ct.id = c.contact_id
       INNER JOIN civicrm_line_item li ON li.contribution_id = c.id
@@ -291,7 +291,7 @@ class CRM_Civiledger_BAO_IntegrityChecker {
       if (!empty($row['contribution_id'])) {
         $row['contribution_url']  = CRM_Civiledger_BAO_Utils::getContributionUrl($row['contribution_id']);
         $row['audit_trail_url']   = CRM_Civiledger_BAO_Utils::getAuditTrailUrl($row['contribution_id']);
-        $row['repair_url']        = CRM_Utils_System::url('civicrm/civiledger/repair',
+        $row['repair_url']        = CRM_Utils_System::url('civicrm/civiledger/chain-repair',
           "reset=1&contribution_id={$row['contribution_id']}");
         if (!empty($row['contribution_status_id'])) {
           $row['status_label'] = CRM_Civiledger_BAO_Utils::getContributionStatusName(

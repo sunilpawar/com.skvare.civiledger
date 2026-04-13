@@ -15,7 +15,7 @@ class CRM_Civiledger_Page_IntegrityChecker extends CRM_Core_Page {
 
     $this->assign('filters', $filters);
     $this->assign('results', $results);
-    $this->assign('repairUrl', CRM_Utils_System::url('civicrm/civiledger/repair'));
+    $this->assign('repairUrl', CRM_Utils_System::url('civicrm/civiledger/chain-repair'));
     $this->assign('auditUrl', CRM_Utils_System::url('civicrm/civiledger/audit-trail'));
     $this->assign('totalIssues', array_sum($results['summary']));
     $this->assign('statusOptions', $this->getStatusOptions());

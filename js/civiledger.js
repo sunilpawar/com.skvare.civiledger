@@ -46,7 +46,7 @@
       $btn.prop('disabled', true).text('Repairing…');
 
       $.ajax({
-        url:      CRM.url('civicrm/civiledger/repair'),
+        url:      CRM.url('civicrm/civiledger/chain-repair'),
         method:   'POST',
         dataType: 'json',
         data: {

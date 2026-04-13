@@ -82,7 +82,7 @@
           <td>{$m.contact_name|default:'—'}</td>
           <td>
             {if $m.contribution_id}
-              <a href="{crmURL p='civicrm/civiledger/audittrail' q="reset=1&contribution_id=`$m.contribution_id`"}">#{$m.contribution_id}</a>
+              <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$m.contribution_id`"}">#{$m.contribution_id}</a>
             {else}—{/if}
           </td>
           <td><small>{$m.processor_ref|truncate:20|default:'—'}</small></td>
