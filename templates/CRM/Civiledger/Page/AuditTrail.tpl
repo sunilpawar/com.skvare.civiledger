@@ -11,13 +11,13 @@
         {* Chain Health Badge *}
       <div class="chain-health {if $chain.health.is_complete}health-ok{else}health-broken{/if}">
           {if $chain.health.is_complete}
-            <i class="crm-i fa-check-circle"></i> <strong>Financial chain is complete and balanced.</strong>
+        <div class="rd-badge rd-badge-ok" style="display: list-item;"<i class="crm-i fa-check-circle"></i> <strong>Financial chain is complete and balanced.</strong></div>
           {else}
-            <i class="crm-i fa-chain-broken"></i> <strong>Financial chain has issues.</strong>
-              {if !$chain.health.has_line_items}<div>⚠ Missing line items</div>{/if}
-              {if !$chain.health.has_financial_items}<div>⚠ Missing financial items</div>{/if}
-              {if !$chain.health.has_trxns}<div>⚠ Missing financial transactions</div>{/if}
-              {if !$chain.health.amounts_match}<div>⚠ Amounts do not balance</div>{/if}
+            <i class="crm-i fa-chain-broken"></i> <strong>Financial chain has issues.</strong> <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="cid=`$contributionId`"}" class="button small crm-button-type-delete">Check Details</a>
+              {if !$chain.health.has_line_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing line items</div>{/if}
+              {if !$chain.health.has_financial_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial items</div>{/if}
+              {if !$chain.health.has_trxns}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial transactions</div>{/if}
+              {if !$chain.health.amounts_match}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Amounts do not balance</div>{/if}
           {/if}
       </div>
 

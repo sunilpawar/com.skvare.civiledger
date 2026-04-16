@@ -223,3 +223,78 @@
   border-top: 2px dashed #dde3ea;
   margin: 16px 0;
 }
+
+/* Navigation */
+.rd-nav { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+
+/* Contribution meta grid */
+.rd-meta-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px 20px; }
+.rd-meta-item { display:flex; flex-direction:column; gap:2px; }
+.rd-meta-label { font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:#6c757d; }
+.rd-meta-value { font-size:14px; color:#2c3e50; }
+.rd-amount { font-size:18px; font-weight:700; color:#1a3a5c; }
+.rd-mono { font-family:monospace; font-size:13px; }
+
+/* Chain grid */
+.rd-chain-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; margin-top:12px; }
+.rd-chain-layer { border:1px solid #dde3ea; border-radius:6px; padding:12px 14px; }
+.rd-layer-ok   { border-left:4px solid #28a745; background:#f6fff8; }
+.rd-layer-fail { border-left:4px solid #dc3545; background:#fff5f5; }
+.rd-layer-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; font-size:13px; }
+.rd-count { margin-left:auto; background:#eef2f8; border-radius:10px; padding:1px 8px; font-size:12px; font-weight:600; }
+
+/* Check icons */
+.rd-check-icon { display:inline-block; width:18px; height:18px; line-height:18px; text-align:center; border-radius:50%; font-size:11px; font-weight:700; }
+.rd-ok   { background:#d4edda; color:#155724; }
+.rd-fail { background:#f8d7da; color:#721c24; }
+
+/* Badges */
+.rd-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; }
+.rd-badge-ok   { background:#d4edda; color:#155724; }
+.rd-badge-fail { background:#f8d7da; color:#721c24; }
+
+/* Detail lists inside chain layers */
+.rd-detail-list { margin:4px 0 0 4px; padding:0; list-style:none; font-size:12px; color:#444; }
+.rd-detail-list li { padding:2px 0; border-bottom:1px dotted #eee; }
+.rd-detail-list code { background:#eef2f8; border-radius:3px; padding:0 4px; font-size:11px; }
+.rd-missing-msg { font-size:12px; color:#856404; background:#fff3cd; padding:5px 8px; border-radius:4px; margin:4px 0 0; }
+.rd-missing-inline { font-size:11px; color:#dc3545; font-style:italic; margin-left:4px; }
+
+/* Confirm box */
+.rd-confirm-box { background:#fff8e1; border:1px solid #ffe082; }
+.rd-run-btn { font-size:15px; padding:10px 22px; margin-top:10px; }
+.rd-already-ok { background:#f0fff4; border:1px solid #b2dfdb; display:flex; align-items:center; gap:12px; font-size:15px; }
+
+/* Summary bar */
+.rd-summary-bar { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+.rd-summary-item { flex:1; min-width:100px; border-radius:6px; padding:12px 16px; text-align:center; }
+.rd-sum-fixed { background:#d4edda; }
+.rd-sum-skip  { background:#e9ecef; }
+.rd-sum-warn  { background:#fff3cd; }
+.rd-sum-error { background:#f8d7da; }
+.rd-sum-num   { display:block; font-size:26px; font-weight:700; line-height:1.1; }
+.rd-sum-label { display:block; font-size:11px; text-transform:uppercase; letter-spacing:.04em; margin-top:4px; color:#555; }
+
+/* Log entries */
+.rd-log { font-family:monospace; font-size:13px; background:#1e1e2e; border-radius:6px; padding:14px; max-height:420px; overflow-y:auto; }
+.rd-log-row { display:flex; align-items:baseline; gap:8px; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.05); }
+.rd-log-icon  { width:16px; text-align:center; flex-shrink:0; }
+.rd-log-label { font-size:10px; font-weight:700; letter-spacing:.06em; width:62px; flex-shrink:0; text-transform:uppercase; }
+.rd-log-text  { color:#cdd6f4; word-break:break-word; }
+.rd-log-info    .rd-log-icon { color:#89b4fa; } .rd-log-info    .rd-log-label { color:#89b4fa; }
+.rd-log-fixed   .rd-log-icon { color:#a6e3a1; } .rd-log-fixed   .rd-log-label { color:#a6e3a1; }
+.rd-log-skip    .rd-log-icon { color:#6c7086; } .rd-log-skip    .rd-log-label { color:#6c7086; } .rd-log-skip .rd-log-text { color:#6c7086; }
+.rd-log-warning .rd-log-icon { color:#f9e2af; } .rd-log-warning .rd-log-label { color:#f9e2af; } .rd-log-warning .rd-log-text { color:#f9e2af; }
+.rd-log-error   .rd-log-icon { color:#f38ba8; } .rd-log-error   .rd-log-label { color:#f38ba8; } .rd-log-error   .rd-log-text { color:#f38ba8; font-weight:bold; }
+
+/* Final status */
+.rd-final-status { display:flex; flex-direction:column; gap:16px; }
+.rd-final-ok  { display:flex; align-items:center; gap:16px; background:#d4edda; border:1px solid #c3e6cb; border-radius:6px; padding:16px 20px; color:#155724; }
+.rd-final-fail{ display:flex; align-items:center; gap:16px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:6px; padding:16px 20px; color:#721c24; }
+.rd-final-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
+@media(max-width:600px){
+  .rd-chain-grid { grid-template-columns:1fr; }
+  .rd-meta-grid  { grid-template-columns:1fr; }
+  .rd-summary-bar{ flex-direction:column; }
+}
