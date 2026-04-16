@@ -59,7 +59,7 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
 
     // URLs
     $runUrl = CRM_Utils_System::url('civicrm/civiledger/repair-detail',
-      "cid={$contributionId}&action=run");
+      "cid={$contributionId}&operation=run");
     $backUrl = CRM_Utils_System::url('civicrm/civiledger/chain-repair', 'reset=1');
     $auditUrl = CRM_Utils_System::url('civicrm/civiledger/audit-trail',
       "reset=1&contribution_id={$contributionId}");
