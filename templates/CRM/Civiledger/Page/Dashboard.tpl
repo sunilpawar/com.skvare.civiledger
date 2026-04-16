@@ -78,7 +78,7 @@
           {foreach from=$balances item=row}
             <tr class="{cycle values='odd,even'}">
               <td>
-                <a href="{crmURL p='civicrm/civiledger/dashboard' q="account_id=`$row.id`&date_from=`$dateFrom`&date_to=`$dateTo`"}">
+                <a href="{crmURL p='civicrm/civiledger/account-detail' q="account_id=`$row.id`&date_from=`$dateFrom`&date_to=`$dateTo`"}">
                     {$row.name}
                 </a>
               </td>
@@ -96,49 +96,6 @@
         <p class="crm-empty">{ts}No account activity found for this date range.{/ts}</p>
       {/if}
 
-    {* Account drill-down: transaction movements for a selected account *}
-    {if $accountId && $selectedAccount}
-    <h4>
-      {ts 1=$selectedAccount.name}Transaction Movements — %1{/ts}
-      &nbsp;<a href="{crmURL p='civicrm/civiledger/dashboard' q="date_from=`$dateFrom`&date_to=`$dateTo`"}" class="button small">{ts}← All Accounts{/ts}</a>
-    </h4>
-    {if $accountMovements}
-      <table class="display crm-data-table">
-        <thead>
-          <tr>
-            <th>{ts}Date{/ts}</th>
-            <th>{ts}Contact{/ts}</th>
-            <th>{ts}From Account{/ts}</th>
-            <th>{ts}To Account{/ts}</th>
-            <th class="right">{ts}Credit (IN){/ts}</th>
-            <th class="right">{ts}Debit (OUT){/ts}</th>
-            <th>{ts}Ref{/ts}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {foreach from=$accountMovements item=mv}
-          <tr class="{cycle values='odd,even'} direction-{$mv.direction}">
-            <td>{$mv.trxn_date|crmDate}</td>
-            <td>
-              {if $mv.contribution_id}
-                <a href="{crmURL p='civicrm/civiledger/audit-trail' q="contribution_id=`$mv.contribution_id`"}">{$mv.contact_name|default:'—'}</a>
-              {else}
-                {$mv.contact_name|default:'—'}
-              {/if}
-            </td>
-            <td>{$mv.from_account|default:'—'}</td>
-            <td>{$mv.to_account|default:'—'}</td>
-            <td class="right">{if $mv.credit_amount > 0}{$mv.credit_amount|crmMoney}{/if}</td>
-            <td class="right">{if $mv.debit_amount > 0}{$mv.debit_amount|crmMoney}{/if}</td>
-            <td class="text-muted">{$mv.processor_ref|default:'—'}</td>
-          </tr>
-          {/foreach}
-        </tbody>
-      </table>
-    {else}
-      <p class="crm-empty">{ts}No transactions found for this account in the selected date range.{/ts}</p>
-    {/if}
-    {/if}
 
   </div>
 </div>

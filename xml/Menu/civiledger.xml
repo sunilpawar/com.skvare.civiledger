@@ -49,6 +49,13 @@
     <page_callback>CRM_Civiledger_Page_AccountCorrection</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Account Detail (single account drill-down) -->
+  <item>
+    <path>civicrm/civiledger/account-detail</path>
+    <title>Account Detail</title>
+    <page_callback>CRM_Civiledger_Page_AccountDetail</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- AJAX handler -->
   <item>
     <path>civicrm/civiledger/ajax</path>
