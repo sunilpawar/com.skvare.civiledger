@@ -48,6 +48,7 @@ class CRM_Civiledger_BAO_AuditTrail {
              c.currency, c.receive_date, c.contribution_status_id,
              c.trxn_id, c.invoice_id, c.invoice_number,
              c.tax_amount, c.cancel_date, c.cancel_reason,
+             c.source,
              con.display_name AS contact_name,
              ft.name AS financial_type_name,
              pi.label AS payment_instrument,

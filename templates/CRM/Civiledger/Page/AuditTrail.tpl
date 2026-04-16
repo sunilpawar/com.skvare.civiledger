@@ -27,7 +27,7 @@
         <table class="civiledger-table detail-table">
           <tr><th>Contact</th><td><a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$c.contact_id`"}">{$c.contact_name}</a></td>
             <th>Status</th><td>{$c.status_label}</td></tr>
-          <tr><th>Total Amount</th><td><strong>{$c.total_amount|crmMoney:$c.currency}</strong></td>
+          <tr><th>Total Amount</th><td><strong>{$c.total_amount|crmMoney:$c.currency}</strong> <a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$contributionId`&cid=`$c.contact_id`"}">View Payment</a></td>
             <th>Financial Type</th><td>{$c.financial_type_name}</td></tr>
           <tr><th>Receive Date</th><td>{$c.receive_date|crmDate}</td>
             <th>Processor Trxn ID</th><td class="text-muted">{$c.trxn_id|default:'—'}</td></tr>
