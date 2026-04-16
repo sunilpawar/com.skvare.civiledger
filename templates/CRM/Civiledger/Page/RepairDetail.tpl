@@ -97,7 +97,15 @@
           {if $preChain.financial_trxns}
             <ul class="rd-detail-list">
                 {foreach from=$preChain.financial_trxns item=ft}
-                  <li><code>#{$ft.id}</code> {$ft.from_account} → {$ft.to_account} &nbsp; {$ft.total_amount|crmMoney}</li>
+                  <li>
+                    <code>#{$ft.id}</code>
+                    {if $ft.is_payment}
+                      <span class="badge-payment">PAYMENT</span>
+                    {else}
+                      <span class="badge-fee" title="Not a payment — likely a processor fee or internal transfer.">PROCESSOR FEE</span>
+                    {/if}
+                    {$ft.from_account} → {$ft.to_account} &nbsp; {$ft.total_amount|crmMoney}
+                  </li>
                 {/foreach}
             </ul>
           {else}
@@ -291,7 +299,15 @@
               {if $postChain.financial_trxns}
                 <ul class="rd-detail-list">
                     {foreach from=$postChain.financial_trxns item=ft}
-                      <li><code>#{$ft.id}</code> {$ft.from_account} → {$ft.to_account} &nbsp; {$ft.total_amount|crmMoney}</li>
+                      <li>
+                    <code>#{$ft.id}</code>
+                    {if $ft.is_payment}
+                      <span class="badge-payment">PAYMENT</span>
+                    {else}
+                      <span class="badge-fee" title="Not a payment — likely a processor fee or internal transfer.">PROCESSOR FEE</span>
+                    {/if}
+                    {$ft.from_account} → {$ft.to_account} &nbsp; {$ft.total_amount|crmMoney}
+                  </li>
                     {/foreach}
                 </ul>
               {/if}
