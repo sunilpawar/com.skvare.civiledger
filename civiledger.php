@@ -9,6 +9,8 @@
  * @license  AGPL-3.0
  */
 
+use CRM_Civiledger_ExtensionUtil as E;
+
 require_once 'CRM/Civiledger/BAO/Utils.php';
 
 /**
@@ -133,8 +135,8 @@ function civiledger_civicrm_navigationMenu(&$menu) {
  */
 function civiledger_civicrm_permission(&$permissions) {
   $permissions['access civiledger'] = [
-    ts('CiviLedger: Access Financial Audit Tools'),
-    ts('Allows users to access CiviLedger financial audit, integrity, and correction tools.'),
+    'label' => ts('CiviLedger: Access Financial Audit Tools'),
+    'description' => ts('Allows users to access CiviLedger financial audit, integrity, and correction tools.'),
   ];
 }
 
