@@ -61,7 +61,7 @@
               <td>
                 <a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete"
                    onclick="return confirm('Repair financial chain for contribution #{$row.contribution_id}?')">Repair</a>
-                <a href="{$auditUrl}?contribution_id={$row.contribution_id}" class="button small">Audit Trail</a>
+                <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
               </td>
             </tr>
           {/foreach}
@@ -124,7 +124,7 @@
               <td class="text-right">{$row.amount|crmMoney}</td>
               <td>{$row.financial_account}</td>
               <td>{$row.transaction_date|crmDate}</td>
-              <td>{if $row.contribution_id}<a href="{$auditUrl}?contribution_id={$row.contribution_id}">#{$row.contribution_id}</a>{else}—{/if}</td>
+              <td>{if $row.contribution_id}<a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}">#{$row.contribution_id}</a>{else}—{/if}</td>
               <td>
                   {if $row.contribution_id}
                     <a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete"

@@ -118,7 +118,7 @@
         {/foreach}
 
       <div class="correction-nav">
-        <a href="{$auditUrl}?contribution_id={$contributionId}" class="button">View Full Audit Trail</a>
+        <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$contributionId`"}" class="button small">View Full Audit Trail</a>
         <a href="?" class="button">Search Another Contribution</a>
       </div>
     {/if}

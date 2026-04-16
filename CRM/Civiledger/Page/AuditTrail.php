@@ -30,7 +30,7 @@ class CRM_Civiledger_Page_AuditTrail extends CRM_Core_Page {
       }
     }
 
-    $correctionUrl = CRM_Utils_System::url('civicrm/civiledger/correct-accounts');
+    $correctionUrl = CRM_Utils_System::url('civicrm/civiledger/account-correction');
     $this->assign('contributionId', $contributionId);
     $this->assign('chain', $trail);
     $this->assign('contributions', $contributions);
