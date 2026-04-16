@@ -55,7 +55,7 @@
                 {* Financial Items for this line item *}
                 {if $li.financial_items}
                   <div class="sub-section">
-                    <h4>Layer 2 — Financial Items (Where this money belongs)</h4>
+                    <h2>Financial Items (Where this money belongs)</h2>
                       {foreach from=$li.financial_items item=fi}
                         <div class="chain-block sub-block">
                           <span class="fi-label">Financial Item #{$fi.id}</span>
