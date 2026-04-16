@@ -217,3 +217,9 @@
   .civiledger-table { font-size:12px; }
   .civiledger-table th, .civiledger-table td { padding:6px 8px; }
 }
+
+.chain-block-separator {
+  border: none;
+  border-top: 2px dashed #dde3ea;
+  margin: 16px 0;
+}

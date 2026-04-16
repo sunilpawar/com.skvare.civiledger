@@ -69,6 +69,7 @@
                   <div class="chain-missing">⚠ No financial items found for this line item.</div>
                 {/if}
             </div>
+              {if !$li@last}<hr class="chain-block-separator">{/if}
               {foreachelse}
             <div class="chain-missing">⚠ No line items found for this contribution.</div>
           {/foreach}

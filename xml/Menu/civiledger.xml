@@ -14,11 +14,18 @@
     <page_callback>CRM_Civiledger_Page_IntegrityChecker</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
-  <!-- Feature 2: Chain Repair -->
+  <!-- Feature 2: Chain Repair (list/batch) -->
   <item>
     <path>civicrm/civiledger/chain-repair</path>
     <title>Financial Chain Repair</title>
     <page_callback>CRM_Civiledger_Page_RepairTool</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <!-- Feature 2b: Repair Detail (single contribution, with progress) -->
+  <item>
+    <path>civicrm/civiledger/repair-detail</path>
+    <title>Repair Detail</title>
+    <page_callback>CRM_Civiledger_Page_RepairDetail</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
   <!-- Feature 3: Audit Trail -->
@@ -63,5 +70,4 @@
     <page_callback>CRM_Civiledger_Page_Ajax</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
-
 </menu>
