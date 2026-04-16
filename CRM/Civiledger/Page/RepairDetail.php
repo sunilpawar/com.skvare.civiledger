@@ -37,13 +37,13 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('CiviLedger — Repair Contribution #%1', [1 => $contributionId]));
 
     $preChain = $this->analyzeChain($contributionId);
-    $action = CRM_Utils_Request::retrieve('action', 'String') ?? '';
+    $action = CRM_Utils_Request::retrieve('operation', 'String');
     $repairRan = FALSE;
     $repairLog = [];
     $logSummary = [];
     $postChain = NULL;
 
-    if ($action === 'run') {
+    if ($action == 'run') {
       // Execute repair and capture the detailed log
       $repairLog = CRM_Civiledger_BAO_ChainRepair::repairContribution($contributionId);
       $postChain = $this->analyzeChain($contributionId);

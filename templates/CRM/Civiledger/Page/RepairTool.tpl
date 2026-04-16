@@ -73,7 +73,7 @@
                     <td>{$row.receive_date|crmDate}</td>
                     <td>{$row.financial_type}</td>
                     <td>
-                      <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="action=repair_one&cid=`$row.contribution_id`"}" onclick="return confirm('Repair contribution #{$row.contribution_id}?')">Repair This</a>
+                      <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" onclick="return confirm('Repair contribution #{$row.contribution_id}?')">Repair This</a>
                     </td>
                   </tr>
                 {/foreach}

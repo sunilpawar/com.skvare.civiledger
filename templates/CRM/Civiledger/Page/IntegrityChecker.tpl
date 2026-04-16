@@ -59,8 +59,7 @@
               <td>{$row.financial_type}</td>
               <td><span class="status-badge">{$row.contribution_status_id}</span></td>
               <td>
-                <a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete"
-                   onclick="return confirm('Repair financial chain for contribution #{$row.contribution_id}?')">Repair</a>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair financial chain for contribution #{$row.contribution_id}?')">Repair</a>
                 <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
               </td>
             </tr>
@@ -92,8 +91,7 @@
               <td>{$row.financial_type}</td>
               <td>{$row.receive_date|crmDate}</td>
               <td>
-                <a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete"
-                   onclick="return confirm('Repair?')">Repair</a>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
               </td>
             </tr>
           {/foreach}
@@ -127,8 +125,7 @@
               <td>{if $row.contribution_id}<a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}">#{$row.contribution_id}</a>{else}—{/if}</td>
               <td>
                   {if $row.contribution_id}
-                    <a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete"
-                       onclick="return confirm('Repair?')">Repair</a>
+                    <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
                   {/if}
               </td>
             </tr>
@@ -156,7 +153,9 @@
               <td class="text-right">{$row.total_amount|crmMoney}</td>
               <td>{$row.financial_type}</td>
               <td>{$row.receive_date|crmDate}</td>
-              <td><a href="{$repairUrl}?action=repair_one&cid={$row.contribution_id}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a></td>
+              <td>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
+              </td>
             </tr>
           {/foreach}
           </tbody>

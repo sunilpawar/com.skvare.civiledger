@@ -107,6 +107,7 @@
                   <th>Processor Ref</th><td>{$trxn.processor_trxn_id|default:'—'}</td></tr>
               </table>
             </div>
+              {if !$trxn@last}<hr class="chain-block-separator">{/if}
               {foreachelse}
             <div class="chain-missing">⚠ No financial transactions linked to this contribution.</div>
           {/foreach}
