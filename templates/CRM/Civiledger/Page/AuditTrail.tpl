@@ -38,7 +38,7 @@
 
         {* Line Items *}
       <div class="civiledger-section">
-        <h2>Layer 1 — Line Items (Why the money was paid)</h2>
+        <h2>Layer 2 — Line Items (Why the money was paid)</h2>
           {foreach from=$chain.line_items item=li}
             <div class="chain-block">
               <div class="chain-block-header">
