@@ -43,7 +43,7 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     $logSummary = [];
     $postChain = NULL;
 
-    if ($action === 'repair_one') {
+    if ($action === 'run') {
       // Execute repair and capture the detailed log
       $repairLog = CRM_Civiledger_BAO_ChainRepair::repairContribution($contributionId);
       $postChain = $this->analyzeChain($contributionId);
