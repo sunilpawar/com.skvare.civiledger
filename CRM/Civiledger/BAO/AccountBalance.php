@@ -15,8 +15,18 @@ class CRM_Civiledger_BAO_AccountBalance {
    * @return array
    */
   public static function getBalances($dateFrom = NULL, $dateTo = NULL) {
-    $dateWhere = self::buildDateWhere($dateFrom, $dateTo);
-    $dateParams = self::buildDateParams($dateFrom, $dateTo);
+    $conditions = [];
+    $params = [];
+    $i = 1;
+    if ($dateFrom) {
+      $conditions[] = "ft.trxn_date >= %{$i}";
+      $params[$i++] = [$dateFrom . ' 00:00:00', 'String'];
+    }
+    if ($dateTo) {
+      $conditions[] = "ft.trxn_date <= %{$i}";
+      $params[$i++] = [$dateTo . ' 23:59:59', 'String'];
+    }
+    $joinWhere = $conditions ? ('AND ' . implode(' AND ', $conditions)) : '';
 
     $sql = "
       SELECT
@@ -25,14 +35,15 @@ class CRM_Civiledger_BAO_AccountBalance {
         fa.accounting_code,
         fa.is_active,
         ov.label AS account_type,
-        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id {$dateWhere} THEN ft.total_amount ELSE 0 END), 0) AS total_credits,
-        COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id {$dateWhere} THEN ft.total_amount ELSE 0 END), 0) AS total_debits,
-        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id {$dateWhere} THEN ft.total_amount ELSE 0 END), 0)
-        - COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id {$dateWhere} THEN ft.total_amount ELSE 0 END), 0) AS balance,
-        COUNT(DISTINCT CASE WHEN (ft.from_financial_account_id = fa.id OR ft.to_financial_account_id = fa.id) {$dateWhere} THEN ft.id END) AS trxn_count
+        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END), 0) AS total_credits,
+        COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END), 0) AS total_debits,
+        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END), 0)
+        - COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END), 0) AS balance,
+        COUNT(DISTINCT ft.id) AS trxn_count
       FROM civicrm_financial_account fa
       LEFT JOIN civicrm_financial_trxn ft
         ON (ft.from_financial_account_id = fa.id OR ft.to_financial_account_id = fa.id)
+        $joinWhere
       LEFT JOIN civicrm_option_value ov
         ON ov.value = fa.financial_account_type_id
         AND ov.option_group_id = (
@@ -43,7 +54,7 @@ class CRM_Civiledger_BAO_AccountBalance {
       ORDER BY ov.label, fa.name
     ";
 
-    return CRM_Core_DAO::executeQuery($sql, $dateParams)->fetchAll();
+    return CRM_Core_DAO::executeQuery($sql, $params)->fetchAll();
   }
 
   /**
@@ -83,15 +94,15 @@ class CRM_Civiledger_BAO_AccountBalance {
         fa_from.name AS from_account,
         fa_to.name   AS to_account,
         CASE
-          WHEN ft.to_financial_account_id = {$accountId} THEN 'credit'
+          WHEN ft.to_financial_account_id = %1 THEN 'credit'
           ELSE 'debit'
         END AS direction,
         CASE
-          WHEN ft.to_financial_account_id = {$accountId} THEN ft.total_amount
+          WHEN ft.to_financial_account_id = %1 THEN ft.total_amount
           ELSE 0
         END AS credit_amount,
         CASE
-          WHEN ft.from_financial_account_id = {$accountId} THEN ft.total_amount
+          WHEN ft.from_financial_account_id = %1 THEN ft.total_amount
           ELSE 0
         END AS debit_amount,
         con.display_name AS contact_name,
@@ -158,21 +169,6 @@ class CRM_Civiledger_BAO_AccountBalance {
       $options[$dao->id] = $label;
     }
     return $options;
-  }
-
-  private static function buildDateWhere($dateFrom, $dateTo) {
-    $parts = [];
-    if ($dateFrom) {
-      $parts[] = 'AND ft.trxn_date >= \'' . CRM_Core_DAO::escapeString($dateFrom) . ' 00:00:00\'';
-    }
-    if ($dateTo) {
-      $parts[] = 'AND ft.trxn_date <= \'' . CRM_Core_DAO::escapeString($dateTo) . ' 23:59:59\'';
-    }
-    return implode(' ', $parts);
-  }
-
-  private static function buildDateParams($dateFrom, $dateTo) {
-    return []; // Used inline in buildDateWhere above
   }
 
 }

@@ -36,12 +36,42 @@ class CRM_Civiledger_BAO_IntegrityChecker {
    * Get summary counts only (fast, for dashboard widget).
    */
   public static function getSummaryCounts(array $filters = []): array {
-    $results = self::runCheck($filters);
-    $summary = [];
-    foreach ($results as $key => $rows) {
-      $summary[$key] = count($rows);
-    }
-    // Alias used by Dashboard.tpl
+    [$where, $params] = self::buildWhereClause('c', $filters);
+
+    $summary = [
+      'missing_line_items' => (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(DISTINCT c.id) FROM civicrm_contribution c
+         LEFT JOIN civicrm_line_item li ON li.contribution_id = c.id
+         WHERE li.id IS NULL AND c.is_test = 0 $where", $params),
+
+      'missing_financial_items' => (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(DISTINCT li.id) FROM civicrm_contribution c
+         INNER JOIN civicrm_line_item li ON li.contribution_id = c.id
+         LEFT JOIN civicrm_financial_item fi
+           ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
+         WHERE fi.id IS NULL AND c.is_test = 0 $where", $params),
+
+      'missing_contribution_trxn_link' => (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(DISTINCT c.id) FROM civicrm_contribution c
+         LEFT JOIN civicrm_entity_financial_trxn eft
+           ON eft.entity_table = 'civicrm_contribution' AND eft.entity_id = c.id
+         WHERE eft.id IS NULL AND c.contribution_status_id = 1 AND c.is_test = 0 $where", $params),
+
+      'missing_financial_item_link' => (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(DISTINCT fi.id) FROM civicrm_contribution c
+         INNER JOIN civicrm_line_item li ON li.contribution_id = c.id
+         INNER JOIN civicrm_financial_item fi
+           ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
+         LEFT JOIN civicrm_entity_financial_trxn eft
+           ON eft.entity_table = 'civicrm_financial_item' AND eft.entity_id = fi.id
+         WHERE eft.id IS NULL AND c.contribution_status_id = 1 AND c.is_test = 0 $where", $params),
+
+      'orphaned_financial_trxn' => (int) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(DISTINCT ft.id) FROM civicrm_financial_trxn ft
+         LEFT JOIN civicrm_entity_financial_trxn eft ON eft.financial_trxn_id = ft.id
+         WHERE eft.id IS NULL"),
+    ];
+
     $summary['missing_eft_financial_item'] = $summary['missing_financial_item_link'];
     $summary['total'] = array_sum($summary);
     return $summary;

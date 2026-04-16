@@ -239,10 +239,13 @@ class CRM_Civiledger_BAO_AuditTrail {
    * Get CiviLedger audit log entries for a contribution.
    */
   private static function getAuditLog(int $contributionId) {
-    $tableExists = CRM_Core_DAO::singleValueQuery(
-      "SELECT COUNT(*) FROM information_schema.tables
-       WHERE table_schema = DATABASE() AND table_name = 'civicrm_civiledger_audit_log'"
-    );
+    static $tableExists = NULL;
+    if ($tableExists === NULL) {
+      $tableExists = (bool) CRM_Core_DAO::singleValueQuery(
+        "SELECT COUNT(*) FROM information_schema.tables
+         WHERE table_schema = DATABASE() AND table_name = 'civicrm_civiledger_audit_log'"
+      );
+    }
     if (!$tableExists) {
       return [];
     }
