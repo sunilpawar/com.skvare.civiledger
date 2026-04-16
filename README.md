@@ -29,11 +29,44 @@ CiviCRM stores financial data across six related tables. For any contribution to
 
 ```
 civicrm_contribution
-  └── civicrm_line_item               (what was purchased)
-        └── civicrm_financial_item    (which account it belongs to)
-              └── civicrm_entity_financial_trxn  [entity_table = civicrm_financial_item]
-                    └── civicrm_financial_trxn   (FROM account → TO account)
-                          └── civicrm_entity_financial_trxn  [entity_table = civicrm_contribution]
+├── id
+├── total_amount
+├── trxn_id
+│
+├── civicrm_line_item
+│   ├── id
+│   ├── total_amount
+│   ├── financial_type_id
+│   ├── contribution_id
+│   │
+│   └── civicrm_financial_item
+│       ├── id
+│       ├── entity_table = civicrm_line_item
+│       ├── entity_id = line_item.id
+│       ├── amount
+│       ├── contact_id
+│       ├── financial_account_id
+│       │
+│       └── civicrm_entity_financial_trxn
+│           ├── entity_table = civicrm_financial_item
+│           ├── entity_id = financial_item.id
+│           ├── financial_trxn_id
+│           ├── amount
+│
+├── civicrm_financial_trxn
+│   ├── id
+│   ├── trxn_id (matches contribution.trxn_id)
+│   ├── total_amount
+│   ├── from_financial_account_id
+│   ├── to_financial_account_id
+│   ├── trxn_date
+│   ├── payment_processor_id
+│
+└── civicrm_entity_financial_trxn
+    ├── entity_table = civicrm_contribution
+    ├── entity_id = contribution.id
+    ├── financial_trxn_id
+    ├── amount
 ```
 
 **If any link in this chain is missing:**

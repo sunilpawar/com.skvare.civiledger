@@ -79,6 +79,7 @@
               </td>
               <td>
                 <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                <a href="{crmURL p='civicrm/civiledger/repair-detail' q="reset=1&cid=`$row.contribution_id`"}" class="button small">Repair</a>
               </td>
             </tr>
           {/foreach}

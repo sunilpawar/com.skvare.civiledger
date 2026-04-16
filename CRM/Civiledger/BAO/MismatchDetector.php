@@ -41,7 +41,7 @@ class CRM_Civiledger_BAO_MismatchDetector {
       LEFT JOIN (
         SELECT contribution_id, SUM(line_total) AS line_total
         FROM civicrm_line_item
-        WHERE qty > 0
+        WHERE qty <> 0
         GROUP BY contribution_id
       ) li_sum ON li_sum.contribution_id = c.id
 
