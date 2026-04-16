@@ -17,7 +17,11 @@
     {if !$chain.health.has_line_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing line items</div>{/if}
     {if !$chain.health.has_financial_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial items</div>{/if}
     {if !$chain.health.has_trxns}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial transactions</div>{/if}
-    {if !$chain.health.amounts_match}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Amounts do not balance</div>{/if}
+    {if !$chain.health.amounts_match}
+      {if $chain.health.line_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Line items do not match contribution total (diff: {$chain.health.line_item_diff|crmMoney})</div>{/if}
+      {if $chain.health.financial_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Financial items do not match contribution total (diff: {$chain.health.financial_item_diff|crmMoney})</div>{/if}
+      {if $chain.health.trxn_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Payment transactions do not match contribution total (diff: {$chain.health.trxn_diff|crmMoney})</div>{/if}
+    {/if}
   <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="cid=`$contributionId`"}" class="button small crm-button-type-delete">Check Details</a>
     {/if}
 </div>

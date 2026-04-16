@@ -218,6 +218,23 @@ class CRM_Civiledger_BAO_AuditTrail {
       "SELECT total_amount FROM civicrm_contribution WHERE id = %1",
       [1 => [$contributionId, 'Integer']]
     );
+
+    $lineItemTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT COALESCE(SUM(line_total), 0)
+       FROM civicrm_line_item
+       WHERE contribution_id = %1 AND qty <> 0",
+      [1 => [$contributionId, 'Integer']]
+    );
+
+    $financialItemTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT COALESCE(SUM(fi.amount), 0)
+       FROM civicrm_financial_item fi
+       INNER JOIN civicrm_line_item li
+              ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
+       WHERE li.contribution_id = %1",
+      [1 => [$contributionId, 'Integer']]
+    );
+
     $trxnTotal = (float) CRM_Core_DAO::singleValueQuery(
       "SELECT COALESCE(SUM(ft.total_amount), 0)
        FROM civicrm_entity_financial_trxn eft
@@ -226,7 +243,16 @@ class CRM_Civiledger_BAO_AuditTrail {
          AND eft.entity_id = %1",
       [1 => [$contributionId, 'Integer']]
     );
-    $status['amounts_match'] = (abs($contributionTotal - $trxnTotal) < 0.01);
+
+    $status['line_item_diff']      = round(abs($contributionTotal - $lineItemTotal), 4);
+    $status['financial_item_diff'] = round(abs($contributionTotal - $financialItemTotal), 4);
+    $status['trxn_diff']           = round(abs($contributionTotal - $trxnTotal), 4);
+
+    $status['amounts_match'] = (
+      $status['line_item_diff'] < 0.01 &&
+      $status['financial_item_diff'] < 0.01 &&
+      $status['trxn_diff'] < 0.01
+    );
 
     $status['is_complete'] = $status['has_line_items']
       && $status['has_financial_items']
