@@ -40,7 +40,6 @@
         <table class="civiledger-table">
           <thead>
           <tr>
-            <th>Contribution</th>
             <th>Contact</th>
             <th class="text-right">Contribution Amount</th>
             <th class="text-right">Line Items Sum</th>
@@ -53,9 +52,6 @@
           <tbody>
           {foreach from=$mismatches item=row}
             <tr class="row-mismatch">
-              <td>
-                <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}">{$row.contribution_id}</a>
-              </td>
               <td>
                 <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.contact_name}</a>
               </td>
