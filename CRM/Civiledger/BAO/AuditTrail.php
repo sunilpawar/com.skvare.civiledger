@@ -209,7 +209,8 @@ class CRM_Civiledger_BAO_AuditTrail {
     $status['has_trxns'] = (bool) CRM_Core_DAO::singleValueQuery(
       "SELECT COUNT(*) FROM civicrm_entity_financial_trxn eft
        INNER JOIN civicrm_financial_trxn ft ON ft.id=eft.financial_trxn_id
-       WHERE eft.entity_table='civicrm_contribution' AND eft.entity_id = %1",
+       WHERE ft.is_payment = 1 AND eft.entity_table='civicrm_contribution'
+         AND eft.entity_id = %1",
       [1 => [$contributionId, 'Integer']]
     );
 
