@@ -54,7 +54,7 @@
           {foreach from=$mismatches item=row}
             <tr class="row-mismatch">
               <td>
-                <a href="{$auditUrl}?cid={$row.contribution_id}">#{$row.contribution_id}</a>
+                <a href="{$auditUrl}?contribution_id={$row.contribution_id}">#{$row.contribution_id}</a>
               </td>
               <td>
                 <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.contact_name}</a>
@@ -78,7 +78,7 @@
                   {/foreach}
               </td>
               <td>
-                <a href="{$auditUrl}?cid={$row.contribution_id}" class="button small">Audit Trail</a>
+                <a href="{$auditUrl}?contribution_id={$row.contribution_id}" class="button small">Audit Trail</a>
               </td>
             </tr>
           {/foreach}

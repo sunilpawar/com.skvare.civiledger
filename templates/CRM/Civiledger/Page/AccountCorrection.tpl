@@ -118,7 +118,7 @@
         {/foreach}
 
       <div class="correction-nav">
-        <a href="{$auditUrl}?cid={$contributionId}" class="button">View Full Audit Trail</a>
+        <a href="{$auditUrl}?contribution_id={$contributionId}" class="button">View Full Audit Trail</a>
         <a href="?" class="button">Search Another Contribution</a>
       </div>
     {/if}
