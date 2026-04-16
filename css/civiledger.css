@@ -252,6 +252,15 @@
 .rd-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:700; }
 .rd-badge-ok   { background:#d4edda; color:#155724; }
 .rd-badge-fail { background:#f8d7da; color:#721c24; }
+.rd-badge-info { background:#d1ecf1; color:#0c5460; }
+
+/* Transaction type badges */
+.badge-payment  { background:#28a745; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; }
+.badge-reversal { background:#dc3545; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; }
+.badge-fee      { background:#6c757d; color:#fff; font-size:10px; font-weight:700; padding:2px 7px; border-radius:10px; text-transform:uppercase; cursor:help; }
+
+/* Fee/transfer trxn block tint */
+.trxn-fee       { border-left:3px solid #6c757d; background:#f8f9fa; }
 
 /* Detail lists inside chain layers */
 .rd-detail-list { margin:4px 0 0 4px; padding:0; list-style:none; font-size:12px; color:#444; }

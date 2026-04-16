@@ -84,11 +84,15 @@
   <div class="civiledger-section">
     <h2>Layer 3 — Financial Transactions (How money moved)</h2>
       {foreach from=$chain.trxns item=trxn}
-        <div class="chain-block {if $trxn.total_amount < 0}trxn-reversal{/if}">
+        <div class="chain-block {if $trxn.total_amount < 0}trxn-reversal{elseif !$trxn.is_payment}trxn-fee{/if}">
           <div class="chain-block-header">
             Trxn #{$trxn.id}
               {if $trxn.total_amount < 0}<span class="badge-reversal">REVERSAL</span>{/if}
-              {if $trxn.is_payment}<span class="badge-payment">PAYMENT</span>{/if}
+              {if $trxn.is_payment}
+                <span class="badge-payment">PAYMENT</span>
+              {else}
+                <span class="badge-fee" title="This transaction records a processor fee or account transfer, not a direct payment.">PROCESSOR FEE / TRANSFER</span>
+              {/if}
             <span class="amount-badge">{$trxn.total_amount|crmMoney:$trxn.currency}</span>
               {if $trxn.total_amount >= 0}
                 <a href="{$correctionUrl}?cid={$contributionId}&trxn_id={$trxn.id}" class="button small float-right">
@@ -96,6 +100,11 @@
                 </a>
               {/if}
           </div>
+          {if !$trxn.is_payment}
+            <div class="rd-badge rd-badge-info" style="display: list-item; margin-bottom: 6px;">
+              <i class="crm-i fa-info-circle"></i> This entry records a processor fee or internal account transfer — it is not counted toward the contribution payment total.
+            </div>
+          {/if}
           <div class="trxn-flow">
             <div class="trxn-from">
               <span class="account-label">FROM</span>
