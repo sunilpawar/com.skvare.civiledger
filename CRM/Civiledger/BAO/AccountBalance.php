@@ -106,6 +106,7 @@ class CRM_Civiledger_BAO_AccountBalance {
           ELSE 0
         END AS debit_amount,
         con.display_name AS contact_name,
+        c.contact_id,
         c.id AS contribution_id
       FROM civicrm_financial_trxn ft
       LEFT JOIN civicrm_financial_account fa_from ON fa_from.id = ft.from_financial_account_id
@@ -148,6 +149,48 @@ class CRM_Civiledger_BAO_AccountBalance {
       FROM civicrm_financial_trxn ft
       LEFT JOIN civicrm_financial_account fa_to ON fa_to.id = ft.to_financial_account_id
       WHERE 1=1 {$dateCondition}
+    ";
+
+    $result = CRM_Core_DAO::executeQuery($sql, $params)->fetchAll();
+    return !empty($result) ? $result[0] : [];
+  }
+
+  /**
+   * Per-account summary stats for a date range.
+   *
+   * @param int $accountId
+   * @param string|null $dateFrom Y-m-d
+   * @param string|null $dateTo Y-m-d
+   * @return array
+   */
+  public static function getAccountSummaryStats(int $accountId, $dateFrom = NULL, $dateTo = NULL) {
+    $conditions = ['(ft.from_financial_account_id = %1 OR ft.to_financial_account_id = %1)'];
+    $params = [1 => [$accountId, 'Integer']];
+    $i = 2;
+
+    if ($dateFrom) {
+      $conditions[] = "ft.trxn_date >= %{$i}";
+      $params[$i++] = [$dateFrom . ' 00:00:00', 'String'];
+    }
+    if ($dateTo) {
+      $conditions[] = "ft.trxn_date <= %{$i}";
+      $params[$i++] = [$dateTo . ' 23:59:59', 'String'];
+    }
+
+    $where = implode(' AND ', $conditions);
+
+    $sql = "
+      SELECT
+        COUNT(DISTINCT ft.id) AS trxn_count,
+        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END), 0) AS total_credits,
+        COALESCE(SUM(CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END), 0) AS total_debits,
+        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END), 0)
+        - COALESCE(SUM(CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END), 0) AS net_balance,
+        COUNT(DISTINCT CASE WHEN ft.is_payment = 1 THEN ft.id END) AS payment_count,
+        MAX(ft.trxn_date) AS last_trxn_date,
+        MIN(ft.trxn_date) AS first_trxn_date
+      FROM civicrm_financial_trxn ft
+      WHERE {$where}
     ";
 
     $result = CRM_Core_DAO::executeQuery($sql, $params)->fetchAll();

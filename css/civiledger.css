@@ -83,6 +83,7 @@
 
 .stat-number { font-size: 28px; font-weight: 700; color: #2c3e50; line-height: 1.1; }
 .stat-label  { font-size: 12px; color: #6c757d; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+.stat-sub    { font-size: 11px; color: #adb5bd; margin-top: 3px; }
 
 /* Quick links */
 .civiledger-quick-links { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:24px; align-items:center; }
