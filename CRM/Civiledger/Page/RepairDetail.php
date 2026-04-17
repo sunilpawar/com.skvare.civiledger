@@ -202,14 +202,42 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
       "SELECT total_amount FROM civicrm_contribution WHERE id = %1",
       [1 => [$contributionId, 'Integer']]
     );
+
+    $lineItemTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT COALESCE(SUM(line_total), 0)
+       FROM civicrm_line_item
+       WHERE contribution_id = %1 AND qty <> 0",
+      [1 => [$contributionId, 'Integer']]
+    );
+
+    $financialItemTotal = (float) CRM_Core_DAO::singleValueQuery(
+      "SELECT COALESCE(SUM(fi.amount), 0)
+       FROM civicrm_financial_item fi
+       INNER JOIN civicrm_line_item li
+              ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
+       WHERE li.contribution_id = %1",
+      [1 => [$contributionId, 'Integer']]
+    );
+
     $trxnTotal = (float) CRM_Core_DAO::singleValueQuery(
       "SELECT COALESCE(SUM(ft.total_amount), 0)
        FROM civicrm_entity_financial_trxn eft
        INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
-       WHERE eft.entity_table = 'civicrm_contribution' AND eft.entity_id = %1",
+       WHERE ft.is_payment = 1
+         AND eft.entity_table = 'civicrm_contribution' AND eft.entity_id = %1",
       [1 => [$contributionId, 'Integer']]
     );
-    $chain['amount_match'] = (abs($contribTotal - $trxnTotal) < 0.01);
+
+    $chain['diffs'] = [
+      'line_item'      => round(abs($contribTotal - $lineItemTotal), 4),
+      'financial_item' => round(abs($contribTotal - $financialItemTotal), 4),
+      'trxn'           => round(abs($contribTotal - $trxnTotal), 4),
+    ];
+    $chain['amount_match'] = (
+      $chain['diffs']['line_item'] < 0.01 &&
+      $chain['diffs']['financial_item'] < 0.01 &&
+      $chain['diffs']['trxn'] < 0.01
+    );
 
     // --- Named pass/fail checks (drives checklist in template) -------------
     $allFiHaveEft = count($chain['financial_items']) > 0

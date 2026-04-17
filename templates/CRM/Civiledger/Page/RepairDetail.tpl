@@ -151,8 +151,18 @@
             {if $preChain.checks.amounts_match}{$iconOk}{else}{$iconFail}{/if}
           <strong>{ts}Amount Reconciliation{/ts}</strong>
         </div>
-          {if !$preChain.checks.amounts_match}
-            <p class="rd-missing-msg">⚠ {ts}Transaction totals do not match contribution.total_amount.{/ts}</p>
+          {if $preChain.checks.amounts_match}
+            <p class="rd-missing-msg" style="background:#d4edda;color:#155724;">✔ {ts}All amounts match contribution total.{/ts}</p>
+          {else}
+            {if $preChain.diffs.line_item >= 0.01}
+              <p class="rd-missing-msg">⚠ {ts}Line items do not match contribution total (diff: {/ts}{$preChain.diffs.line_item|crmMoney})</p>
+            {/if}
+            {if $preChain.diffs.financial_item >= 0.01}
+              <p class="rd-missing-msg">⚠ {ts}Financial items do not match contribution total (diff: {/ts}{$preChain.diffs.financial_item|crmMoney})</p>
+            {/if}
+            {if $preChain.diffs.trxn >= 0.01}
+              <p class="rd-missing-msg">⚠ {ts}Payment transactions do not match contribution total (diff: {/ts}{$preChain.diffs.trxn|crmMoney})</p>
+            {/if}
           {/if}
       </div>
 
@@ -348,8 +358,18 @@
                 {if $postChain.checks.amounts_match}{$iconOk}{else}{$iconFail}{/if}
               <strong>{ts}Amount Reconciliation{/ts}</strong>
             </div>
-              {if !$postChain.checks.amounts_match}
-                <p class="rd-missing-msg">⚠ {ts}Amounts still do not reconcile — manual review needed.{/ts}</p>
+              {if $postChain.checks.amounts_match}
+                <p class="rd-missing-msg" style="background:#d4edda;color:#155724;">✔ {ts}All amounts match contribution total.{/ts}</p>
+              {else}
+                {if $postChain.diffs.line_item >= 0.01}
+                  <p class="rd-missing-msg">⚠ {ts}Line items do not match contribution total (diff: {/ts}{$postChain.diffs.line_item|crmMoney})</p>
+                {/if}
+                {if $postChain.diffs.financial_item >= 0.01}
+                  <p class="rd-missing-msg">⚠ {ts}Financial items do not match contribution total (diff: {/ts}{$postChain.diffs.financial_item|crmMoney})</p>
+                {/if}
+                {if $postChain.diffs.trxn >= 0.01}
+                  <p class="rd-missing-msg">⚠ {ts}Payment transactions do not match contribution total (diff: {/ts}{$postChain.diffs.trxn|crmMoney})</p>
+                {/if}
               {/if}
           </div>
 
