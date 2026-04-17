@@ -70,4 +70,10 @@
     <page_callback>CRM_Civiledger_Page_Ajax</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/civiledger/balancemovement</path>
+    <page_callback>CRM_Civiledger_Page_AccountBalanceMovement</page_callback>
+    <title>AccountBalanceMovement</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>

@@ -39,10 +39,10 @@
   </classloader>
   <civix>
     <namespace>CRM/Civiledger</namespace>
-    <format>23.02.1</format>
+    <format>25.01.1</format>
   </civix>
   <mixins>
-    <mixin>smarty-v2@1.0.1</mixin>
     <mixin>menu-xml@1.0.0</mixin>
+    <mixin>smarty@1.0.3</mixin>
   </mixins>
 </extension>
