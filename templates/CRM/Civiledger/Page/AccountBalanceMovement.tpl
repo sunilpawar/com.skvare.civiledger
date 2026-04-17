@@ -40,22 +40,36 @@
   {* ── Per-account summary stats (only when an account is selected) ── *}
   {if $accountId && $accountName}
 
+    {* Account type badge *}
+    {if $accountTypeLabel}
+      <p style="margin:0 0 10px">
+        <span style="display:inline-block;padding:3px 10px;border-radius:12px;background:#e9ecef;font-size:12px;color:#495057;font-weight:600">
+          <i class="crm-i fa-tag"></i> {$accountTypeLabel}
+        </span>
+        {if $accountStats.account_type_id}
+          &nbsp;<small style="color:#888;font-size:11px">
+            {ts}(Debit/Credit labels reflect standard accounting treatment for this account type){/ts}
+          </small>
+        {/if}
+      </p>
+    {/if}
+
     <div class="civiledger-stats-row">
 
       <div class="civiledger-stat-card" style="border-top:4px solid #28a745">
         <div class="stat-number" style="color:#28a745">
           {if $accountStats.total_credits}{$accountStats.total_credits|crmMoney}{else}0.00{/if}
         </div>
-        <div class="stat-label">{ts}Total Credits (IN){/ts}</div>
-        <div class="stat-sub">{ts}Money received into this account{/ts}</div>
+        <div class="stat-label">{ts}Total Credits (Cr){/ts}</div>
+        <div class="stat-sub">{ts}Accounting credit-side total{/ts}</div>
       </div>
 
       <div class="civiledger-stat-card" style="border-top:4px solid #dc3545">
         <div class="stat-number" style="color:#dc3545">
           {if $accountStats.total_debits}{$accountStats.total_debits|crmMoney}{else}0.00{/if}
         </div>
-        <div class="stat-label">{ts}Total Debits (OUT){/ts}</div>
-        <div class="stat-sub">{ts}Money sent out from this account{/ts}</div>
+        <div class="stat-label">{ts}Total Debits (Dr){/ts}</div>
+        <div class="stat-sub">{ts}Accounting debit-side total{/ts}</div>
       </div>
 
       <div class="civiledger-stat-card"
@@ -116,9 +130,9 @@
           <thead>
           <tr>
             <th>{ts}Date{/ts}</th>
-            <th>{ts}Direction{/ts}</th>
-            <th class="text-right">{ts}Credit (IN){/ts}</th>
-            <th class="text-right">{ts}Debit (OUT){/ts}</th>
+            <th>{ts}Dr / Cr{/ts}</th>
+            <th class="text-right">{ts}Credit (Cr){/ts}</th>
+            <th class="text-right">{ts}Debit (Dr){/ts}</th>
             <th>{ts}FROM Account{/ts}</th>
             <th>{ts}TO Account{/ts}</th>
             <th>{ts}Contact{/ts}</th>
@@ -128,13 +142,13 @@
           </thead>
           <tbody>
           {foreach from=$movements item=m}
-            <tr class="{if $m.direction eq 'credit'}row-credit{else}row-debit{/if}">
+            <tr class="row-{$m.direction}">
               <td>{$m.trxn_date|crmDate}</td>
               <td>
                 {if $m.direction eq 'credit'}
-                  <span class="badge" style="background:#d4edda;color:#155724">&#9650; {ts}Credit{/ts}</span>
+                  <span class="badge" style="background:#d4edda;color:#155724">Cr</span>
                 {else}
-                  <span class="badge" style="background:#f8d7da;color:#721c24">&#9660; {ts}Debit{/ts}</span>
+                  <span class="badge" style="background:#cce5ff;color:#004085">Dr</span>
                 {/if}
               </td>
               <td class="text-right">

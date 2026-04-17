@@ -26,6 +26,8 @@ class CRM_Civiledger_Page_AccountBalanceMovement extends CRM_Core_Page {
 
     $accountOptions = CRM_Civiledger_BAO_AccountBalance::getAccountOptions();
 
+    $accountTypeLabel = $accountStats['account_type_label'] ?? '';
+
     $this->assign('dateFrom', $dateFrom);
     $this->assign('dateTo', $dateTo);
     $this->assign('movements', $movements);
@@ -33,6 +35,7 @@ class CRM_Civiledger_Page_AccountBalanceMovement extends CRM_Core_Page {
     $this->assign('accountName', $accountName);
     $this->assign('accountStats', $accountStats);
     $this->assign('accountOptions', $accountOptions);
+    $this->assign('accountTypeLabel', $accountTypeLabel);
 
     parent::run();
   }

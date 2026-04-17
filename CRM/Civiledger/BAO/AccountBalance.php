@@ -58,6 +58,22 @@ class CRM_Civiledger_BAO_AccountBalance {
   }
 
   /**
+   * Returns the financial_account_type_id values for debit-normal account types
+   * (Asset, Cost of Sales, Expenses) by looking up stable option names at runtime.
+   * Comma-separated string ready for use in SQL IN().
+   */
+  private static function getDebitNormalTypeIds(): string {
+    // CRM_Core_OptionGroup::values() with 'name' as the return column gives [value => name].
+    $allTypes = CRM_Core_OptionGroup::values('financial_account_type', FALSE, FALSE, FALSE, NULL, 'name');
+    $debitNormalNames = ['Asset', 'Cost of Sales', 'Expenses'];
+    $ids = array_keys(array_filter($allTypes, function ($name) use ($debitNormalNames) {
+      return in_array($name, $debitNormalNames, TRUE);
+    }));
+    // Fallback to 0 so the IN() clause never becomes empty SQL
+    return $ids ? implode(',', array_map('intval', $ids)) : '0';
+  }
+
+  /**
    * Get movement details for a specific account.
    *
    * @param int $accountId
@@ -82,6 +98,7 @@ class CRM_Civiledger_BAO_AccountBalance {
     }
 
     $where = implode(' AND ', $conditions);
+    $debitNormalIn = self::getDebitNormalTypeIds();
 
     $sql = "
       SELECT
@@ -93,22 +110,32 @@ class CRM_Civiledger_BAO_AccountBalance {
         ft.trxn_id AS processor_ref,
         fa_from.name AS from_account,
         fa_to.name   AS to_account,
+        fa_self.financial_account_type_id AS account_type_id,
+        -- Debit-normal (Asset, Cost of Sales, Expenses): to=Debit, from=Credit
+        -- Credit-normal (Liability, Revenue):            to=Credit, from=Debit
         CASE
-          WHEN ft.to_financial_account_id = %1 THEN 'credit'
-          ELSE 'debit'
+          WHEN fa_self.financial_account_type_id IN ({$debitNormalIn})
+            THEN CASE WHEN ft.to_financial_account_id   = %1 THEN 'debit'  ELSE 'credit' END
+          ELSE
+               CASE WHEN ft.to_financial_account_id   = %1 THEN 'credit' ELSE 'debit'  END
         END AS direction,
         CASE
-          WHEN ft.to_financial_account_id = %1 THEN ft.total_amount
-          ELSE 0
+          WHEN fa_self.financial_account_type_id IN ({$debitNormalIn})
+            THEN CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END
+          ELSE
+               CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END
         END AS credit_amount,
         CASE
-          WHEN ft.from_financial_account_id = %1 THEN ft.total_amount
-          ELSE 0
+          WHEN fa_self.financial_account_type_id IN ({$debitNormalIn})
+            THEN CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END
+          ELSE
+               CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END
         END AS debit_amount,
         con.display_name AS contact_name,
         c.contact_id,
         c.id AS contribution_id
       FROM civicrm_financial_trxn ft
+      JOIN  civicrm_financial_account fa_self ON fa_self.id = %1
       LEFT JOIN civicrm_financial_account fa_from ON fa_from.id = ft.from_financial_account_id
       LEFT JOIN civicrm_financial_account fa_to   ON fa_to.id   = ft.to_financial_account_id
       LEFT JOIN civicrm_entity_financial_trxn eft
@@ -178,18 +205,41 @@ class CRM_Civiledger_BAO_AccountBalance {
     }
 
     $where = implode(' AND ', $conditions);
+    $debitNormalIn = self::getDebitNormalTypeIds();
 
     $sql = "
       SELECT
         COUNT(DISTINCT ft.id) AS trxn_count,
-        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END), 0) AS total_credits,
-        COALESCE(SUM(CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END), 0) AS total_debits,
+        COALESCE(SUM(
+          CASE
+            WHEN fa_self.financial_account_type_id IN ({$debitNormalIn})
+              THEN CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END
+            ELSE
+                 CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END
+          END
+        ), 0) AS total_credits,
+        COALESCE(SUM(
+          CASE
+            WHEN fa_self.financial_account_type_id IN ({$debitNormalIn})
+              THEN CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END
+            ELSE
+                 CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END
+          END
+        ), 0) AS total_debits,
         COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = %1 THEN ft.total_amount ELSE 0 END), 0)
         - COALESCE(SUM(CASE WHEN ft.from_financial_account_id = %1 THEN ft.total_amount ELSE 0 END), 0) AS net_balance,
         COUNT(DISTINCT CASE WHEN ft.is_payment = 1 THEN ft.id END) AS payment_count,
         MAX(ft.trxn_date) AS last_trxn_date,
-        MIN(ft.trxn_date) AS first_trxn_date
+        MIN(ft.trxn_date) AS first_trxn_date,
+        MAX(fa_self.financial_account_type_id) AS account_type_id,
+        MAX(ov.label) AS account_type_label
       FROM civicrm_financial_trxn ft
+      JOIN  civicrm_financial_account fa_self ON fa_self.id = %1
+      LEFT JOIN civicrm_option_value ov
+        ON ov.value = fa_self.financial_account_type_id
+        AND ov.option_group_id = (
+          SELECT id FROM civicrm_option_group WHERE name = 'financial_account_type'
+        )
       WHERE {$where}
     ";
 
