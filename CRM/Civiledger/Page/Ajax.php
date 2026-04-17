@@ -32,6 +32,18 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
         CRM_Utils_JSON::output(['rows' => $rows]);
         break;
 
+      case 'repair_mismatch_line_items':
+        $cid    = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        $result = CRM_Civiledger_BAO_MismatchRepair::repairLineItems($cid);
+        CRM_Utils_JSON::output($result);
+        break;
+
+      case 'repair_mismatch_financial_items':
+        $cid    = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        $result = CRM_Civiledger_BAO_MismatchRepair::repairFinancialItems($cid);
+        CRM_Utils_JSON::output($result);
+        break;
+
       default:
         CRM_Utils_JSON::output(['error' => 'Unknown action']);
     }

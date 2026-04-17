@@ -63,6 +63,13 @@
     <page_callback>CRM_Civiledger_Page_AccountDetail</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Feature: Period Close / Lock -->
+  <item>
+    <path>civicrm/civiledger/period-close</path>
+    <title>Financial Period Close</title>
+    <page_callback>CRM_Civiledger_Page_PeriodClose</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- AJAX handler -->
   <item>
     <path>civicrm/civiledger/ajax</path>

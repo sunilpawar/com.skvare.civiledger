@@ -60,6 +60,23 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
   }
 
   private function handleCorrection(int $trxnId): void {
+    // Refuse corrections on transactions that fall within a locked period
+    $trxnDate = CRM_Core_DAO::getFieldValue('CRM_Financial_DAO_FinancialTrxn', $trxnId, 'trxn_date');
+    if ($trxnDate && CRM_Civiledger_BAO_PeriodClose::isTransactionLocked($trxnDate)) {
+      $lock = CRM_Civiledger_BAO_PeriodClose::getActiveLock();
+      CRM_Core_Session::setStatus(
+        ts('This transaction (%1) is in a locked period (locked before %2). <a href="%3">Manage period locks.</a>', [
+          1 => date('Y-m-d', strtotime($trxnDate)),
+          2 => $lock['lock_date'],
+          3 => CRM_Utils_System::url('civicrm/civiledger/period-close', 'reset=1'),
+        ]),
+        ts('Period Locked — Correction Blocked'), 'error'
+      );
+      $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+      CRM_Utils_System::redirect(CRM_Utils_System::url('civicrm/civiledger/account-correction', "cid={$cid}"));
+      return;
+    }
+
     $newFromId = (int) CRM_Utils_Request::retrieve('from_account_id', 'Integer');
     $newToId = (int) CRM_Utils_Request::retrieve('to_account_id', 'Integer');
     $notes = CRM_Utils_Request::retrieve('notes', 'String') ?? '';

@@ -18,3 +18,19 @@ CREATE TABLE IF NOT EXISTS `civicrm_civiledger_correction_log` (
   KEY `idx_corrected_date`    (`corrected_date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
   COMMENT='CiviLedger: audit log of account corrections made via the correction tool';
+
+CREATE TABLE IF NOT EXISTS `civicrm_civiledger_period_lock` (
+  `id`             int UNSIGNED NOT NULL AUTO_INCREMENT,
+  `lock_date`      date         NOT NULL COMMENT 'Transactions before this date are locked',
+  `lock_reason`    text         COLLATE utf8mb4_unicode_ci NOT NULL,
+  `locked_by`      int UNSIGNED NOT NULL COMMENT 'FK civicrm_contact.id',
+  `locked_at`      datetime     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `unlock_reason`  text         COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `unlocked_by`    int UNSIGNED DEFAULT NULL COMMENT 'FK civicrm_contact.id',
+  `unlocked_at`    datetime     DEFAULT NULL,
+  `is_active`      tinyint      NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `idx_is_active`  (`is_active`),
+  KEY `idx_lock_date`  (`lock_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+  COMMENT='CiviLedger: audit log of period locks and unlocks';

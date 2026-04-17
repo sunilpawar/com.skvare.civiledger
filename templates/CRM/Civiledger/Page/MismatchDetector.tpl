@@ -47,6 +47,7 @@
             <th class="text-right">Payments Sum</th>
             <th>Issues</th>
             <th>Actions</th>
+            <th>Suggest Fix</th>
           </tr>
           </thead>
           <tbody>
@@ -76,6 +77,57 @@
               <td>
                 <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
                 <a href="{crmURL p='civicrm/civiledger/repair-detail' q="reset=1&cid=`$row.contribution_id`"}" class="button small">Repair</a>
+              </td>
+              <td style="min-width:220px">
+                {* ── Suggest Fix column ── *}
+                {if $row.suggestions.line_items}
+                  {assign var="s" value=$row.suggestions.line_items}
+                  {if $s.fixable}
+                    <div class="suggest-fix" style="margin-bottom:6px">
+                      <span style="font-size:11px;color:#666">{ts}Line items:{/ts}</span><br>
+                      <button class="button small crm-mismatch-repair"
+                        data-op="repair_mismatch_line_items"
+                        data-cid="{$row.contribution_id}"
+                        data-ajax="{$ajaxUrl}"
+                        title="{$s.warning}">
+                        <i class="crm-i fa-wrench"></i> {$s.label}
+                      </button>
+                    </div>
+                  {else}
+                    <div style="margin-bottom:6px;font-size:12px;color:#856404">
+                      <i class="crm-i fa-exclamation-triangle"></i>
+                      {ts}Line items:{/ts} {$s.warning}
+                    </div>
+                  {/if}
+                {/if}
+
+                {if $row.suggestions.financial_items}
+                  {assign var="s" value=$row.suggestions.financial_items}
+                  {if $s.fixable}
+                    <div class="suggest-fix" style="margin-bottom:6px">
+                      <span style="font-size:11px;color:#666">{ts}Financial items:{/ts}</span><br>
+                      <button class="button small crm-mismatch-repair"
+                        data-op="repair_mismatch_financial_items"
+                        data-cid="{$row.contribution_id}"
+                        data-ajax="{$ajaxUrl}"
+                        title="{$s.warning}">
+                        <i class="crm-i fa-wrench"></i> {$s.label}
+                      </button>
+                    </div>
+                  {else}
+                    <div style="margin-bottom:6px;font-size:12px;color:#856404">
+                      <i class="crm-i fa-exclamation-triangle"></i>
+                      {ts}Financial items:{/ts} {$s.warning}
+                    </div>
+                  {/if}
+                {/if}
+
+                {if $row.suggestions.trxn}
+                  <div style="font-size:12px;color:#721c24">
+                    <i class="crm-i fa-ban"></i>
+                    {ts}Payments:{/ts} {$row.suggestions.trxn.warning}
+                  </div>
+                {/if}
               </td>
             </tr>
           {/foreach}

@@ -18,8 +18,15 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
     $mismatches = CRM_Civiledger_BAO_MismatchDetector::detect($filters);
     $summary = CRM_Civiledger_BAO_MismatchDetector::getSummary($filters);
 
+    // Attach "Suggest Fix" data to each row
+    foreach ($mismatches as &$row) {
+      $row['suggestions'] = CRM_Civiledger_BAO_MismatchRepair::suggestFix($row);
+    }
+    unset($row);
+
     $this->assign('mismatches', $mismatches);
     $this->assign('summary', $summary);
+    $this->assign('ajaxUrl', CRM_Utils_System::url('civicrm/civiledger/ajax'));
     $this->assign('filters', $filters);
     $this->assign('auditUrl', CRM_Utils_System::url('civicrm/civiledger/audit-trail'));
 

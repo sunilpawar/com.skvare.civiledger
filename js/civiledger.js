@@ -327,6 +327,41 @@
       CiviLedger.initMismatchDetail();
     }
 
+    // ── Mismatch repair buttons ──────────────────────────────────────────────
+    $(document).on('click', '.crm-mismatch-repair', function (e) {
+      e.preventDefault();
+      var $btn  = $(this);
+      var op    = $btn.data('op');
+      var cid   = $btn.data('cid');
+      var ajax  = $btn.data('ajax');
+      var label = $.trim($btn.text());
+
+      if (!confirm('Apply fix: "' + label + '" for contribution #' + cid + '?\n\n' + ($btn.attr('title') || ''))) {
+        return;
+      }
+      $btn.prop('disabled', true).text('Applying…');
+
+      CRM.$.ajax({
+        url: ajax,
+        data: { op: op, cid: cid },
+        dataType: 'json',
+        success: function (resp) {
+          if (resp && resp.success) {
+            $btn.closest('td').html(
+              '<span style="color:#28a745"><i class="crm-i fa-check-circle"></i> Fixed — reload to verify</span>'
+            );
+          } else {
+            $btn.prop('disabled', false).text(label);
+            alert('Repair failed: ' + ((resp && resp.error) ? resp.error : 'Unknown error'));
+          }
+        },
+        error: function () {
+          $btn.prop('disabled', false).text(label);
+          alert('AJAX error — repair could not be applied.');
+        }
+      });
+    });
+
     // Tooltip for .help-tip elements
     $('[title]').each(function () {
       $(this).attr('title', $(this).attr('title'));
