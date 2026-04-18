@@ -35,6 +35,7 @@ class CRM_Civiledger_Page_AuditTrail extends CRM_Core_Page {
     $this->assign('chain', $trail);
     $this->assign('contributions', $contributions);
     $this->assign('correctionUrl', $correctionUrl);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

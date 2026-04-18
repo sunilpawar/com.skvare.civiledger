@@ -24,6 +24,7 @@ class CRM_Civiledger_Page_PeriodClose extends CRM_Core_Page {
     $this->assign('activeLock',   CRM_Civiledger_BAO_PeriodClose::getActiveLock());
     $this->assign('lockHistory',  CRM_Civiledger_BAO_PeriodClose::getLockHistory());
     $this->assign('todayDate',    date('Y-m-d'));
+    $this->assign('cms_type', CIVICRM_UF);
     parent::run();
   }
 

@@ -34,6 +34,7 @@ class CRM_Civiledger_Page_AccountBalance extends CRM_Core_Page {
     $this->assign('balances', $balances);
     $this->assign('grouped', $grouped);
     $this->assign('stats', $stats);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

@@ -21,6 +21,10 @@
 
       <h3 style="margin-top:20px">{ts}Unlock This Period{/ts}</h3>
       <form method="post">
+        {if $cms_type eq 'WordPress'}
+          <input type="hidden" name="page" value="CiviCRM" />
+        {/if}
+        <input type="hidden" name="q" value="civicrm/civiledger/period-close" />
         <input type="hidden" name="operation"  value="unlock">
         <input type="hidden" name="lock_id" value="{$activeLock.id}">
         <input type="hidden" name="reset"   value="1">
@@ -48,6 +52,10 @@
         {ts}Transactions with a date <strong>before</strong> the lock date will be protected. The lock date day itself remains editable.{/ts}
       </p>
       <form method="post" style="max-width:480px">
+        {if $cms_type eq 'WordPress'}
+          <input type="hidden" name="page" value="CiviCRM" />
+        {/if}
+        <input type="hidden" name="q" value="civicrm/civiledger/period-close" />
         <input type="hidden" name="operation" value="lock">
         <input type="hidden" name="reset"  value="1">
 

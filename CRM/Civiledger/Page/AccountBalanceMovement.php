@@ -36,6 +36,7 @@ class CRM_Civiledger_Page_AccountBalanceMovement extends CRM_Core_Page {
     $this->assign('accountStats', $accountStats);
     $this->assign('accountOptions', $accountOptions);
     $this->assign('accountTypeLabel', $accountTypeLabel);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

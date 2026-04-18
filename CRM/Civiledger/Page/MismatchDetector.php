@@ -29,6 +29,7 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
     $this->assign('ajaxUrl', CRM_Utils_System::url('civicrm/civiledger/ajax'));
     $this->assign('filters', $filters);
     $this->assign('auditUrl', CRM_Utils_System::url('civicrm/civiledger/audit-trail'));
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

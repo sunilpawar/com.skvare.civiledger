@@ -11,10 +11,14 @@
 
     {* Date filter *}
   <div class="civiledger-filter-bar">
-    <form method="get">
+    <form method="get" action="{crmURL p='civicrm/civiledger/balance'  a=1}">
+      {if $cms_type eq 'WordPress'}
+        <input type="hidden" name="page" value="CiviCRM" />
+      {/if}
+      <input type="hidden" name="q" value="civicrm/civiledger/balance" />
       <input type="hidden" name="reset" value="1">
       <label>{ts}From{/ts}: <input type="date" name="date_from" value="{$dateFrom}"></label>
-      <label>{ts}To{/ts}:   <input type="date" name="date_to"   value="{$dateTo}"></label>
+      <label>{ts}To{/ts}: <input type="date" name="date_to" value="{$dateTo}"></label>
         {if $accountId}<input type="hidden" name="account_id" value="{$accountId}">{/if}
       <button type="submit" class="button">{ts}Filter{/ts}</button>
     </form>

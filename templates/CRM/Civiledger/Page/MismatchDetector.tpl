@@ -7,6 +7,10 @@
 
   <div class="civiledger-section civiledger-filters">
     <form method="get">
+      {if $cms_type eq 'WordPress'}
+        <input type="hidden" name="page" value="CiviCRM" />
+      {/if}
+      <input type="hidden" name="q" value="civicrm/civiledger/mismatch-detector" />
       <div class="filter-row">
         <label>Date From: <input type="date" name="date_from" value="{$filters.date_from}"></label>
         <label>Date To: <input type="date" name="date_to" value="{$filters.date_to}"></label>

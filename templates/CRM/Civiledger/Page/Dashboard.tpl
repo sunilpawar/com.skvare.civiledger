@@ -18,6 +18,10 @@
       {* Date Filter *}
     <div class="civiledger-filter-bar">
       <form method="get">
+        {if $cms_type eq 'WordPress'}
+          <input type="hidden" name="page" value="CiviCRM" />
+        {/if}
+        <input type="hidden" name="q" value="civicrm/civiledger/dashboard" />
         <input type="hidden" name="reset" value="1">
         <label>{ts}From{/ts}: <input type="date" name="date_from" value="{$dateFrom}"></label>
         <label>{ts}To{/ts}: <input type="date" name="date_to" value="{$dateTo}"></label>

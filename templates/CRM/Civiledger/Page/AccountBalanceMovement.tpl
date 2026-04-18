@@ -17,7 +17,11 @@
 
   {* ── Filter bar ── *}
   <div class="civiledger-filter-bar">
-    <form method="get">
+    <form method="get" action="{crmURL p='civicrm/civiledger/balancemovement'  a=1}>
+      {if $cms_type eq 'WordPress'}
+        <input type="hidden" name="page" value="CiviCRM" />
+      {/if}
+      <input type="hidden" name="q" value="civicrm/civiledger/balancemovement" />
       <input type="hidden" name="reset" value="1">
 
       <label>{ts}Account{/ts}:

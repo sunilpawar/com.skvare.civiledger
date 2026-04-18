@@ -48,6 +48,7 @@ class CRM_Civiledger_Page_AccountDetail extends CRM_Core_Page {
     $this->assign('hasMore',   $hasMore);
     $this->assign('hasPrev',   $page > 1);
     $this->assign('pageSize',  self::PAGE_SIZE);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

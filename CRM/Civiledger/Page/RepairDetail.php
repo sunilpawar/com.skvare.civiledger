@@ -76,6 +76,7 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     $this->assign('backUrl', $backUrl);
     $this->assign('auditUrl', $auditUrl);
     $this->assign('contribUrl', $contribUrl);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

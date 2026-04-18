@@ -30,6 +30,7 @@ class CRM_Civiledger_Page_Dashboard extends CRM_Core_Page {
     $this->assign('mismatchCounts', $mismatchCounts);
     $this->assign('totalIssues', $totalIssues);
     $this->assign('healthScore', $healthScore);
+    $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
   }

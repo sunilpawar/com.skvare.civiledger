@@ -55,6 +55,10 @@
         <h2>Broken Contributions ({$brokenContributions|@count})</h2>
           {if $brokenContributions}
             <form method="post" id="batchRepairForm">
+              {if $cms_type eq 'WordPress'}
+                <input type="hidden" name="page" value="CiviCRM" />
+              {/if}
+              <input type="hidden" name="q" value="civicrm/civiledger/chain-repair" />
               <input type="hidden" name="action" value="repair_batch">
               <table class="civiledger-table">
                 <thead>

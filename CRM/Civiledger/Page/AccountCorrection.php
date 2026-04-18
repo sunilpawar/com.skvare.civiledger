@@ -15,6 +15,7 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
     $action = CRM_Utils_Request::retrieve('action', 'String') ?? '';
     $contributionId = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
     $trxnId = (int) CRM_Utils_Request::retrieve('trxn_id', 'Integer');
+    $this->assign('cms_type', CIVICRM_UF);
 
     // Handle form submission
     if ($action === 'correct' && $trxnId) {
