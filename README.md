@@ -241,13 +241,13 @@ Calculates live balances for every active financial account by summing all `civi
 
 **Balance table (grouped by account type):**
 
-| Account | Type | Code | Credits (IN) | Debits (OUT) | Net Balance | Transactions |
-|---|---|---|---|---|---|---|
-| Donation Revenue | Revenue | 4000 | ₹50,000 | ₹0 | ₹50,000 | 142 |
-| Stripe Processor | Asset | 1200 | ₹48,500 | ₹1,500 | ₹47,000 | 142 |
-| Accounts Receivable | Asset | 1100 | ₹1,500 | ₹50,000 | -₹48,500 | 142 |
+| Account | Type | Code | Credits (Cr) | Debits (Dr) | Net Balance | Transactions |
+|---|---|---|--------------|-------------|---|---|
+| Donation Revenue | Revenue | 4000 | ₹50,000      | ₹0          | ₹50,000 | 142 |
+| Stripe Processor | Asset | 1200 | ₹48,500      | ₹1,500      | ₹47,000 | 142 |
+| Accounts Receivable | Asset | 1100 | ₹1,500       | ₹50,000     | -₹48,500 | 142 |
 
-**Drill-down:** Click **View Movements** on any account to see every individual transaction in/out of that account — with date, direction, amount, contact, and contribution link.
+**Drill-down:** Click **View Movements** on any account to see every individual transaction credit/debit of that account — with date, direction, amount, contact, and contribution link.
 
 **Date filter** allows reporting for any custom period.
 

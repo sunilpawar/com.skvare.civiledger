@@ -72,8 +72,8 @@
             <th>{ts}Account{/ts}</th>
             <th>{ts}Type{/ts}</th>
             <th>{ts}Code{/ts}</th>
-            <th class="right">{ts}Credits (IN){/ts}</th>
-            <th class="right">{ts}Debits (OUT){/ts}</th>
+            <th class="right">{ts}Credits (Cr){/ts}</th>
+            <th class="right">{ts}Debits (Dr){/ts}</th>
             <th class="right">{ts}Balance{/ts}</th>
             <th class="right">{ts}Transactions{/ts}</th>
           </tr>
