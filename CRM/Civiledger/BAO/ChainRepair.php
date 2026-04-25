@@ -74,6 +74,8 @@ class CRM_Civiledger_BAO_ChainRepair {
     CRM_Civiledger_BAO_Utils::logAction('REPAIR', $contributionId,
       count(array_filter($log, fn($l) => isset($l['fixed']))) . ' records created');
 
+    self::saveRepairLog($contributionId, $log);
+
     return $log;
   }
 
@@ -346,6 +348,31 @@ class CRM_Civiledger_BAO_ChainRepair {
        WHERE financial_account_type_id = 3 AND is_active = 1
        ORDER BY is_default DESC LIMIT 1"
     ) ?: NULL;
+  }
+
+  private static function saveRepairLog(int $contributionId, array $log): void {
+    if (empty($log)) {
+      return;
+    }
+    $userId = (int) CRM_Core_Session::getLoggedInContactID() ?: NULL;
+    $now = date('Y-m-d H:i:s');
+
+    foreach ($log as $entry) {
+      $action  = key($entry);
+      $message = current($entry);
+      $userSql = $userId ? (int) $userId : 'NULL';
+      CRM_Core_DAO::executeQuery(
+        "INSERT INTO civicrm_civiledger_repair_log
+           (contribution_id, action, message, repaired_by, repaired_at)
+         VALUES (%1, %2, %3, {$userSql}, %4)",
+        [
+          1 => [$contributionId, 'Integer'],
+          2 => [$action, 'String'],
+          3 => [$message, 'String'],
+          4 => [$now, 'String'],
+        ]
+      );
+    }
   }
 
   private static function getFinancialItems(int $contributionId): array {

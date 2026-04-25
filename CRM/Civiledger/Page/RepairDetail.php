@@ -77,6 +77,7 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     $this->assign('auditUrl', $auditUrl);
     $this->assign('contribUrl', $contribUrl);
     $this->assign('cms_type', CIVICRM_UF);
+    $this->assign('repairHistory', $this->loadRepairHistory($contributionId));
 
     parent::run();
   }
@@ -84,6 +85,45 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
   // -----------------------------------------------------------------------
   // Private helpers
   // -----------------------------------------------------------------------
+
+  /**
+   * Load repair history for this contribution, grouped by repair run (repaired_at timestamp).
+   */
+  private function loadRepairHistory(int $contributionId): array {
+    try {
+      $rows = CRM_Core_DAO::executeQuery(
+        "SELECT rl.id, rl.action, rl.message, rl.repaired_by, rl.repaired_at,
+                c.display_name AS repaired_by_name
+         FROM civicrm_civiledger_repair_log rl
+         LEFT JOIN civicrm_contact c ON c.id = rl.repaired_by
+         WHERE rl.contribution_id = %1
+         ORDER BY rl.repaired_at DESC, rl.id ASC",
+        [1 => [$contributionId, 'Integer']]
+      )->fetchAll();
+    }
+    catch (Exception $e) {
+      return [];
+    }
+
+    $runs = [];
+    foreach ($rows as $row) {
+      $key = $row['repaired_at'];
+      if (!isset($runs[$key])) {
+        $runs[$key] = [
+          'repaired_at'      => $row['repaired_at'],
+          'repaired_by_name' => $row['repaired_by_name'],
+          'entries'          => [],
+          'counts'           => ['fixed' => 0, 'skip' => 0, 'warning' => 0, 'error' => 0, 'info' => 0],
+        ];
+      }
+      $runs[$key]['entries'][] = $row;
+      if (array_key_exists($row['action'], $runs[$key]['counts'])) {
+        $runs[$key]['counts'][$row['action']]++;
+      }
+    }
+
+    return array_values($runs);
+  }
 
   /**
    * Load full contribution details for the header card.

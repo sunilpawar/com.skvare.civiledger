@@ -308,3 +308,7 @@
   .rd-meta-grid  { grid-template-columns:1fr; }
   .rd-summary-bar{ flex-direction:column; }
 }
+
+.crm-container .text-right, .crm-container th.right {
+  text-align: right;
+}

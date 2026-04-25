@@ -23,11 +23,11 @@
       </div>
       <div class="civiledger-stat-card">
         <div class="stat-number">{$account.total_credits|crmMoney}</div>
-        <div class="stat-label">{ts}Credits (IN){/ts}</div>
+        <div class="stat-label">{ts}Total Credits (Cr){/ts}</div>
       </div>
       <div class="civiledger-stat-card">
         <div class="stat-number">{$account.total_debits|crmMoney}</div>
-        <div class="stat-label">{ts}Debits (OUT){/ts}</div>
+        <div class="stat-label">{ts}Total Debits (Dr){/ts}</div>
       </div>
       <div class="civiledger-stat-card {if $account.balance < 0}civiledger-stat-alert{else}civiledger-stat-ok{/if}">
         <div class="stat-number">{$account.balance|crmMoney}</div>
@@ -65,8 +65,8 @@
             <th>{ts}Contact{/ts}</th>
             <th>{ts}From Account{/ts}</th>
             <th>{ts}To Account{/ts}</th>
-            <th class="right">{ts}Credit (IN){/ts}</th>
-            <th class="right">{ts}Debit (OUT){/ts}</th>
+            <th class="right">{ts}Credit (Cr){/ts}</th>
+            <th class="right">{ts}Debit (Dr){/ts}</th>
             <th>{ts}Ref{/ts}</th>
           </tr>
         </thead>

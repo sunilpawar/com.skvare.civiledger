@@ -407,9 +407,75 @@
 
     {/if}{* /repairRan *}
 
+    {* ── Repair History ─────────────────────────────────────────────────── *}
+    {if $repairHistory}
+      <div class="civiledger-section rd-history-section">
+        <h2>{ts}Repair History{/ts} <span class="rd-count">{$repairHistory|@count} {ts}run(s){/ts}</span></h2>
+        {foreach from=$repairHistory item=run name=runLoop}
+          {assign var=runIdx value=$smarty.foreach.runLoop.index}
+          <div class="rd-history-run">
+            <div class="rd-history-header" onclick="rdToggleHistory(this)">
+              <span class="rd-history-toggle">▶</span>
+              <strong>{$run.repaired_at|crmDate:'%B %e, %Y %I:%M:%S %p'}</strong>
+              {if $run.repaired_by_name}
+                <span class="rd-history-by">{ts}by{/ts} {$run.repaired_by_name}</span>
+              {/if}
+              <span class="rd-history-counts">
+                {if $run.counts.fixed}<span class="rd-hc rd-hc-fixed">{$run.counts.fixed} {ts}created{/ts}</span>{/if}
+                {if $run.counts.skip}<span class="rd-hc rd-hc-skip">{$run.counts.skip} {ts}existed{/ts}</span>{/if}
+                {if $run.counts.warning}<span class="rd-hc rd-hc-warn">{$run.counts.warning} {ts}warning{/ts}</span>{/if}
+                {if $run.counts.error}<span class="rd-hc rd-hc-error">{$run.counts.error} {ts}error{/ts}</span>{/if}
+              </span>
+            </div>
+            <div class="rd-history-body" style="display:none">
+              <div class="rd-log">
+                {foreach from=$run.entries item=entry}
+                  <div class="rd-log-row rd-log-{$entry.action}">
+                    {if $entry.action == 'fixed'}
+                      <span class="rd-log-icon">✔</span><span class="rd-log-label">{ts}CREATED{/ts}</span>
+                    {elseif $entry.action == 'skip'}
+                      <span class="rd-log-icon">—</span><span class="rd-log-label">{ts}EXISTS{/ts}</span>
+                    {elseif $entry.action == 'warning'}
+                      <span class="rd-log-icon">⚠</span><span class="rd-log-label">{ts}WARNING{/ts}</span>
+                    {elseif $entry.action == 'error'}
+                      <span class="rd-log-icon">✘</span><span class="rd-log-label">{ts}ERROR{/ts}</span>
+                    {else}
+                      <span class="rd-log-icon">ℹ</span>
+                    {/if}
+                    <span class="rd-log-text">{$entry.message}</span>
+                  </div>
+                {/foreach}
+              </div>
+            </div>
+          </div>
+        {/foreach}
+      </div>
+    {/if}
+
 </div>{* .rd-wrap *}
 
 {* ── Page-specific styles ──────────────────────────────────────────────── *}
 <style>
-
+.rd-history-section h2 .rd-count { font-size: 14px; font-weight: normal; color: #666; margin-left: 8px; }
+.rd-history-run { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
+.rd-history-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f7f7f7; cursor: pointer; user-select: none; }
+.rd-history-header:hover { background: #eef2ff; }
+.rd-history-toggle { font-size: 11px; color: #888; transition: transform 0.2s; display: inline-block; width: 12px; }
+.rd-history-header.open .rd-history-toggle { transform: rotate(90deg); }
+.rd-history-by { color: #555; font-size: 13px; }
+.rd-history-counts { margin-left: auto; display: flex; gap: 6px; }
+.rd-hc { font-size: 12px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
+.rd-hc-fixed  { background: #d4edda; color: #155724; }
+.rd-hc-skip   { background: #e2e3e5; color: #383d41; }
+.rd-hc-warn   { background: #fff3cd; color: #856404; }
+.rd-hc-error  { background: #f8d7da; color: #721c24; }
+.rd-history-body { padding: 0 14px 10px; background: #fff; }
 </style>
+<script>
+function rdToggleHistory(header) {
+  var body = header.nextElementSibling;
+  var open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  if (open) { header.classList.remove('open'); } else { header.classList.add('open'); }
+}
+</script>

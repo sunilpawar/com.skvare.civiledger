@@ -53,8 +53,8 @@
           <tr>
             <th>{ts}Account Name{/ts}</th>
             <th>{ts}Code{/ts}</th>
-            <th class="text-right">{ts}Credits (IN){/ts}</th>
-            <th class="text-right">{ts}Debits (OUT){/ts}</th>
+            <th class="text-right">{ts}Credits (Cr){/ts}</th>
+            <th class="text-right">{ts}Debits (Dr){/ts}</th>
             <th class="text-right">{ts}Net Balance{/ts}</th>
             <th class="text-right">{ts}Transactions{/ts}</th>
             <th>{ts}Detail{/ts}</th>

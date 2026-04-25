@@ -28,6 +28,11 @@ class CRM_Civiledger_BAO_AccountBalance {
     }
     $joinWhere = $conditions ? ('AND ' . implode(' AND ', $conditions)) : '';
 
+    // Use the same accounting-normal convention as getAccountMovements():
+    //   Debit-normal (Asset, Cost of Sales, Expenses): to=Debit, from=Credit
+    //   Credit-normal (Revenue, Liability, etc.):      to=Credit, from=Debit
+    $debitNormalIn = self::getDebitNormalTypeIds();
+
     $sql = "
       SELECT
         fa.id,
@@ -35,8 +40,23 @@ class CRM_Civiledger_BAO_AccountBalance {
         fa.accounting_code,
         fa.is_active,
         ov.label AS account_type,
-        COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END), 0) AS total_credits,
-        COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END), 0) AS total_debits,
+        COALESCE(SUM(
+          CASE
+            WHEN fa.financial_account_type_id IN ({$debitNormalIn})
+              THEN CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END
+            ELSE
+                 CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END
+          END
+        ), 0) AS total_credits,
+        COALESCE(SUM(
+          CASE
+            WHEN fa.financial_account_type_id IN ({$debitNormalIn})
+              THEN CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END
+            ELSE
+                 CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END
+          END
+        ), 0) AS total_debits,
+        -- Net balance is always raw inflows minus outflows, same sign for all account types
         COALESCE(SUM(CASE WHEN ft.to_financial_account_id   = fa.id THEN ft.total_amount ELSE 0 END), 0)
         - COALESCE(SUM(CASE WHEN ft.from_financial_account_id = fa.id THEN ft.total_amount ELSE 0 END), 0) AS balance,
         COUNT(DISTINCT ft.id) AS trxn_count
