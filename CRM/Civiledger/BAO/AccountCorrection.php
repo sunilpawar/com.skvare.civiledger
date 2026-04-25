@@ -77,8 +77,26 @@ class CRM_Civiledger_BAO_AccountCorrection {
         self::linkToContribution($correctionId, $cid, (float) $original['total_amount']);
       }
 
-      // Step 4: log
+      // Step 4: existing civicrm_log entry
       self::logCorrection($trxnId, $reversalId, $correctionId, $original, $finalFromId, $finalToId, $reason);
+
+      // Step 5: central hash-chained audit log
+      CRM_Civiledger_BAO_AuditLog::record(
+        CRM_Civiledger_BAO_AuditLog::EVENT_CORRECTION,
+        'financial_trxn',
+        $trxnId,
+        [
+          'original_trxn_id'    => $trxnId,
+          'reversal_trxn_id'    => $reversalId,
+          'correction_trxn_id'  => $correctionId,
+          'old_from_account_id' => $original['from_financial_account_id'],
+          'old_to_account_id'   => $original['to_financial_account_id'],
+          'new_from_account_id' => $finalFromId,
+          'new_to_account_id'   => $finalToId,
+          'contribution_id'     => $original['contribution_id'] ?? NULL,
+          'reason'              => $reason,
+        ]
+      );
 
       $tx->commit();
       return [

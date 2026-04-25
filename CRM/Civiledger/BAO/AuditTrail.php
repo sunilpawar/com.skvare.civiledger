@@ -279,24 +279,50 @@ class CRM_Civiledger_BAO_AuditTrail {
       return [];
     }
     $sql = "
-      SELECT al.id, al.action, al.notes, al.created_date,
-             al.old_from_account_id, al.new_from_account_id,
-             al.old_to_account_id, al.new_to_account_id,
-             fa_old_from.name AS old_from_name,
-             fa_new_from.name AS new_from_name,
-             fa_old_to.name   AS old_to_name,
-             fa_new_to.name   AS new_to_name,
+      SELECT al.id, al.event_type, al.entity_type, al.entity_id,
+             al.actor_id, al.logged_at, al.detail, al.entry_hash,
              con.display_name AS performed_by
       FROM civicrm_civiledger_audit_log al
-      LEFT JOIN civicrm_financial_account fa_old_from ON fa_old_from.id = al.old_from_account_id
-      LEFT JOIN civicrm_financial_account fa_new_from ON fa_new_from.id = al.new_from_account_id
-      LEFT JOIN civicrm_financial_account fa_old_to   ON fa_old_to.id   = al.old_to_account_id
-      LEFT JOIN civicrm_financial_account fa_new_to   ON fa_new_to.id   = al.new_to_account_id
-      LEFT JOIN civicrm_contact con ON con.id = al.contact_id
-      WHERE al.contribution_id = %1
-      ORDER BY al.created_date DESC
+      LEFT JOIN civicrm_contact con ON con.id = al.actor_id
+      WHERE (al.entity_type = 'contribution' AND al.entity_id = %1)
+         OR (al.entity_type = 'financial_trxn'
+             AND al.detail LIKE %2)
+      ORDER BY al.logged_at DESC
     ";
-    return CRM_Core_DAO::executeQuery($sql, [1 => [$contributionId, 'Integer']])->fetchAll();
+    $rows = CRM_Core_DAO::executeQuery($sql, [
+      1 => [$contributionId, 'Integer'],
+      2 => ['%"contribution_id":' . $contributionId . '%', 'String'],
+    ])->fetchAll();
+
+    // Decode detail JSON and batch-lookup account names for CORRECTION entries.
+    $accountIds = [];
+    foreach ($rows as &$row) {
+      $row['detail_decoded'] = !empty($row['detail']) ? json_decode($row['detail'], TRUE) : [];
+      foreach (['old_from_account_id', 'new_from_account_id', 'old_to_account_id', 'new_to_account_id'] as $k) {
+        if (!empty($row['detail_decoded'][$k])) {
+          $accountIds[(int) $row['detail_decoded'][$k]] = NULL;
+        }
+      }
+    }
+    unset($row);
+
+    if (!empty($accountIds)) {
+      $ids = implode(',', array_keys($accountIds));
+      $accs = CRM_Core_DAO::executeQuery("SELECT id, name FROM civicrm_financial_account WHERE id IN ({$ids})")->fetchAll();
+      foreach ($accs as $acc) {
+        $accountIds[(int) $acc['id']] = $acc['name'];
+      }
+      foreach ($rows as &$row) {
+        $d = $row['detail_decoded'];
+        $row['old_from_name'] = $accountIds[$d['old_from_account_id'] ?? 0] ?? NULL;
+        $row['new_from_name'] = $accountIds[$d['new_from_account_id'] ?? 0] ?? NULL;
+        $row['old_to_name']   = $accountIds[$d['old_to_account_id'] ?? 0] ?? NULL;
+        $row['new_to_name']   = $accountIds[$d['new_to_account_id'] ?? 0] ?? NULL;
+      }
+      unset($row);
+    }
+
+    return $rows;
   }
 
   /**

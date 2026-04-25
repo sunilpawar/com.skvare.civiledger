@@ -70,6 +70,27 @@
     <page_callback>CRM_Civiledger_Page_PeriodClose</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Financial Dashboard (charts) -->
+  <item>
+    <path>civicrm/civiledger/financial-dashboard</path>
+    <title>Financial Dashboard</title>
+    <page_callback>CRM_Civiledger_Page_FinancialDashboard</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <!-- Tax Mapping -->
+  <item>
+    <path>civicrm/civiledger/tax-mapping</path>
+    <title>Tax Mapping</title>
+    <page_callback>CRM_Civiledger_Page_TaxMapping</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <!-- Audit Log (hash-chained) -->
+  <item>
+    <path>civicrm/civiledger/audit-log</path>
+    <title>Audit Log</title>
+    <page_callback>CRM_Civiledger_Page_AuditLog</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- AJAX handler -->
   <item>
     <path>civicrm/civiledger/ajax</path>

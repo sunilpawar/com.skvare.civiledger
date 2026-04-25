@@ -133,20 +133,32 @@
         <h2><i class="crm-i fa-history"></i> CiviLedger Change History</h2>
         <table class="civiledger-table">
           <thead>
-          <tr><th>Date</th><th>Action</th><th>Details</th><th>Performed By</th></tr>
+          <tr><th>Date</th><th>Event</th><th>Details</th><th>Performed By</th></tr>
           </thead>
           <tbody>
           {foreach from=$chain.audit_log item=log}
             <tr>
-              <td>{$log.created_date|crmDate}</td>
-              <td><span class="action-badge action-{$log.action}">{$log.action|replace:'_':' '}</span></td>
+              <td>{$log.logged_at|crmDate}</td>
+              <td><span class="action-badge action-{$log.event_type|lower}">{$log.event_type|replace:'_':' '}</span></td>
               <td>
-                  {if $log.action == 'account_correction'}
-                    FROM: {$log.old_from_name} → {$log.new_from_name}<br>
-                    TO: {$log.old_to_name} → {$log.new_to_name}
-                  {else}
-                      {$log.notes}
+                {if $log.event_type == 'CORRECTION'}
+                  FROM: {$log.old_from_name|default:'—'} → {$log.new_from_name|default:'—'}<br>
+                  TO: {$log.old_to_name|default:'—'} → {$log.new_to_name|default:'—'}
+                  {if $log.detail_decoded.reason}
+                    <br><em>{$log.detail_decoded.reason}</em>
                   {/if}
+                {elseif $log.event_type == 'REPAIR'}
+                  {if $log.detail_decoded.created}{$log.detail_decoded.created} created{/if}
+                  {if $log.detail_decoded.skipped}, {$log.detail_decoded.skipped} skipped{/if}
+                  {if $log.detail_decoded.errors}, {$log.detail_decoded.errors} errors{/if}
+                {elseif $log.event_type == 'PERIOD_LOCK'}
+                  Locked before {$log.detail_decoded.lock_date|default:''}
+                  {if $log.detail_decoded.reason}: {$log.detail_decoded.reason}{/if}
+                {elseif $log.event_type == 'PERIOD_UNLOCK'}
+                  {$log.detail_decoded.unlock_reason|default:''}
+                {else}
+                  {$log.detail|truncate:120}
+                {/if}
               </td>
               <td>{$log.performed_by|default:'System'}</td>
             </tr>

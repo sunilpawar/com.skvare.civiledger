@@ -116,6 +116,39 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'active' => 1,
       ],
     ],
+    [
+      'attributes' => [
+        'label' => ts('Financial Dashboard'),
+        'name' => 'civiledger_financial_dashboard',
+        'url' => 'civicrm/civiledger/financial-dashboard',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => 1,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
+        'label' => ts('Tax Mapping'),
+        'name' => 'civiledger_tax_mapping',
+        'url' => 'civicrm/civiledger/tax-mapping',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
+        'label' => ts('Audit Log'),
+        'name' => 'civiledger_audit_log',
+        'url' => 'civicrm/civiledger/audit-log',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
   ];
 
   // Add CiviLedger parent menu item

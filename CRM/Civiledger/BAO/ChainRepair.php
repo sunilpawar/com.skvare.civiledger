@@ -70,11 +70,28 @@ class CRM_Civiledger_BAO_ChainRepair {
 
     $log[] = ['info' => "Repair complete for Contribution #$contributionId"];
 
-    // Log this action
-    CRM_Civiledger_BAO_Utils::logAction('REPAIR', $contributionId,
-      count(array_filter($log, fn($l) => isset($l['fixed']))) . ' records created');
+    $fixedCount = count(array_filter($log, fn($l) => isset($l['fixed'])));
+    $errorCount = count(array_filter($log, fn($l) => isset($l['error'])));
 
+    // Legacy per-feature log
+    CRM_Civiledger_BAO_Utils::logAction('REPAIR', $contributionId,
+      "{$fixedCount} records created");
+
+    // Detailed per-step repair log
     self::saveRepairLog($contributionId, $log);
+
+    // Central hash-chained audit log
+    CRM_Civiledger_BAO_AuditLog::record(
+      CRM_Civiledger_BAO_AuditLog::EVENT_REPAIR,
+      'contribution',
+      $contributionId,
+      [
+        'fixed'   => $fixedCount,
+        'skipped' => count(array_filter($log, fn($l) => isset($l['skip']))),
+        'warning' => count(array_filter($log, fn($l) => isset($l['warning']))),
+        'error'   => $errorCount,
+      ]
+    );
 
     return $log;
   }
