@@ -52,6 +52,7 @@ class CRM_Civiledger_BAO_TaxMapping {
             ), 0)                                                                      AS total_deductible,
         COUNT(DISTINCT CASE
           WHEN COALESCE(NULLIF(li_totals.li_non_ded, 0), c.non_deductible_amount, 0) > 0
+           AND COALESCE(NULLIF(li_totals.li_non_ded, 0), c.non_deductible_amount, 0) < c.total_amount
           THEN c.id END)                                                               AS split_count,
         -- Issues: non-ded > total (impossible) OR li sum mismatches contribution rollup
         COUNT(DISTINCT CASE
@@ -91,7 +92,7 @@ class CRM_Civiledger_BAO_TaxMapping {
         COALESCE(SUM(li.line_total), 0)                                      AS total_amount,
         COALESCE(SUM(li.non_deductible_amount), 0)                           AS non_deductible_amount,
         COALESCE(SUM(li.line_total - li.non_deductible_amount), 0)           AS deductible_amount,
-        COUNT(CASE WHEN li.non_deductible_amount > 0 THEN 1 END)             AS split_count,
+        COUNT(CASE WHEN li.non_deductible_amount > 0 AND li.non_deductible_amount < li.line_total THEN 1 END) AS split_count,
         -- issue: non_ded on line item exceeds the line total
         COUNT(CASE WHEN li.non_deductible_amount > li.line_total THEN 1 END) AS issue_count
       FROM civicrm_line_item li
