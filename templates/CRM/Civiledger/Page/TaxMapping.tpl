@@ -42,12 +42,14 @@
       <div class="stat-number">{$summary.split_count|default:0}</div>
       <div class="stat-label">{ts}Split Contributions{/ts}</div>
     </div>
+      {*
     {if $summary.issues_count > 0}
       <div class="civiledger-stat-card civiledger-stat-alert">
         <div class="stat-number">{$summary.issues_count}</div>
         <div class="stat-label">{ts}Data Issues{/ts}</div>
       </div>
     {/if}
+    *}
   </div>
 
   {* ── Monthly deductible trend chart ── *}
@@ -106,7 +108,7 @@
   </div>
 
   {* ── Issues ── *}
-  {if $issues}
+  {if FALSE && $issues}
     <div class="civiledger-section">
       <h2><i class="crm-i fa-exclamation-triangle" style="color:#dc3545"></i>
         {ts}Data Issues Requiring Attention{/ts}

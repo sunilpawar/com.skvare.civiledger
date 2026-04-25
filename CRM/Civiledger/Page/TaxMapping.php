@@ -23,7 +23,7 @@ class CRM_Civiledger_Page_TaxMapping extends CRM_Core_Page {
 
     $summary       = CRM_Civiledger_BAO_TaxMapping::getSummary($dateFrom, $dateTo);
     $byType        = CRM_Civiledger_BAO_TaxMapping::getByFinancialType($dateFrom, $dateTo);
-    $issues        = CRM_Civiledger_BAO_TaxMapping::getIssues($dateFrom, $dateTo);
+    // $issues        = CRM_Civiledger_BAO_TaxMapping::getIssues($dateFrom, $dateTo);
     $monthlyData   = CRM_Civiledger_BAO_TaxMapping::getMonthlyBreakdown(12);
 
     // Prepare chart data for the template (JSON for Chart.js)
