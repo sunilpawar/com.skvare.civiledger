@@ -148,8 +148,9 @@
                     <br><em>{$log.detail_decoded.reason}</em>
                   {/if}
                 {elseif $log.event_type == 'REPAIR'}
-                  {if $log.detail_decoded.created}{$log.detail_decoded.created} created{/if}
+                  {if $log.detail_decoded.fixed}{$log.detail_decoded.fixed} fixed{/if}
                   {if $log.detail_decoded.skipped}, {$log.detail_decoded.skipped} skipped{/if}
+                  {if $log.detail_decoded.warning}, {$log.detail_decoded.warning} warning{/if}
                   {if $log.detail_decoded.errors}, {$log.detail_decoded.errors} errors{/if}
                 {elseif $log.event_type == 'PERIOD_LOCK'}
                   Locked before {$log.detail_decoded.lock_date|default:''}
