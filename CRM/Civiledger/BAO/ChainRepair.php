@@ -73,10 +73,6 @@ class CRM_Civiledger_BAO_ChainRepair {
     $fixedCount = count(array_filter($log, fn($l) => isset($l['fixed'])));
     $errorCount = count(array_filter($log, fn($l) => isset($l['error'])));
 
-    // Legacy per-feature log
-    CRM_Civiledger_BAO_Utils::logAction('REPAIR', $contributionId,
-      "{$fixedCount} records created");
-
     // Detailed per-step repair log
     self::saveRepairLog($contributionId, $log);
 

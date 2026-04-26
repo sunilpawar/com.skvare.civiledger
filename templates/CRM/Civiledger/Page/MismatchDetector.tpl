@@ -89,7 +89,7 @@
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
                       <span style="font-size:11px;color:#666">{ts}Line items:{/ts}</span><br>
-                      <button class="button small crm-mismatch-repair" style="display:flex;
+                      <button class="button small crm-mismatch-repair" style="display:flex;"
                         data-op="repair_mismatch_line_items"
                         data-cid="{$row.contribution_id}"
                         data-ajax="{$ajaxUrl}"
@@ -110,7 +110,7 @@
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
                       <span style="font-size:11px;color:#666">{ts}Financial items:{/ts}</span><br>
-                      <button class="button small crm-mismatch-repair" style="display:flex;
+                      <button class="button small crm-mismatch-repair" style="display:flex;"
                         data-op="repair_mismatch_financial_items"
                         data-cid="{$row.contribution_id}"
                         data-ajax="{$ajaxUrl}"

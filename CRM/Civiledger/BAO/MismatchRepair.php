@@ -13,12 +13,12 @@ class CRM_Civiledger_BAO_MismatchRepair {
   /**
    * Analyse a mismatch row and return suggested actions.
    *
-   * @param array $row  Row from MismatchDetector::detect()
+   * @param array $row Row from MismatchDetector::detect()
    * @return array  Keyed by mismatch type, each with: fixable, action, label, warning
    */
   public static function suggestFix(array $row): array {
-    $cid          = (int) $row['contribution_id'];
-    $suggestions  = [];
+    $cid = (int) $row['contribution_id'];
+    $suggestions = [];
 
     // ── Line item mismatch ──────────────────────────────────────────────────
     if ($row['line_item_diff'] > 0.01) {
@@ -29,8 +29,8 @@ class CRM_Civiledger_BAO_MismatchRepair {
       if ($lineItemCount === 1) {
         $suggestions['line_items'] = [
           'fixable' => TRUE,
-          'action'  => 'repair_line_items',
-          'label'   => ts('Recalculate line item from contribution total'),
+          'action' => 'repair_line_items',
+          'label' => ts('Recalculate line item from contribution total'),
           'warning' => ts('Sets line_total = unit_price = %1 on the single line item.',
             [1 => CRM_Utils_Money::format($row['contribution_amount'])]),
         ];
@@ -38,8 +38,8 @@ class CRM_Civiledger_BAO_MismatchRepair {
       else {
         $suggestions['line_items'] = [
           'fixable' => FALSE,
-          'action'  => 'manual_review',
-          'label'   => ts('Manual review required'),
+          'action' => 'manual_review',
+          'label' => ts('Manual review required'),
           'warning' => ts('%1 line items found — automatic recalculation is not safe for multi-line contributions.', [1 => $lineItemCount]),
         ];
       }
@@ -49,8 +49,8 @@ class CRM_Civiledger_BAO_MismatchRepair {
     if ($row['financial_item_diff'] > 0.01) {
       $suggestions['financial_items'] = [
         'fixable' => TRUE,
-        'action'  => 'repair_financial_items',
-        'label'   => ts('Rebuild financial items from line items'),
+        'action' => 'repair_financial_items',
+        'label' => ts('Rebuild financial items from line items'),
         'warning' => ts('Sets each financial_item.amount to match its linked line_item.line_total.'),
       ];
     }
@@ -59,8 +59,8 @@ class CRM_Civiledger_BAO_MismatchRepair {
     if ($row['trxn_diff'] > 0.01) {
       $suggestions['trxn'] = [
         'fixable' => FALSE,
-        'action'  => 'manual_review',
-        'label'   => ts('Manual review required'),
+        'action' => 'manual_review',
+        'label' => ts('Manual review required'),
         'warning' => ts('Payment transaction totals differ from contribution amount. This usually indicates a genuine partial payment or refund. Use the Account Correction Tool to investigate.'),
       ];
     }
@@ -75,12 +75,11 @@ class CRM_Civiledger_BAO_MismatchRepair {
    * @return array ['success' => bool, 'error' => string]
    */
   public static function repairLineItems(int $contributionId): array {
-    $contribution = CRM_Core_DAO::executeQuery(
-      "SELECT total_amount, currency FROM civicrm_contribution WHERE id = %1",
-      [1 => [$contributionId, 'Integer']]
-    )->fetchRow();
-
-    if (!$contribution) {
+    $contribution = new CRM_Contribute_DAO_Contribution();
+    $contribution->id = $contributionId;
+    $contribution->selectAdd('total_amount, currency');
+    $contribution->find(TRUE);
+    if (!$contribution->N) {
       return ['success' => FALSE, 'error' => ts('Contribution not found.')];
     }
 
@@ -88,11 +87,12 @@ class CRM_Civiledger_BAO_MismatchRepair {
       "SELECT COUNT(*) FROM civicrm_line_item WHERE contribution_id = %1",
       [1 => [$contributionId, 'Integer']]
     );
+
     if ($lineItemCount !== 1) {
       return ['success' => FALSE, 'error' => ts('Repair aborted: expected exactly 1 line item, found %1.', [1 => $lineItemCount])];
     }
 
-    CRM_Core_DAO::executeQuery("
+    $dao = CRM_Core_DAO::executeQuery("
       UPDATE civicrm_line_item
       SET line_total = %1, unit_price = %1
       WHERE contribution_id = %2
@@ -101,12 +101,16 @@ class CRM_Civiledger_BAO_MismatchRepair {
       2 => [$contributionId, 'Integer'],
     ]);
 
-    CRM_Civiledger_BAO_Utils::logAction(
-      'mismatch_repair_line_items',
-      $contributionId,
-      "Set line_total = unit_price = {$contribution->total_amount}",
-      CRM_Core_Session::getLoggedInContactID()
-    );
+    $updated = $dao->affectedRows();
+    if ($updated) {
+      CRM_Civiledger_BAO_RepairTool::logRepair(
+        $contributionId,
+        [
+          'mismatch_repair_line_items',
+          "Set line_total = unit_price = {$contribution->total_amount}",
+        ]
+      );
+    }
 
     return ['success' => TRUE];
   }
@@ -118,12 +122,10 @@ class CRM_Civiledger_BAO_MismatchRepair {
    * @return array ['success' => bool, 'rows_updated' => int, 'error' => string]
    */
   public static function repairFinancialItems(int $contributionId): array {
-    $contribution = CRM_Core_DAO::executeQuery(
-      "SELECT id FROM civicrm_contribution WHERE id = %1",
-      [1 => [$contributionId, 'Integer']]
-    )->fetchRow();
-
-    if (!$contribution) {
+    $contribution = new CRM_Contribute_DAO_Contribution();
+    $contribution->id = $contributionId;
+    $contribution->find(TRUE);
+    if (!$contribution->N) {
       return ['success' => FALSE, 'error' => ts('Contribution not found.')];
     }
 
@@ -136,14 +138,15 @@ class CRM_Civiledger_BAO_MismatchRepair {
     ", [1 => [$contributionId, 'Integer']]);
 
     $updated = $dao->affectedRows();
-
-    CRM_Civiledger_BAO_Utils::logAction(
-      'mismatch_repair_financial_items',
-      $contributionId,
-      "Rebuilt {$updated} financial item(s) from line_total values",
-      CRM_Core_Session::getLoggedInContactID()
-    );
-
+    if ($updated) {
+      CRM_Civiledger_BAO_RepairTool::logRepair(
+        $contributionId,
+        [
+          'mismatch_repair_financial_items',
+          "Rebuilt {$updated} financial item(s) from line_total values",
+        ]
+      );
+    }
     return ['success' => TRUE, 'rows_updated' => $updated];
   }
 

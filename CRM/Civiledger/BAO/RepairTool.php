@@ -346,7 +346,7 @@ class CRM_Civiledger_BAO_RepairTool {
   /**
    * Log a repair action to civicrm_civiledger_audit_log.
    */
-  private static function logRepair(int $contributionId, array $actions): void {
+  public static function logRepair(int $contributionId, array $actions): void {
     $session = CRM_Core_Session::singleton();
     $userId = $session->get('userID') ?? 0;
     CRM_Core_DAO::executeQuery("

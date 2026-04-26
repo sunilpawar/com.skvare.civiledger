@@ -55,8 +55,6 @@ class CRM_Civiledger_BAO_PeriodClose {
     ]);
 
     $lockId = (int) CRM_Core_DAO::singleValueQuery('SELECT LAST_INSERT_ID()');
-    CRM_Civiledger_BAO_Utils::logAction('period_lock', 0,
-      "Locked period before {$lockDate}: {$reason}", $userId);
 
     CRM_Civiledger_BAO_AuditLog::record(
       CRM_Civiledger_BAO_AuditLog::EVENT_PERIOD_LOCK,
@@ -94,9 +92,6 @@ class CRM_Civiledger_BAO_PeriodClose {
     if (!$affected) {
       return ['success' => FALSE, 'error' => ts('Lock not found or already unlocked.')];
     }
-
-    CRM_Civiledger_BAO_Utils::logAction('period_unlock', 0,
-      "Unlocked period (lock #{$lockId}): {$unlockReason}", $userId);
 
     CRM_Civiledger_BAO_AuditLog::record(
       CRM_Civiledger_BAO_AuditLog::EVENT_PERIOD_UNLOCK,

@@ -6,8 +6,6 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
 
   public function run() {
     $action = CRM_Utils_Request::retrieve('op', 'String');
-    CRM_Core_Session::singleton()->checkNotYetExpired();
-
     switch ($action) {
       case 'repair_contribution':
         $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
