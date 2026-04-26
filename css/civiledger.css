@@ -312,3 +312,100 @@
 .crm-container .text-right, .crm-container th.right {
   text-align: right;
 }
+
+/* ── Layer 2 heading summary ── */
+.layer-sum {
+  float: right;
+  font-size: 13px;
+  font-weight: normal;
+  color: #555;
+  margin-top: 2px;
+}
+.layer-sum strong { font-weight: 700; }
+.sum-ok       { color: #155724; }
+.sum-mismatch { color: #dc3545; }
+.sum-negative { color: #856404; }
+
+/* ── Financial items sub-section ── */
+.fi-section-heading {
+  font-size: 13px;
+  font-weight: 600;
+  color: #444;
+  margin: 10px 0 6px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fi-section-sum {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: #e9ecef;
+  color: #333;
+}
+.fi-section-sum.sum-ok       { background: #d4edda; color: #155724; }
+.fi-section-sum.sum-mismatch { background: #f8d7da; color: #721c24; }
+
+/* ── Financial item grid ── */
+.fi-grid-header,
+.fi-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 1fr 100px 110px;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+}
+.fi-grid-header {
+  background: #f0f4f8;
+  border-radius: 4px 4px 0 0;
+  font-weight: 700;
+  color: #555;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.fi-row {
+  border-bottom: 1px solid #eee;
+  background: #fff;
+}
+.fi-row:last-child { border-bottom: none; border-radius: 0 0 4px 4px; }
+.fi-row.fi-negative { background: #fff8f8; }
+
+.fi-id       { color: #888; }
+.fi-account  { font-weight: 600; color: #333; }
+.fi-acct-type {
+  display: inline-block;
+  font-size: 10px;
+  font-style: normal;
+  background: #e9ecef;
+  color: #555;
+  border-radius: 3px;
+  padding: 0 5px;
+  margin-left: 4px;
+  font-weight: normal;
+  vertical-align: middle;
+}
+.fi-desc   { color: #666; }
+.fi-amount {
+  font-weight: 700;
+  font-family: monospace;
+  text-align: right;
+  color: #222;
+}
+.fi-row.fi-negative .fi-amount { color: #856404; }
+
+/* ── Financial item status badges ── */
+.fi-status {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.fi-status-1 { background: #d4edda; color: #155724; }
+.fi-status-2 { background: #fff3cd; color: #856404; }
+.fi-status-3 { background: #f8d7da; color: #721c24; }

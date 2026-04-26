@@ -28,13 +28,23 @@ class CRM_Civiledger_BAO_AuditTrail {
     ];
 
     $lineItems = self::getLineItems($contributionId);
+    $liTotal = 0.0;
+    $fiTotal = 0.0;
     foreach ($lineItems as $li) {
+      $liTotal += (float) $li['line_total'];
       $li['financial_items'] = self::getFinancialItemsForLineItem($li['id']);
+      $liFiTotal = 0.0;
       foreach ($li['financial_items'] as &$fi) {
         $fi['trxn_links'] = self::getTrxnLinksForFinancialItem($fi['id']);
+        $liFiTotal += (float) $fi['amount'];
+        $fiTotal  += (float) $fi['amount'];
       }
+      unset($fi);
+      $li['fi_total'] = $liFiTotal;
       $trail['line_items'][] = $li;
     }
+    $trail['line_item_total']      = $liTotal;
+    $trail['financial_item_total'] = $fiTotal;
 
     return $trail;
   }

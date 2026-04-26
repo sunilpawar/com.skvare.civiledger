@@ -43,7 +43,15 @@
 
 {* Line Items *}
   <div class="civiledger-section">
-    <h2>Layer 2 — Line Items (Why the money was paid)</h2>
+    <h2>Layer 2 — Line Items (Why the money was paid)
+      {if $chain.line_items}
+        <span class="layer-sum">
+          Line Total: <strong>{$chain.line_item_total|crmMoney}</strong>
+          &nbsp;·&nbsp;
+          FI Total: <strong class="{if $chain.financial_item_total < 0}sum-negative{elseif $chain.financial_item_total != $chain.line_item_total}sum-mismatch{else}sum-ok{/if}">{$chain.financial_item_total|crmMoney}</strong>
+        </span>
+      {/if}
+    </h2>
       {foreach from=$chain.line_items item=li}
         <div class="chain-block">
           <div class="chain-block-header">
@@ -60,15 +68,31 @@
             {* Financial Items for this line item *}
             {if $li.financial_items}
               <div class="sub-section">
-                <h2>Financial Items (Where this money belongs)</h2>
-                  {foreach from=$li.financial_items item=fi}
-                    <div class="chain-block sub-block">
-                      <span class="fi-label">Financial Item #{$fi.id}</span>
-                      <span class="fi-account"><i class="crm-i fa-university"></i> {$fi.account_name}</span>
-                      <span class="fi-amount">{$fi.amount|crmMoney}</span>
-                      <span class="fi-status badge-{$fi.status_id}">{$fi.status_label}</span>
-                    </div>
-                  {/foreach}
+                <h3 class="fi-section-heading">
+                  Financial Items (Where this money belongs)
+                  <span class="fi-section-sum {if $li.fi_total != $li.line_total}sum-mismatch{else}sum-ok{/if}">
+                    {$li.fi_total|crmMoney}
+                  </span>
+                </h3>
+                <div class="fi-grid-header">
+                  <span>ID</span>
+                  <span>Account</span>
+                  <span>Description</span>
+                  <span class="text-right">Amount</span>
+                  <span>Status</span>
+                </div>
+                {foreach from=$li.financial_items item=fi}
+                  <div class="fi-row {if $fi.amount < 0}fi-negative{/if}">
+                    <span class="fi-id">#{$fi.id}</span>
+                    <span class="fi-account">
+                      <i class="crm-i fa-university"></i> {$fi.account_name}
+                      {if $fi.account_type_label}<em class="fi-acct-type">{$fi.account_type_label}</em>{/if}
+                    </span>
+                    <span class="fi-desc">{$fi.description|default:'—'}</span>
+                    <span class="fi-amount">{$fi.amount|crmMoney}</span>
+                    <span class="fi-status fi-status-{$fi.status_id}">{$fi.status_label}</span>
+                  </div>
+                {/foreach}
               </div>
             {else}
               <div class="chain-missing rd-badge rd-badge-fail">⚠ No financial items found for this line item.</div>
