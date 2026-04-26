@@ -409,3 +409,138 @@
 .fi-status-1 { background: #d4edda; color: #155724; }
 .fi-status-2 { background: #fff3cd; color: #856404; }
 .fi-status-3 { background: #f8d7da; color: #721c24; }
+
+/* -----------------------------------------------------------------------
+   Amount Badge  (chain block headers, trxn headers)
+   ----------------------------------------------------------------------- */
+.amount-badge {
+  display: inline-block;
+  background: #2a6496;
+  color: #fff;
+  font-weight: 700;
+  font-size: 13px;
+  font-family: monospace;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+/* -----------------------------------------------------------------------
+   Audit Trail — Chain Blocks
+   ----------------------------------------------------------------------- */
+.chain-health {
+  padding: 12px 18px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  border: 1px solid transparent;
+}
+.health-ok     { background: #d4edda; border-color: #c3e6cb; color: #155724; }
+.health-broken { background: #fff3cd; border-color: #ffeeba; color: #856404; }
+
+.chain-block {
+  border: 1px solid #dde3ea;
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: #fdfdfe;
+}
+.chain-block-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 14px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.chain-missing { margin: 8px 0; }
+
+.trxn-reversal { border-left: 3px solid #dc3545; background: #fff8f8; }
+
+/* -----------------------------------------------------------------------
+   Audit Trail — Detail Table (key-value pairs)
+   ----------------------------------------------------------------------- */
+.detail-table th {
+  width: 130px;
+  background: #f8f9fa;
+  color: #555;
+  font-weight: 600;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.detail-table td { font-size: 13px; }
+
+/* -----------------------------------------------------------------------
+   Audit Trail — Sub-Section (Financial Items container)
+   ----------------------------------------------------------------------- */
+.sub-section {
+  margin-top: 12px;
+  border-top: 1px dashed #dde3ea;
+  padding-top: 10px;
+}
+
+/* -----------------------------------------------------------------------
+   Audit Trail — Transaction Flow (FROM → TO)
+   ----------------------------------------------------------------------- */
+.trxn-flow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #f0f4f8;
+  border-radius: 5px;
+  margin: 8px 0;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.trxn-from,
+.trxn-to     { display: flex; flex-direction: column; gap: 2px; }
+.trxn-arrow  { font-size: 20px; font-weight: 700; color: #2a6496; }
+.account-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #888; }
+.account-name  { font-weight: 600; color: #2c3e50; }
+
+/* -----------------------------------------------------------------------
+   Audit Trail — Change History event badges
+   ----------------------------------------------------------------------- */
+.action-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  background: #e9ecef;
+  color: #555;
+}
+.action-correction    { background: #cce5ff; color: #004085; }
+.action-repair        { background: #d4edda; color: #155724; }
+.action-period_lock   { background: #fff3cd; color: #856404; }
+.action-period_unlock { background: #d1ecf1; color: #0c5460; }
+
+/* -----------------------------------------------------------------------
+   Account Correction — Transaction Flow Display
+   ----------------------------------------------------------------------- */
+.trxn-flow-display {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 14px;
+  background: #f0f4f8;
+  border-radius: 5px;
+  margin: 8px 0;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.flow-from,
+.flow-to    { display: flex; flex-direction: column; gap: 3px; }
+.flow-arrow { font-size: 20px; font-weight: 700; color: #2a6496; }
+.flow-label { font-size: 10px; text-transform: uppercase; letter-spacing: .06em; color: #888; }
+.flow-value { font-weight: 600; color: #2c3e50; }
+.flow-id    { font-size: 11px; color: #888; font-family: monospace; }
+
+/* float helper (CiviCRM may not always provide this) */
+.float-right { float: right; }
