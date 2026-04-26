@@ -119,7 +119,7 @@
               {/if}
             <span class="amount-badge">{$trxn.total_amount|crmMoney:$trxn.currency}</span>
               {if $trxn.total_amount >= 0}
-                <a href="{$correctionUrl}?cid={$contributionId}&trxn_id={$trxn.id}" class="button small float-right">
+                <a href="{crmURL p='civicrm/civiledger/account-correction' q="cid=`$contributionId`&trxn_id=`$trxn.id`"}" class="button small float-right">
                   <i class="crm-i fa-exchange"></i> Correct Accounts
                 </a>
               {/if}

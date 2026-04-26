@@ -65,7 +65,7 @@
               {* Only allow correction on positive transactions *}
               {if $trxn.total_amount >= 0}
                 <div class="correction-form-wrap {if $selectedTrxnId == $trxn.id}correction-form-open{/if}">
-                  <button class="button small toggle-correction-form" data-trxn="{$trxn.id}">
+                  <button class="button small toggle-correction-form" data-trxn="{$trxn.id}" style="display:flex;">
                     <i class="crm-i fa-pencil"></i> Correct Accounts
                   </button>
 
@@ -125,7 +125,7 @@
           </div>
         {/foreach}
 
-      <div class="correction-nav">
+      <div class="correction-nav" style="display:flex;">
         <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$contributionId`"}" class="button small">View Full Audit Trail</a>
         <a href="?" class="button">Search Another Contribution</a>
       </div>
