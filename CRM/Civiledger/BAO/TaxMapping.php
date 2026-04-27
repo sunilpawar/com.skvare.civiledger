@@ -78,29 +78,67 @@ class CRM_Civiledger_BAO_TaxMapping {
   /**
    * Breakdown by financial type — grouped on LINE ITEM financial_type_id,
    * not the contribution header, so mixed-type contributions are split correctly.
+   *
+   * Starts from civicrm_contribution (LEFT JOIN to line items) so that:
+   *   1. Contributions with no line items are included (using contribution financial type).
+   *   2. When all line items have non_deductible_amount=0 but the contribution-level
+   *      non_deductible_amount>0, a proportional share is applied as a fallback — matching
+   *      the same fallback used in getSummary().
    */
   public static function getByFinancialType($dateFrom = NULL, $dateTo = NULL): array {
     [$where, $params] = self::buildContribWhere($dateFrom, $dateTo, 'c');
 
     $sql = "
       SELECT
-        ft.id                                                                AS financial_type_id,
-        ft.name                                                              AS financial_type_name,
-        ft.is_deductible,
-        COUNT(DISTINCT c.id)                                                 AS contribution_count,
-        COUNT(li.id)                                                         AS line_item_count,
-        COALESCE(SUM(li.line_total), 0)                                      AS total_amount,
-        COALESCE(SUM(li.non_deductible_amount), 0)                           AS non_deductible_amount,
-        COALESCE(SUM(li.line_total - li.non_deductible_amount), 0)           AS deductible_amount,
-        COUNT(CASE WHEN li.non_deductible_amount > 0 AND li.non_deductible_amount < li.line_total THEN 1 END) AS split_count,
-        -- issue: non_ded on line item exceeds the line total
-        COUNT(CASE WHEN li.non_deductible_amount > li.line_total THEN 1 END) AS issue_count
-      FROM civicrm_line_item li
-      JOIN  civicrm_contribution  c  ON c.id  = li.contribution_id
-      JOIN  civicrm_financial_type ft ON ft.id = li.financial_type_id
-      WHERE {$where}
-      GROUP BY ft.id, ft.name, ft.is_deductible
-      ORDER BY ft.name
+        financial_type_id,
+        financial_type_name,
+        is_deductible,
+        COUNT(DISTINCT cid)                                                  AS contribution_count,
+        COUNT(liid)                                                          AS line_item_count,
+        COALESCE(SUM(line_total), 0)                                         AS total_amount,
+        COALESCE(SUM(non_ded), 0)                                            AS non_deductible_amount,
+        COALESCE(SUM(line_total - non_ded), 0)                               AS deductible_amount,
+        COUNT(CASE WHEN non_ded > 0 AND non_ded < line_total THEN 1 END)     AS split_count,
+        SUM(has_issue)                                                       AS issue_count
+      FROM (
+        SELECT
+          COALESCE(li_ft.id,   c_ft.id)                                      AS financial_type_id,
+          COALESCE(li_ft.name, c_ft.name)                                    AS financial_type_name,
+          COALESCE(li_ft.is_deductible, c_ft.is_deductible)                  AS is_deductible,
+          c.id                                                               AS cid,
+          li.id                                                              AS liid,
+          COALESCE(li.line_total, c.total_amount)                            AS line_total,
+          CASE
+            -- Line item has its own non-deductible value — use it directly
+            WHEN li.id IS NOT NULL AND li.non_deductible_amount > 0
+              THEN li.non_deductible_amount
+            -- All line items for this contribution have 0 but contribution-level is set
+            -- — distribute proportionally across line items
+            WHEN li.id IS NOT NULL
+                 AND COALESCE(li_totals.li_non_ded, 0) = 0
+                 AND c.non_deductible_amount > 0
+              THEN (li.line_total / NULLIF(c.total_amount, 0)) * c.non_deductible_amount
+            -- No line items at all — use contribution-level value
+            WHEN li.id IS NULL
+              THEN COALESCE(c.non_deductible_amount, 0)
+            ELSE 0
+          END                                                                AS non_ded,
+          CASE WHEN li.id IS NOT NULL AND li.non_deductible_amount > li.line_total
+               THEN 1 ELSE 0 END                                            AS has_issue
+        FROM civicrm_contribution c
+        JOIN  civicrm_financial_type c_ft  ON c_ft.id = c.financial_type_id
+        LEFT JOIN civicrm_line_item  li    ON li.contribution_id = c.id
+        LEFT JOIN civicrm_financial_type li_ft ON li_ft.id = li.financial_type_id
+        LEFT JOIN (
+          SELECT contribution_id, SUM(non_deductible_amount) AS li_non_ded
+          FROM   civicrm_line_item
+          WHERE  contribution_id IS NOT NULL
+          GROUP  BY contribution_id
+        ) li_totals ON li_totals.contribution_id = c.id
+        WHERE {$where}
+      ) base
+      GROUP BY financial_type_id, financial_type_name, is_deductible
+      ORDER BY financial_type_name
     ";
 
     return CRM_Core_DAO::executeQuery($sql, $params)->fetchAll();
