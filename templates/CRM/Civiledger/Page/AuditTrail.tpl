@@ -277,7 +277,7 @@
     <div id="fi-modal-status" style="display:none;margin-top:10px;padding:8px 12px;border-radius:4px"></div>
   </div>
 </div>
-
+{literal}
 <style>
 .fi-dup-warning {
   background: #fff3cd; border-left: 4px solid #ffc107; color: #856404;
@@ -319,7 +319,8 @@
 }
 .fi-modal-actions { display: flex; gap: 10px; }
 </style>
-
+{/literal}
+{literal}
 <script>
 (function () {
   var pendingBtn = null;
@@ -382,3 +383,4 @@
   });
 }());
 </script>
+{/literal}
