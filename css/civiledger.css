@@ -556,3 +556,84 @@
 
 /* float helper (CiviCRM may not always provide this) */
 .float-right { float: right; }
+
+/* -----------------------------------------------------------------------
+   Mismatch Detector
+   ----------------------------------------------------------------------- */
+
+/* Filter form row */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.filter-row label { font-size: 13px; font-weight: 500; color: #555; }
+.filter-row input[type="date"] {
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 13px;
+}
+
+/* "Golden rule" legend box */
+.mismatch-legend {
+  background: #f8f9fa;
+  border-left: 4px solid #6c757d;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  color: #555;
+}
+.mismatch-legend code {
+  display: block;
+  margin-top: 6px;
+  font-family: monospace;
+  font-size: 12px;
+  color: #2c3e50;
+  background: #eef2f8;
+  padding: 6px 10px;
+  border-radius: 4px;
+}
+
+/* Mismatch table row highlight */
+.civiledger-table tr.row-mismatch td { background: #fffdf0; }
+.civiledger-table tr.row-mismatch:hover td { background: #fff9e0; }
+
+/* Δ difference badge shown next to mismatched amounts */
+.diff-badge {
+  display: inline-block;
+  background: #f8d7da;
+  color: #721c24;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+/* Amount cell coloring */
+.text-red   { color: #dc3545; }
+.text-green { color: #28a745; }
+
+/* Issue label pills */
+.issue-tag {
+  display: inline-block;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin: 2px 0;
+  white-space: nowrap;
+}
+
+/* Suggest-fix button wrapper */
+.suggest-fix {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
