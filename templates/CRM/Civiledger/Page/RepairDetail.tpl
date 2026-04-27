@@ -59,6 +59,14 @@
           <span class="rd-count">{$preChain.counts.line_items}</span>
         </div>
           {if $preChain.line_items}
+            <div class="rd-sum-strip {if $preChain.diffs.line_item < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+              {ts}Total{/ts}: <strong>{$preChain.totals.line_items|crmMoney}</strong>
+              {if $preChain.diffs.line_item < 0.01}
+                ✔ {ts}matches contribution{/ts}
+              {else}
+                ✘ {ts}diff{/ts}: {$preChain.diffs.line_item|crmMoney} {ts}vs contribution{/ts} {$preChain.totals.contribution|crmMoney}
+              {/if}
+            </div>
             <ul class="rd-detail-list">
                 {foreach from=$preChain.line_items item=li}
                   <li><code>#{$li.id}</code> {$li.label|default:$li.financial_type_name} — {$li.line_total|crmMoney}</li>
@@ -77,6 +85,14 @@
           <span class="rd-count">{$preChain.counts.financial_items}</span>
         </div>
           {if $preChain.financial_items}
+            <div class="rd-sum-strip {if $preChain.diffs.financial_item < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+              {ts}Total{/ts}: <strong>{$preChain.totals.financial_items|crmMoney}</strong>
+              {if $preChain.diffs.financial_item < 0.01}
+                ✔ {ts}matches contribution{/ts}
+              {else}
+                ✘ {ts}diff{/ts}: {$preChain.diffs.financial_item|crmMoney} {ts}vs contribution{/ts} {$preChain.totals.contribution|crmMoney}
+              {/if}
+            </div>
             <ul class="rd-detail-list">
                 {foreach from=$preChain.financial_items item=fi}
                   <li><code>#{$fi.id}</code> {$fi.account_name} — {$fi.amount|crmMoney}</li>
@@ -95,6 +111,16 @@
           <span class="rd-count">{$preChain.counts.financial_trxns}</span>
         </div>
           {if $preChain.financial_trxns}
+            <div class="rd-sum-strip {if $preChain.diffs.trxn < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+              {ts}All shown{/ts}: <strong>{$preChain.totals.trxns_all|crmMoney}</strong>
+              &nbsp;·&nbsp;
+              {ts}Payments only{/ts}: <strong>{$preChain.totals.trxns_payment|crmMoney}</strong>
+              {if $preChain.diffs.trxn < 0.01}
+                ✔ {ts}matches contribution{/ts}
+              {else}
+                ✘ {ts}diff{/ts}: {$preChain.diffs.trxn|crmMoney} {ts}vs contribution{/ts} {$preChain.totals.contribution|crmMoney}
+              {/if}
+            </div>
             <ul class="rd-detail-list">
                 {foreach from=$preChain.financial_trxns item=ft}
                   <li>
@@ -275,6 +301,14 @@
               <span class="rd-count">{$postChain.counts.line_items}</span>
             </div>
               {if $postChain.line_items}
+                <div class="rd-sum-strip {if $postChain.diffs.line_item < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+                  {ts}Total{/ts}: <strong>{$postChain.totals.line_items|crmMoney}</strong>
+                  {if $postChain.diffs.line_item < 0.01}
+                    ✔ {ts}matches contribution{/ts}
+                  {else}
+                    ✘ {ts}diff{/ts}: {$postChain.diffs.line_item|crmMoney} {ts}vs contribution{/ts} {$postChain.totals.contribution|crmMoney}
+                  {/if}
+                </div>
                 <ul class="rd-detail-list">
                     {foreach from=$postChain.line_items item=li}
                       <li><code>#{$li.id}</code> {$li.label|default:$li.financial_type_name} — {$li.line_total|crmMoney}</li>
@@ -291,6 +325,14 @@
               <span class="rd-count">{$postChain.counts.financial_items}</span>
             </div>
               {if $postChain.financial_items}
+                <div class="rd-sum-strip {if $postChain.diffs.financial_item < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+                  {ts}Total{/ts}: <strong>{$postChain.totals.financial_items|crmMoney}</strong>
+                  {if $postChain.diffs.financial_item < 0.01}
+                    ✔ {ts}matches contribution{/ts}
+                  {else}
+                    ✘ {ts}diff{/ts}: {$postChain.diffs.financial_item|crmMoney} {ts}vs contribution{/ts} {$postChain.totals.contribution|crmMoney}
+                  {/if}
+                </div>
                 <ul class="rd-detail-list">
                     {foreach from=$postChain.financial_items item=fi}
                       <li><code>#{$fi.id}</code> {$fi.account_name} — {$fi.amount|crmMoney}</li>
@@ -307,6 +349,16 @@
               <span class="rd-count">{$postChain.counts.financial_trxns}</span>
             </div>
               {if $postChain.financial_trxns}
+                <div class="rd-sum-strip {if $postChain.diffs.trxn < 0.01}rd-sum-strip-ok{else}rd-sum-strip-bad{/if}">
+                  {ts}All shown{/ts}: <strong>{$postChain.totals.trxns_all|crmMoney}</strong>
+                  &nbsp;·&nbsp;
+                  {ts}Payments only{/ts}: <strong>{$postChain.totals.trxns_payment|crmMoney}</strong>
+                  {if $postChain.diffs.trxn < 0.01}
+                    ✔ {ts}matches contribution{/ts}
+                  {else}
+                    ✘ {ts}diff{/ts}: {$postChain.diffs.trxn|crmMoney} {ts}vs contribution{/ts} {$postChain.totals.contribution|crmMoney}
+                  {/if}
+                </div>
                 <ul class="rd-detail-list">
                     {foreach from=$postChain.financial_trxns item=ft}
                       <li>
@@ -456,6 +508,20 @@
 
 {* ── Page-specific styles ──────────────────────────────────────────────── *}
 <style>
+.rd-sum-strip {
+  font-size: 12px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  margin: 4px 0 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.rd-sum-strip strong { font-weight: 700; }
+.rd-sum-strip-ok  { background: #d4edda; color: #155724; }
+.rd-sum-strip-bad { background: #fff3cd; color: #856404; }
+
 .rd-history-section h2 .rd-count { font-size: 14px; font-weight: normal; color: #666; margin-left: 8px; }
 .rd-history-run { border: 1px solid #ddd; border-radius: 4px; margin-bottom: 8px; overflow: hidden; }
 .rd-history-header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; background: #f7f7f7; cursor: pointer; user-select: none; }

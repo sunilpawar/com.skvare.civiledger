@@ -269,6 +269,14 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
       [1 => [$contributionId, 'Integer']]
     );
 
+    $chain['totals'] = [
+      'line_items'      => $lineItemTotal,
+      'financial_items' => $financialItemTotal,
+      'trxns_payment'   => $trxnTotal,
+      'trxns_all'       => array_sum(array_column($chain['financial_trxns'], 'total_amount')),
+      'contribution'    => $contribTotal,
+    ];
+
     $chain['diffs'] = [
       'line_item'      => round(abs($contribTotal - $lineItemTotal), 4),
       'financial_item' => round(abs($contribTotal - $financialItemTotal), 4),
