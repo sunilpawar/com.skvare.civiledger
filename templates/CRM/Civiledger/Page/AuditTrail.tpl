@@ -141,8 +141,40 @@
             </div>
           </div>
           <table class="civiledger-table detail-table">
-            <tr><th>Date</th><td>{$trxn.trxn_date|crmDate}</td>
-              <th>Processor Ref</th><td>{$trxn.processor_trxn_id|default:'—'}</td></tr>
+            <tr>
+              <th>{ts}Date{/ts}</th>
+              <td>{$trxn.trxn_date|crmDate}</td>
+              <th>{ts}Processor Ref{/ts}</th>
+              <td class="rd-mono">{$trxn.processor_trxn_id|default:'—'}</td>
+            </tr>
+            <tr>
+              <th>{ts}Payment Method{/ts}</th>
+              <td>{$trxn.payment_instrument_label|default:'—'}</td>
+              <th>{ts}Processor{/ts}</th>
+              <td>{$trxn.payment_processor_name|default:'—'}</td>
+            </tr>
+            {if $trxn.card_type_label || $trxn.pan_truncation}
+            <tr>
+              <th>{ts}Card Type{/ts}</th>
+              <td>{$trxn.card_type_label|default:'—'}</td>
+              <th>{ts}Card (last 4){/ts}</th>
+              <td class="rd-mono">{$trxn.pan_truncation|default:'—'}</td>
+            </tr>
+            {/if}
+            {if $trxn.check_number}
+            <tr>
+              <th>{ts}Check #{/ts}</th>
+              <td colspan="3" class="rd-mono">{$trxn.check_number}</td>
+            </tr>
+            {/if}
+            {if $trxn.fee_amount != 0 || $trxn.net_amount}
+            <tr>
+              <th>{ts}Fee Amount{/ts}</th>
+              <td>{$trxn.fee_amount|crmMoney:$trxn.currency}</td>
+              <th>{ts}Net Amount{/ts}</th>
+              <td>{$trxn.net_amount|crmMoney:$trxn.currency}</td>
+            </tr>
+            {/if}
           </table>
         </div>
           {if !$trxn@last}<hr class="chain-block-separator">{/if}

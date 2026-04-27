@@ -163,13 +163,24 @@ class CRM_Civiledger_BAO_AuditTrail {
       SELECT ft.id, ft.total_amount, ft.fee_amount, ft.net_amount,
              ft.trxn_date, ft.trxn_id AS processor_trxn_id,
              ft.is_payment, ft.currency, ft.check_number, ft.pan_truncation,
+             ft.card_type_id, ft.payment_instrument_id, ft.payment_processor_id,
              fa_from.name AS from_account_name,
              fa_to.name   AS to_account_name,
-             eft.amount   AS allocated_amount
+             eft.amount   AS allocated_amount,
+             ct.label     AS card_type_label,
+             pi.label     AS payment_instrument_label,
+             pp.name      AS payment_processor_name
       FROM civicrm_entity_financial_trxn eft
       INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
       LEFT JOIN civicrm_financial_account fa_from ON fa_from.id = ft.from_financial_account_id
       LEFT JOIN civicrm_financial_account fa_to   ON fa_to.id   = ft.to_financial_account_id
+      LEFT JOIN civicrm_option_value ct
+        ON ct.value = ft.card_type_id
+        AND ct.option_group_id = (SELECT id FROM civicrm_option_group WHERE name = 'accept_creditcard')
+      LEFT JOIN civicrm_option_value pi
+        ON pi.value = ft.payment_instrument_id
+        AND pi.option_group_id = (SELECT id FROM civicrm_option_group WHERE name = 'payment_instrument')
+      LEFT JOIN civicrm_payment_processor pp ON pp.id = ft.payment_processor_id
       WHERE eft.entity_table = 'civicrm_contribution' AND eft.entity_id = %1
       ORDER BY ft.trxn_date
     ";
