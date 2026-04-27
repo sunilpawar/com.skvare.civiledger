@@ -193,6 +193,18 @@
 .status-cancelled { background:#f8d7da; color:#721c24; }
 .status-refunded  { background:#d1ecf1; color:#0c5460; }
 
+/* Transaction status badges — keyed by contribution_status option value */
+.trxn-status-badge { display:inline-block; padding:2px 9px; border-radius:10px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; background:#e9ecef; color:#555; }
+.trxn-status-1 { background:#d4edda; color:#155724; } /* Completed  */
+.trxn-status-2 { background:#fff3cd; color:#856404; } /* Pending    */
+.trxn-status-3 { background:#f8d7da; color:#721c24; } /* Cancelled  */
+.trxn-status-4 { background:#f8d7da; color:#721c24; } /* Failed     */
+.trxn-status-5 { background:#cce5ff; color:#004085; } /* In Progress*/
+.trxn-status-6 { background:#fff3cd; color:#856404; } /* Overdue    */
+.trxn-status-7 { background:#d1ecf1; color:#0c5460; } /* Refunded   */
+.trxn-status-8 { background:#e2e3e5; color:#383d41; } /* Partially paid */
+.trxn-status-9 { background:#fff3cd; color:#856404; } /* Pending refund */
+
 /* -----------------------------------------------------------------------
    Misc
    ----------------------------------------------------------------------- */

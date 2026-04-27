@@ -42,17 +42,30 @@ class CRM_Civiledger_BAO_AuditTrail {
       unset($fi);
       $li['fi_total'] = $liFiTotal;
 
-      // Detect duplicate financial items: sum exceeds line total by more than $0.01
+      // Detect duplicate financial items.
+      // Only status_id 1 (Paid) and 2 (Partially paid) are eligible duplicate candidates.
+      // status_id 3 (Unpaid) FIs are adjustments/re-posts — never flagged as duplicates.
       $lineTotal = (float) $li['line_total'];
-      $hasDuplicates = count($li['financial_items']) > 1
-        && ($liFiTotal - $lineTotal) > 0.01;
+      $eligibleFis = array_filter($li['financial_items'], function ($fi) {
+        return in_array((int) $fi['status_id'], [1, 2], TRUE);
+      });
+      $eligibleSum = array_sum(array_column($eligibleFis, 'amount'));
+      $hasDuplicates = count($eligibleFis) > 1
+        && ($eligibleSum - $lineTotal) > 0.01;
       $li['has_fi_duplicates'] = $hasDuplicates;
 
       if ($hasDuplicates) {
-        // Keep the first (lowest-ID) FI; mark the rest as deletion candidates.
+        // Walk eligible FIs in ID order; keep enough to cover line_total, mark rest as candidates.
         $kept = 0.0;
         foreach ($li['financial_items'] as &$fi) {
-          if (round($kept + (float) $fi['amount'], 4) <= round($lineTotal, 4) + 0.01 && $kept < $lineTotal) {
+          $fiStatus = (int) $fi['status_id'];
+          if (!in_array($fiStatus, [1, 2], TRUE)) {
+            // Unpaid / adjustment — never a duplicate candidate.
+            $fi['is_duplicate_candidate'] = FALSE;
+            continue;
+          }
+          if (round($kept + (float) $fi['amount'], 4) <= round($lineTotal, 4) + 0.01
+              && $kept < $lineTotal) {
             $fi['is_duplicate_candidate'] = FALSE;
             $kept += (float) $fi['amount'];
           }
@@ -191,10 +204,12 @@ class CRM_Civiledger_BAO_AuditTrail {
       SELECT ft.id, ft.total_amount, ft.fee_amount, ft.net_amount,
              ft.trxn_date, ft.trxn_id AS processor_trxn_id,
              ft.is_payment, ft.currency, ft.check_number, ft.pan_truncation,
+             ft.status_id,
              ft.card_type_id, ft.payment_instrument_id, ft.payment_processor_id,
              fa_from.name AS from_account_name,
              fa_to.name   AS to_account_name,
              eft.amount   AS allocated_amount,
+             cs.label     AS status_label,
              ct.label     AS card_type_label,
              pi.label     AS payment_instrument_label,
              pp.name      AS payment_processor_name
@@ -202,6 +217,9 @@ class CRM_Civiledger_BAO_AuditTrail {
       INNER JOIN civicrm_financial_trxn ft ON ft.id = eft.financial_trxn_id
       LEFT JOIN civicrm_financial_account fa_from ON fa_from.id = ft.from_financial_account_id
       LEFT JOIN civicrm_financial_account fa_to   ON fa_to.id   = ft.to_financial_account_id
+      LEFT JOIN civicrm_option_value cs
+        ON cs.value = ft.status_id
+        AND cs.option_group_id = (SELECT id FROM civicrm_option_group WHERE name = 'contribution_status')
       LEFT JOIN civicrm_option_value ct
         ON ct.value = ft.card_type_id
         AND ct.option_group_id = (SELECT id FROM civicrm_option_group WHERE name = 'accept_creditcard')

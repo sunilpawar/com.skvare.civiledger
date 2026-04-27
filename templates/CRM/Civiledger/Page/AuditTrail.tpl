@@ -179,12 +179,16 @@
             <tr>
               <th>{ts}Date{/ts}</th>
               <td>{$trxn.trxn_date|crmDate}</td>
-              <th>{ts}Processor Ref{/ts}</th>
-              <td class="rd-mono">{$trxn.processor_trxn_id|default:'—'}</td>
+              <th>{ts}Status{/ts}</th>
+              <td><span class="trxn-status-badge trxn-status-{$trxn.status_id}">{$trxn.status_label|default:'—'}</span></td>
             </tr>
             <tr>
+              <th>{ts}Processor Ref{/ts}</th>
+              <td class="rd-mono">{$trxn.processor_trxn_id|default:'—'}</td>
               <th>{ts}Payment Method{/ts}</th>
               <td>{$trxn.payment_instrument_label|default:'—'}</td>
+            </tr>
+            <tr>
               <th>{ts}Processor{/ts}</th>
               <td>{$trxn.payment_processor_name|default:'—'}</td>
             </tr>
