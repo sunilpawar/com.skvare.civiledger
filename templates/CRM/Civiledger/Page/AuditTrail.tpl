@@ -69,21 +69,40 @@
             {if $li.financial_items}
               <div class="sub-section">
                 <h3 class="fi-section-heading">
-                  Financial Items (Where this money belongs)
+                  {ts}Financial Items (Where this money belongs){/ts}
                   <span class="fi-section-sum {if $li.fi_total != $li.line_total}sum-mismatch{else}sum-ok{/if}">
                     {$li.fi_total|crmMoney}
                   </span>
                 </h3>
-                <div class="fi-grid-header">
-                  <span>ID</span>
-                  <span>Account</span>
-                  <span>Description</span>
-                  <span class="text-right">Amount</span>
-                  <span>Status</span>
+
+                {* ── Duplicate warning ── *}
+                {if $li.has_fi_duplicates}
+                  <div class="fi-dup-warning">
+                    <i class="crm-i fa-exclamation-triangle"></i>
+                    <strong>{ts}Duplicate financial items detected.{/ts}</strong>
+                    {ts 1=$li.fi_total|crmMoney 2=$li.line_total|crmMoney}Sum is %1 but line total is %2.{/ts}
+                    {ts}The rows marked below are candidates for deletion. Deleting them will also remove their EFT links.{/ts}
+                  </div>
+                {/if}
+
+                <div class="fi-grid-header {if $li.has_fi_duplicates}fi-grid-header-wide{/if}">
+                  <span>{ts}ID{/ts}</span>
+                  <span>{ts}Account{/ts}</span>
+                  <span>{ts}Description{/ts}</span>
+                  <span class="text-right">{ts}Amount{/ts}</span>
+                  <span>{ts}Status{/ts}</span>
+                  {if $li.has_fi_duplicates}<span>{ts}Action{/ts}</span>{/if}
                 </div>
+
                 {foreach from=$li.financial_items item=fi}
-                  <div class="fi-row {if $fi.amount < 0}fi-negative{/if}">
-                    <span class="fi-id">#{$fi.id}</span>
+                  <div class="fi-row {if $fi.amount < 0}fi-negative{/if} {if $fi.is_duplicate_candidate}fi-duplicate{/if}"
+                       id="fi-row-{$fi.id}">
+                    <span class="fi-id">
+                      #{$fi.id}
+                      {if $fi.is_duplicate_candidate}
+                        <span class="fi-dup-tag">{ts}DUP{/ts}</span>
+                      {/if}
+                    </span>
                     <span class="fi-account">
                       <i class="crm-i fa-university"></i> {$fi.account_name}
                       {if $fi.account_type_label}<em class="fi-acct-type">{$fi.account_type_label}</em>{/if}
@@ -91,11 +110,27 @@
                     <span class="fi-desc">{$fi.description|default:'—'}</span>
                     <span class="fi-amount">{$fi.amount|crmMoney}</span>
                     <span class="fi-status fi-status-{$fi.status_id}">{$fi.status_label}</span>
+                    {if $li.has_fi_duplicates}
+                      <span class="fi-action">
+                        {if $fi.is_duplicate_candidate}
+                          <button type="button"
+                                  class="fi-delete-btn"
+                                  data-fi-id="{$fi.id}"
+                                  data-cid="{$contributionId}"
+                                  data-amount="{$fi.amount|crmMoney}"
+                                  onclick="clDeleteFi(this)">
+                            <i class="crm-i fa-trash"></i> {ts}Delete{/ts}
+                          </button>
+                        {else}
+                          <span class="fi-keep-tag">{ts}Keep{/ts}</span>
+                        {/if}
+                      </span>
+                    {/if}
                   </div>
                 {/foreach}
               </div>
             {else}
-              <div class="chain-missing rd-badge rd-badge-fail">⚠ No financial items found for this line item.</div>
+              <div class="chain-missing rd-badge rd-badge-fail">⚠ {ts}No financial items found for this line item.{/ts}</div>
             {/if}
         </div>
           {if !$li@last}<hr class="chain-block-separator">{/if}
@@ -226,3 +261,124 @@
     {/if}
 
 {/if}
+
+{* ── Delete confirmation modal ──────────────────────────────────────────── *}
+<div id="fi-delete-modal" class="fi-modal-overlay" style="display:none">
+  <div class="fi-modal-box">
+    <h3><i class="crm-i fa-trash"></i> {ts}Delete Duplicate Financial Item{/ts}</h3>
+    <p id="fi-modal-body"></p>
+    <div class="fi-modal-warning">
+      {ts}This will permanently delete the financial item and its EFT link(s). This action cannot be undone.{/ts}
+    </div>
+    <div class="fi-modal-actions">
+      <button id="fi-modal-confirm" class="button crm-button-type-delete">{ts}Yes, Delete{/ts}</button>
+      <button onclick="document.getElementById('fi-delete-modal').style.display='none'" class="button">{ts}Cancel{/ts}</button>
+    </div>
+    <div id="fi-modal-status" style="display:none;margin-top:10px;padding:8px 12px;border-radius:4px"></div>
+  </div>
+</div>
+
+<style>
+.fi-dup-warning {
+  background: #fff3cd; border-left: 4px solid #ffc107; color: #856404;
+  padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px;
+  margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px; flex-wrap: wrap;
+}
+.fi-dup-warning strong { font-weight: 700; }
+.fi-duplicate { background: #fffbea !important; border-left: 3px solid #ffc107; }
+.fi-grid-header-wide,
+.fi-row.fi-duplicate { grid-template-columns: 80px 1fr 1fr 100px 110px 90px; }
+.fi-dup-tag {
+  display: inline-block; background: #dc3545; color: #fff;
+  font-size: 9px; font-weight: 700; padding: 0 4px; border-radius: 3px;
+  vertical-align: middle; margin-left: 3px; letter-spacing: .04em;
+}
+.fi-keep-tag {
+  display: inline-block; background: #d4edda; color: #155724;
+  font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
+}
+.fi-delete-btn {
+  background: #dc3545; color: #fff; border: none; border-radius: 4px;
+  padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+}
+.fi-delete-btn:hover { background: #b02a37; }
+.fi-delete-btn:disabled { background: #aaa; cursor: not-allowed; }
+.fi-modal-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 9999; display: flex; align-items: center; justify-content: center;
+}
+.fi-modal-box {
+  background: #fff; border-radius: 8px; padding: 24px 28px;
+  max-width: 480px; width: 90%; box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+.fi-modal-box h3 { margin: 0 0 12px; font-size: 16px; color: #721c24; }
+.fi-modal-box p  { margin: 0 0 10px; font-size: 14px; color: #333; }
+.fi-modal-warning {
+  background: #f8d7da; color: #721c24; border-radius: 4px;
+  padding: 8px 12px; font-size: 12px; margin-bottom: 16px;
+}
+.fi-modal-actions { display: flex; gap: 10px; }
+</style>
+
+<script>
+(function () {
+  var pendingBtn = null;
+
+  window.clDeleteFi = function (btn) {
+    pendingBtn = btn;
+    var fiId   = btn.getAttribute('data-fi-id');
+    var amount = btn.getAttribute('data-amount');
+    document.getElementById('fi-modal-body').textContent =
+      'Delete financial item #' + fiId + ' (' + amount + ') and its EFT transaction links?';
+    var st = document.getElementById('fi-modal-status');
+    st.style.display = 'none'; st.textContent = '';
+    var cb = document.getElementById('fi-modal-confirm');
+    cb.disabled = false; cb.textContent = 'Yes, Delete';
+    document.getElementById('fi-delete-modal').style.display = 'flex';
+  };
+
+  document.getElementById('fi-modal-confirm').addEventListener('click', function () {
+    if (!pendingBtn) { return; }
+    var fiId = pendingBtn.getAttribute('data-fi-id');
+    var cid  = pendingBtn.getAttribute('data-cid');
+    var confirmBtn = this;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Deleting…';
+
+    CRM.$.ajax({
+      url: CRM.url('civicrm/civiledger/ajax'),
+      data: {op: 'delete_financial_item', fi_id: fiId, cid: cid},
+      method: 'POST',
+      dataType: 'json',
+      success: function (res) {
+        var st = document.getElementById('fi-modal-status');
+        st.style.display = 'block';
+        if (res.success) {
+          st.style.background = '#d4edda'; st.style.color = '#155724';
+          st.textContent = res.message;
+          var row = document.getElementById('fi-row-' + fiId);
+          if (row) {
+            row.style.transition = 'opacity 0.4s';
+            row.style.opacity = '0';
+            setTimeout(function () {
+              row.remove();
+              document.getElementById('fi-delete-modal').style.display = 'none';
+            }, 450);
+          }
+        } else {
+          st.style.background = '#f8d7da'; st.style.color = '#721c24';
+          st.textContent = res.message || 'Deletion failed.';
+          confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Delete';
+        }
+      },
+      error: function () {
+        var st = document.getElementById('fi-modal-status');
+        st.style.display = 'block';
+        st.style.background = '#f8d7da'; st.style.color = '#721c24';
+        st.textContent = 'Network error — please try again.';
+        confirmBtn.disabled = false; confirmBtn.textContent = 'Yes, Delete';
+      }
+    });
+  });
+}());
+</script>

@@ -41,6 +41,34 @@ class CRM_Civiledger_BAO_AuditTrail {
       }
       unset($fi);
       $li['fi_total'] = $liFiTotal;
+
+      // Detect duplicate financial items: sum exceeds line total by more than $0.01
+      $lineTotal = (float) $li['line_total'];
+      $hasDuplicates = count($li['financial_items']) > 1
+        && ($liFiTotal - $lineTotal) > 0.01;
+      $li['has_fi_duplicates'] = $hasDuplicates;
+
+      if ($hasDuplicates) {
+        // Keep the first (lowest-ID) FI; mark the rest as deletion candidates.
+        $kept = 0.0;
+        foreach ($li['financial_items'] as &$fi) {
+          if (round($kept + (float) $fi['amount'], 4) <= round($lineTotal, 4) + 0.01 && $kept < $lineTotal) {
+            $fi['is_duplicate_candidate'] = FALSE;
+            $kept += (float) $fi['amount'];
+          }
+          else {
+            $fi['is_duplicate_candidate'] = TRUE;
+          }
+        }
+        unset($fi);
+      }
+      else {
+        foreach ($li['financial_items'] as &$fi) {
+          $fi['is_duplicate_candidate'] = FALSE;
+        }
+        unset($fi);
+      }
+
       $trail['line_items'][] = $li;
     }
     $trail['line_item_total']      = $liTotal;
@@ -388,6 +416,87 @@ class CRM_Civiledger_BAO_AuditTrail {
       LIMIT {$limit} OFFSET {$offset}
     ";
     return CRM_Core_DAO::executeQuery($sql, $queryParams)->fetchAll();
+  }
+
+  /**
+   * Delete a duplicate financial item and its entity_financial_trxn links.
+   *
+   * Safety checks performed before deletion:
+   *  - FI must belong to the given contribution (security boundary)
+   *  - At least one other FI must remain on the same line item after deletion
+   *
+   * @param int $fiId          civicrm_financial_item.id to delete
+   * @param int $contributionId  owning contribution (used as security check)
+   * @return array  ['success' => bool, 'eft_deleted' => int, 'message' => string]
+   */
+  public static function deleteFinancialItem(int $fiId, int $contributionId): array {
+    // Security: verify this FI belongs to a line item of the given contribution.
+    $lineItemId = CRM_Core_DAO::singleValueQuery("
+      SELECT li.id
+      FROM civicrm_financial_item fi
+      INNER JOIN civicrm_line_item li
+        ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
+      WHERE fi.id = %1 AND li.contribution_id = %2
+      LIMIT 1
+    ", [
+      1 => [$fiId, 'Integer'],
+      2 => [$contributionId, 'Integer'],
+    ]);
+
+    if (!$lineItemId) {
+      return ['success' => FALSE, 'message' => "Financial item #{$fiId} does not belong to contribution #{$contributionId}."];
+    }
+
+    // Safety: at least one other FI must remain on this line item after deletion.
+    $siblingsCount = (int) CRM_Core_DAO::singleValueQuery("
+      SELECT COUNT(*) FROM civicrm_financial_item
+      WHERE entity_table = 'civicrm_line_item' AND entity_id = %1 AND id != %2
+    ", [
+      1 => [(int) $lineItemId, 'Integer'],
+      2 => [$fiId, 'Integer'],
+    ]);
+
+    if ($siblingsCount < 1) {
+      return ['success' => FALSE, 'message' => "Cannot delete financial item #{$fiId} — it is the only one on its line item."];
+    }
+
+    $tx = new CRM_Core_Transaction();
+    try {
+      // Remove entity_financial_trxn links pointing to this financial item.
+      $eftDeleted = CRM_Core_DAO::executeQuery("
+        DELETE FROM civicrm_entity_financial_trxn
+        WHERE entity_table = 'civicrm_financial_item' AND entity_id = %1
+      ", [1 => [$fiId, 'Integer']])->affectedRows();
+
+      // Delete the financial item itself.
+      CRM_Core_DAO::executeQuery(
+        "DELETE FROM civicrm_financial_item WHERE id = %1",
+        [1 => [$fiId, 'Integer']]
+      );
+
+      $actorId = (int) CRM_Core_Session::singleton()->get('userID');
+      CRM_Civiledger_BAO_AuditLog::record(
+        'DELETE_DUPLICATE_FI',
+        'contribution',
+        $contributionId,
+        [
+          'deleted_fi_id'  => $fiId,
+          'line_item_id'   => (int) $lineItemId,
+          'eft_links_removed' => $eftDeleted,
+        ]
+      );
+
+      $tx->commit();
+      return [
+        'success'     => TRUE,
+        'eft_deleted' => $eftDeleted,
+        'message'     => "Financial item #{$fiId} and {$eftDeleted} EFT link(s) deleted.",
+      ];
+    }
+    catch (Exception $e) {
+      $tx->rollback();
+      return ['success' => FALSE, 'message' => 'Error: ' . $e->getMessage()];
+    }
   }
 
 }

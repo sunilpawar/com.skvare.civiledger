@@ -42,6 +42,17 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
         CRM_Utils_JSON::output($result);
         break;
 
+      case 'delete_financial_item':
+        $fiId  = (int) CRM_Utils_Request::retrieve('fi_id',  'Integer');
+        $cid   = (int) CRM_Utils_Request::retrieve('cid',    'Integer');
+        if (!$fiId || !$cid) {
+          CRM_Utils_JSON::output(['success' => FALSE, 'message' => 'Missing fi_id or cid.']);
+          break;
+        }
+        $result = CRM_Civiledger_BAO_AuditTrail::deleteFinancialItem($fiId, $cid);
+        CRM_Utils_JSON::output($result);
+        break;
+
       default:
         CRM_Utils_JSON::output(['error' => 'Unknown action']);
     }
