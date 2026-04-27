@@ -257,7 +257,11 @@ class CRM_Civiledger_BAO_TaxMapping {
 
   /**
    * Monthly deductible / non-deductible totals (last N months) for the bar chart.
-   * Uses line_item level — the most accurate source.
+   *
+   * Starts from civicrm_contribution (LEFT JOIN to line items) so that:
+   *   1. Contributions with no line items are included.
+   *   2. When all line items have non_deductible_amount=0 but the contribution-level
+   *      non_deductible_amount>0, a proportional share is used as fallback.
    */
   public static function getMonthlyBreakdown(int $months = 12): array {
     $rows = [];
@@ -268,10 +272,41 @@ class CRM_Civiledger_BAO_TaxMapping {
 
       $row = CRM_Core_DAO::executeQuery(
         "SELECT
-           COALESCE(SUM(li.line_total - li.non_deductible_amount), 0) AS deductible,
-           COALESCE(SUM(li.non_deductible_amount), 0)                 AS non_deductible
+           COALESCE(SUM(
+             CASE
+               WHEN li.id IS NOT NULL AND li.non_deductible_amount > 0
+                 THEN li.non_deductible_amount
+               WHEN li.id IS NOT NULL
+                    AND COALESCE(li_totals.li_non_ded, 0) = 0
+                    AND c.non_deductible_amount > 0
+                 THEN (li.line_total / NULLIF(c.total_amount, 0)) * c.non_deductible_amount
+               WHEN li.id IS NULL
+                 THEN COALESCE(c.non_deductible_amount, 0)
+               ELSE 0
+             END
+           ), 0) AS non_deductible,
+           COALESCE(SUM(COALESCE(li.line_total, c.total_amount)), 0)
+             - COALESCE(SUM(
+                 CASE
+                   WHEN li.id IS NOT NULL AND li.non_deductible_amount > 0
+                     THEN li.non_deductible_amount
+                   WHEN li.id IS NOT NULL
+                        AND COALESCE(li_totals.li_non_ded, 0) = 0
+                        AND c.non_deductible_amount > 0
+                     THEN (li.line_total / NULLIF(c.total_amount, 0)) * c.non_deductible_amount
+                   WHEN li.id IS NULL
+                     THEN COALESCE(c.non_deductible_amount, 0)
+                   ELSE 0
+                 END
+               ), 0)                                                 AS deductible
          FROM civicrm_contribution c
-         JOIN civicrm_line_item li ON li.contribution_id = c.id
+         LEFT JOIN civicrm_line_item li ON li.contribution_id = c.id
+         LEFT JOIN (
+           SELECT contribution_id, SUM(non_deductible_amount) AS li_non_ded
+           FROM   civicrm_line_item
+           WHERE  contribution_id IS NOT NULL
+           GROUP  BY contribution_id
+         ) li_totals ON li_totals.contribution_id = c.id
          WHERE c.is_test = 0
            AND c.receive_date BETWEEN %1 AND %2",
         [
