@@ -20,6 +20,17 @@
           <input type="number" name="window" value="{$window}" min="1" max="1440"
                  style="width:74px;border:1px solid #ced4da;border-radius:4px;padding:5px 8px;font-size:13px">
         </label>
+        <label>{ts}Contact Type:{/ts}
+          <select name="contact_type"
+                  style="border:1px solid #ced4da;border-radius:4px;padding:5px 8px;font-size:13px">
+            <option value="">{ts}— All Types —{/ts}</option>
+            {foreach from=$contactTypeOptions key=typeName item=typeLabel}
+              <option value="{$typeName}"{if $contactType eq $typeName} selected="selected"{/if}>
+                {$typeLabel}
+              </option>
+            {/foreach}
+          </select>
+        </label>
         <button type="submit" class="button">{ts}Scan{/ts}</button>
         <a href="{$settingsUrl}" class="button" style="margin-left:4px"
            title="{ts}Change the default time window in Settings{/ts}">
@@ -52,6 +63,7 @@
       <div class="dup-set-header">
         <div class="dup-set-meta">
           <a href="{$set.contact_url}" class="dup-contact-name">{$set.contact_name}</a>
+          <span class="dup-pill dup-pill-contact-type">{$set.contact_type}</span>
           <span class="amount-badge">{$set.total_amount|crmMoney}</span>
           <span class="dup-pill dup-pill-instrument">{$set.payment_instrument_name}</span>
           <span class="dup-pill dup-pill-type">{$set.financial_type_name}</span>

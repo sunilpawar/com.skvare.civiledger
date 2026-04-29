@@ -592,8 +592,9 @@
   padding: 2px 8px;
   border-radius: 10px;
 }
-.dup-pill-instrument { background: #e2e3e5; color: #383d41; }
-.dup-pill-type       { background: #d1ecf1; color: #0c5460; }
+.dup-pill-instrument    { background: #e2e3e5; color: #383d41; }
+.dup-pill-type          { background: #d1ecf1; color: #0c5460; }
+.dup-pill-contact-type  { background: #f3e8ff; color: #6b21a8; }
 
 /* Table */
 .dup-table { margin-top: 8px; }

@@ -25,11 +25,23 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
   public static function findDuplicates(
     ?int $windowMinutes = NULL,
     string $dateFrom = '',
-    string $dateTo = ''
+    string $dateTo = '',
+    string $contactType = ''
   ): array {
     $window   = max(1, $windowMinutes ?? (int) (Civi::settings()->get('civiledger_dup_payment_window') ?? 10));
     $dateFrom = $dateFrom ?: date('Y-m-d', strtotime('-90 days'));
     $dateTo   = $dateTo   ?: date('Y-m-d');
+
+    $contactTypeFilter = '';
+    $params = [
+      1 => [$dateFrom . ' 00:00:00', 'String'],
+      2 => [$dateTo   . ' 23:59:59', 'String'],
+      3 => [$window,                  'Integer'],
+    ];
+    if ($contactType !== '') {
+      $contactTypeFilter = 'AND ct.contact_type = %4';
+      $params[4]         = [$contactType, 'String'];
+    }
 
     // Self-join: find every pair within the window.
     // c2.id > c1.id ensures each pair appears exactly once.
@@ -39,6 +51,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
         c2.id                                                          AS id2,
         c1.contact_id,
         ct.display_name                                                AS contact_name,
+        ct.contact_type,
         c1.total_amount,
         ft.name                                                        AS financial_type_name,
         COALESCE(ov.label, 'Unknown')                                 AS payment_instrument_name,
@@ -62,14 +75,11 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
         AND c1.is_test = 0
         AND c2.is_test = 0
         AND c1.receive_date BETWEEN %1 AND %2
+        {$contactTypeFilter}
       ORDER BY c1.receive_date DESC
     ";
 
-    $pairs = CRM_Core_DAO::executeQuery($pairSql, [
-      1 => [$dateFrom . ' 00:00:00', 'String'],
-      2 => [$dateTo   . ' 23:59:59', 'String'],
-      3 => [$window,                  'Integer'],
-    ])->fetchAll();
+    $pairs = CRM_Core_DAO::executeQuery($pairSql, $params)->fetchAll();
 
     if (empty($pairs)) {
       return [];
@@ -86,6 +96,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
       $m   = [
         'contact_id'              => $pair['contact_id'],
         'contact_name'            => $pair['contact_name'],
+        'contact_type'            => $pair['contact_type'],
         'total_amount'            => $pair['total_amount'],
         'financial_type_name'     => $pair['financial_type_name'],
         'payment_instrument_name' => $pair['payment_instrument_name'],
@@ -205,6 +216,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
       $sets[] = [
         'contact_id'              => $m['contact_id'],
         'contact_name'            => $m['contact_name'],
+        'contact_type'            => $m['contact_type'],
         'contact_url'             => CRM_Utils_System::url('civicrm/contact/view', "reset=1&cid={$m['contact_id']}"),
         'total_amount'            => (float) $m['total_amount'],
         'financial_type_name'     => $m['financial_type_name'],
