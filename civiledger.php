@@ -85,6 +85,17 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Duplicate Payment Detector'),
+        'name' => 'civiledger_duplicate_payments',
+        'url' => 'civicrm/civiledger/duplicate-payments',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Account Balance Dashboard'),
         'name' => 'civiledger_balance',
         'url' => 'civicrm/civiledger/balance',
@@ -146,6 +157,17 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
+        'label' => ts('Settings'),
+        'name' => 'civiledger_settings',
+        'url' => 'civicrm/admin/civiledger/settings',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => 1,
         'active' => 1,
       ],
     ],

@@ -27,14 +27,22 @@ class CRM_Civiledger_Page_RepairTool extends CRM_Core_Page {
       }
     }
 
-    // Always show broken chains so user can select what to repair
-    $broken = CRM_Civiledger_BAO_IntegrityChecker::checkMissingContributionTrxnLink();
-    $brokenItems = CRM_Civiledger_BAO_IntegrityChecker::checkMissingFinancialItemTrxnLink();
+    // Always show broken chains so user can select what to repair.
+    // Limit the result sets to the configured batch size.
+    $batchSize = max(1, (int) (Civi::settings()->get('civiledger_batch_size') ?? 50));
+    $broken      = array_slice(
+      CRM_Civiledger_BAO_IntegrityChecker::checkMissingContributionTrxnLink(), 0, $batchSize
+    );
+    $brokenItems = array_slice(
+      CRM_Civiledger_BAO_IntegrityChecker::checkMissingFinancialItemTrxnLink(), 0, $batchSize
+    );
 
     $this->assign('brokenContributions', $broken);
     $this->assign('brokenItems', $brokenItems);
     $this->assign('totalBroken', count($broken) + count($brokenItems));
+    $this->assign('batchSize', $batchSize);
     $this->assign('integrityUrl', CRM_Utils_System::url('civicrm/civiledger/integrity-check'));
+    $this->assign('settingsUrl', CRM_Utils_System::url('civicrm/admin/civiledger/settings'));
     $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();

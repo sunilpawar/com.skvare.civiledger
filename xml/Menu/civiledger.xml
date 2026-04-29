@@ -91,6 +91,20 @@
     <page_callback>CRM_Civiledger_Page_AuditLog</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Duplicate Payment Detector -->
+  <item>
+    <path>civicrm/civiledger/duplicate-payments</path>
+    <title>Duplicate Payment Detector</title>
+    <page_callback>CRM_Civiledger_Page_DuplicatePaymentDetector</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <!-- Settings -->
+  <item>
+    <path>civicrm/admin/civiledger/settings</path>
+    <title>CiviLedger Settings</title>
+    <page_callback>CRM_Civiledger_Form_Settings</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- AJAX handler -->
   <item>
     <path>civicrm/civiledger/ajax</path>

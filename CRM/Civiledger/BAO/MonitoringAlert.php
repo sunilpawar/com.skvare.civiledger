@@ -8,9 +8,10 @@
  */
 class CRM_Civiledger_BAO_MonitoringAlert {
 
-  const SETTING_LAST_RESULT = 'civiledger_last_check_result';
-  const SETTING_LAST_RUN    = 'civiledger_last_check_run';
-  const SETTING_ALERT_EMAIL = 'civiledger_alert_email';
+  const SETTING_LAST_RESULT  = 'civiledger_last_check_result';
+  const SETTING_LAST_RUN     = 'civiledger_last_check_run';
+  const SETTING_ALERT_EMAILS  = 'civiledger_alert_emails';
+  const SETTING_ALERT_ENABLED = 'civiledger_alert_enabled';
 
   /**
    * Run all checks, cache results, email admins if issues found.
@@ -31,11 +32,20 @@ class CRM_Civiledger_BAO_MonitoringAlert {
     ]);
     Civi::settings()->set(self::SETTING_LAST_RUN, date('Y-m-d H:i:s'));
 
+    $alertEnabled = (bool) (Civi::settings()->get(self::SETTING_ALERT_ENABLED) ?? 1);
     $emailSent = FALSE;
-    if ($totalIssues > 0) {
+    if ($alertEnabled && $totalIssues > 0) {
       self::sendAlertEmail($integritySummary, $mismatchSummary, $totalIssues);
       $emailSent = TRUE;
     }
+
+    // Write every check run to the hash-chained audit log regardless of outcome.
+    CRM_Civiledger_BAO_AuditLog::record('HEALTH_CHECK', 'system', NULL, [
+      'integrity'  => $integritySummary,
+      'mismatch'   => $mismatchSummary,
+      'total'      => $totalIssues,
+      'email_sent' => $emailSent,
+    ]);
 
     return [
       'integrity_issues' => $totalIntegrity,
@@ -60,29 +70,40 @@ class CRM_Civiledger_BAO_MonitoringAlert {
   // ---------------------------------------------------------------------------
 
   private static function sendAlertEmail(array $integrity, array $mismatch, int $total): void {
-    $toEmail = Civi::settings()->get(self::SETTING_ALERT_EMAIL);
-    if (!$toEmail) {
-      [, $toEmail] = CRM_Core_BAO_Domain::getNameAndEmail();
+    // Build recipient list from settings; fall back to domain From address.
+    $recipientsSetting = trim(Civi::settings()->get(self::SETTING_ALERT_EMAILS) ?? '');
+    $emails = $recipientsSetting
+      ? array_filter(array_map('trim', explode(',', $recipientsSetting)))
+      : [];
+    if (empty($emails)) {
+      [, $fallback] = CRM_Core_BAO_Domain::getNameAndEmail();
+      if ($fallback) {
+        $emails[] = $fallback;
+      }
     }
-    if (!$toEmail) {
+    if (empty($emails)) {
       return;
     }
 
-    $domainName  = CRM_Core_BAO_Domain::getDomain()->name ?? 'CiviCRM';
-    $dashUrl     = CRM_Utils_System::url('civicrm/civiledger/dashboard',        'reset=1', TRUE);
-    $integrityUrl = CRM_Utils_System::url('civicrm/civiledger/integrity-check', 'reset=1', TRUE);
-    $mismatchUrl  = CRM_Utils_System::url('civicrm/civiledger/mismatch-detector','reset=1', TRUE);
+    $domainName   = CRM_Core_BAO_Domain::getDomain()->name ?? 'CiviCRM';
+    $dashUrl      = CRM_Utils_System::url('civicrm/civiledger/dashboard',         'reset=1', TRUE);
+    $integrityUrl = CRM_Utils_System::url('civicrm/civiledger/integrity-check',   'reset=1', TRUE);
+    $mismatchUrl  = CRM_Utils_System::url('civicrm/civiledger/mismatch-detector', 'reset=1', TRUE);
     $runAt        = self::getLastRunTime();
 
     $subject = ts('[CiviLedger] %1 financial issue(s) detected — %2', [1 => $total, 2 => $domainName]);
+    $html    = self::buildHtml($integrity, $mismatch, $total, $domainName, $dashUrl, $integrityUrl, $mismatchUrl, $runAt);
+    $text    = self::buildText($integrity, $mismatch, $total, $domainName, $dashUrl, $runAt);
 
-    CRM_Utils_Mail::send([
-      'toEmail'  => $toEmail,
-      'toName'   => $domainName . ' Admin',
-      'subject'  => $subject,
-      'html'     => self::buildHtml($integrity, $mismatch, $total, $domainName, $dashUrl, $integrityUrl, $mismatchUrl, $runAt),
-      'text'     => self::buildText($integrity, $mismatch, $total, $domainName, $dashUrl, $runAt),
-    ]);
+    foreach ($emails as $toEmail) {
+      CRM_Utils_Mail::send([
+        'toEmail' => $toEmail,
+        'toName'  => $domainName . ' Admin',
+        'subject' => $subject,
+        'html'    => $html,
+        'text'    => $text,
+      ]);
+    }
   }
 
   private static function buildHtml(

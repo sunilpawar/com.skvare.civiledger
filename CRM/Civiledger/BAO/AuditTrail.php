@@ -30,6 +30,7 @@ class CRM_Civiledger_BAO_AuditTrail {
     $lineItems = self::getLineItems($contributionId);
     $liTotal = 0.0;
     $fiTotal = 0.0;
+    $dupDetectionEnabled = (bool) (Civi::settings()->get('civiledger_dup_fi_detection') ?? 1);
     foreach ($lineItems as $li) {
       $liTotal += (float) $li['line_total'];
       $li['financial_items'] = self::getFinancialItemsForLineItem($li['id']);
@@ -45,12 +46,14 @@ class CRM_Civiledger_BAO_AuditTrail {
       // Detect duplicate financial items.
       // Only status_id 1 (Paid) and 2 (Partially paid) are eligible duplicate candidates.
       // status_id 3 (Unpaid) FIs are adjustments/re-posts — never flagged as duplicates.
+      // Detection can be toggled off in CiviLedger Settings for high-volume sites.
       $lineTotal = (float) $li['line_total'];
       $eligibleFis = array_filter($li['financial_items'], function ($fi) {
         return in_array((int) $fi['status_id'], [1, 2], TRUE);
       });
       $eligibleSum = array_sum(array_column($eligibleFis, 'amount'));
-      $hasDuplicates = count($eligibleFis) > 1
+      $hasDuplicates = $dupDetectionEnabled
+        && count($eligibleFis) > 1
         && ($eligibleSum - $lineTotal) > 0.01;
       $li['has_fi_duplicates'] = $hasDuplicates;
 
