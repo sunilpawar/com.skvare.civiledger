@@ -61,6 +61,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
         ON  c2.contact_id            = c1.contact_id
         AND c2.total_amount          = c1.total_amount
         AND c2.payment_instrument_id = c1.payment_instrument_id
+        AND c2.financial_type_id     = c1.financial_type_id
         AND c2.id > c1.id
         AND ABS(TIMESTAMPDIFF(MINUTE, c1.receive_date, c2.receive_date)) <= %3
       JOIN civicrm_contact ct        ON ct.id  = c1.contact_id
