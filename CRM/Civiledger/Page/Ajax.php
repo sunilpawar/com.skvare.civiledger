@@ -52,6 +52,17 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
         CRM_Utils_JSON::output($result);
         break;
 
+      case 'delete_duplicate_trxn':
+        $ftId           = (int) CRM_Utils_Request::retrieve('ft_id',           'Integer');
+        $contributionId = (int) CRM_Utils_Request::retrieve('contribution_id', 'Integer');
+        if (!$ftId || !$contributionId) {
+          CRM_Utils_JSON::output(['success' => FALSE, 'message' => 'Missing ft_id or contribution_id.']);
+          break;
+        }
+        $result = CRM_Civiledger_BAO_DuplicateFinancialTrxn::deleteDuplicateTrxn($ftId, $contributionId);
+        CRM_Utils_JSON::output($result);
+        break;
+
       case 'delete_financial_item':
         $fiId  = (int) CRM_Utils_Request::retrieve('fi_id',  'Integer');
         $cid   = (int) CRM_Utils_Request::retrieve('cid',    'Integer');

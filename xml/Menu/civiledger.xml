@@ -98,6 +98,13 @@
     <page_callback>CRM_Civiledger_Page_DuplicatePaymentDetector</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Duplicate Financial Transaction Detector -->
+  <item>
+    <path>civicrm/civiledger/duplicate-trxn</path>
+    <title>Duplicate Financial Transaction Detector</title>
+    <page_callback>CRM_Civiledger_Page_DuplicateFinancialTrxn</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- Settings -->
   <item>
     <path>civicrm/admin/civiledger/settings</path>

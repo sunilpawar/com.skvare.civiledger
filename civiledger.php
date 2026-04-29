@@ -96,6 +96,17 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Duplicate Financial Trxn Detector'),
+        'name' => 'civiledger_duplicate_trxn',
+        'url' => 'civicrm/civiledger/duplicate-trxn',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Account Balance Dashboard'),
         'name' => 'civiledger_balance',
         'url' => 'civicrm/civiledger/balance',

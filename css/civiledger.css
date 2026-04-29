@@ -703,3 +703,136 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* -----------------------------------------------------------------------
+   Duplicate Financial Transaction Detector
+   ----------------------------------------------------------------------- */
+
+/* Per-contribution set card header */
+.dft-set-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.dft-set-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.dft-set-links {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Gateway trxn ID context row */
+.dft-trxn-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: #555;
+}
+
+.dft-label {
+  font-weight: 600;
+  color: #444;
+}
+
+.dft-trxn-id {
+  font-family: monospace;
+  font-size: 12px;
+  background: #eef2f8;
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: #2c3e50;
+}
+
+/* Original row — green left border */
+.dft-table tr.dft-row-original td {
+  background: #f0fff4;
+  border-left: 3px solid #28a745;
+}
+.dft-table tr.dft-row-original:first-child td { border-left: none; }
+.dft-table tr.dft-row-original td:first-child { border-left: 3px solid #28a745; }
+
+/* Duplicate row — amber left border */
+.dft-table tr.dft-row-duplicate td {
+  background: #fffdf0;
+}
+.dft-table tr.dft-row-duplicate td:first-child {
+  border-left: 3px solid #ffc107;
+}
+
+/* From → To account flow cell */
+.dft-account-flow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dft-account-from,
+.dft-account-to {
+  display: inline-block;
+  background: #eef2f8;
+  color: #2c3e50;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dft-arrow {
+  color: #6c757d;
+  font-size: 11px;
+}
+
+/* Role badges */
+.dft-badge-original {
+  display: inline-block;
+  background: #d4edda;
+  color: #155724;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.dft-badge-duplicate {
+  display: inline-block;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+/* Protected indicator (original row) */
+.dft-protected {
+  font-size: 12px;
+  color: #6c757d;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Actions cell */
+.dft-actions {
+  white-space: nowrap;
+}
