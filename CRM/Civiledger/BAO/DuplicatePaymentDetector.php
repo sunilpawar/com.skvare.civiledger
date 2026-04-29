@@ -75,6 +75,8 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
         AND c2.contribution_status_id = 1
         AND c1.is_test = 0
         AND c2.is_test = 0
+        AND c1.total_amount > 0
+        AND c2.total_amount > 0
         AND c1.receive_date BETWEEN %1 AND %2
         {$contactTypeFilter}
       ORDER BY c1.receive_date DESC
