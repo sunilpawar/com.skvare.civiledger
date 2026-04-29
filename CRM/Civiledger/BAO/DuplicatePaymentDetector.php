@@ -245,31 +245,22 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
    * @return array ['success' => bool, 'message' => string, 'refund_trxn_id' => string]
    */
   public static function refundContribution(int $contributionId): array {
-    // Fetch contribution details.
-    $contribRows = CRM_Core_DAO::executeQuery(
-      "SELECT contribution_status_id, total_amount, currency, payment_processor_id
-       FROM civicrm_contribution WHERE id = %1",
+    // Fetch contribution status.
+    $statusId = (int) CRM_Core_DAO::singleValueQuery(
+      "SELECT contribution_status_id FROM civicrm_contribution WHERE id = %1",
       [1 => [$contributionId, 'Integer']]
-    )->fetchAll();
-    if (empty($contribRows)) {
+    );
+    if (!$statusId) {
       return ['success' => FALSE, 'message' => ts('Contribution not found.')];
     }
-    $row         = $contribRows[0];
-    $statusId    = (int)   $row['contribution_status_id'];
-    $amount      = (float) $row['total_amount'];
-    $currency    = $row['currency'] ?: 'USD';
-    $processorId = (int)   $row['payment_processor_id'];
-
     if ($statusId !== 1) {
       return ['success' => FALSE, 'message' => ts('Contribution is not Completed — cannot issue a refund.')];
     }
-    if (!$processorId) {
-      return ['success' => FALSE, 'message' => ts('No payment processor is associated with this contribution. Please process the refund manually through your payment gateway.')];
-    }
 
-    // Get the gateway trxn_id from the payment financial transaction.
-    $gatewayTrxnId = CRM_Core_DAO::singleValueQuery(
-      "SELECT ft.trxn_id
+    // Get the gateway trxn_id, payment_processor_id, amount and currency
+    // from civicrm_financial_trxn — payment_processor_id lives here, not on the contribution.
+    $ftRows = CRM_Core_DAO::executeQuery(
+      "SELECT ft.trxn_id, ft.payment_processor_id, ft.total_amount, ft.currency
        FROM civicrm_financial_trxn ft
        JOIN civicrm_entity_financial_trxn eft
          ON  eft.financial_trxn_id = ft.id
@@ -279,9 +270,21 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
        ORDER BY ft.id ASC
        LIMIT 1",
       [1 => [$contributionId, 'Integer']]
-    );
+    )->fetchAll();
+
+    if (empty($ftRows)) {
+      return ['success' => FALSE, 'message' => ts('No payment financial transaction found for this contribution.')];
+    }
+    $gatewayTrxnId = $ftRows[0]['trxn_id'];
+    $processorId   = (int)   $ftRows[0]['payment_processor_id'];
+    $amount        = (float) $ftRows[0]['total_amount'];
+    $currency      = $ftRows[0]['currency'] ?: 'USD';
+
     if (empty($gatewayTrxnId)) {
       return ['success' => FALSE, 'message' => ts('No gateway transaction ID found. Please process the refund manually through your payment gateway.')];
+    }
+    if (!$processorId) {
+      return ['success' => FALSE, 'message' => ts('No payment processor is associated with this contribution. Please process the refund manually through your payment gateway.')];
     }
 
     // Instantiate the payment processor object.
