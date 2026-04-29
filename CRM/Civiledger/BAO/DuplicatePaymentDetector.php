@@ -230,6 +230,124 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
   }
 
   /**
+   * Issue a gateway refund for a duplicate payment contribution.
+   *
+   * Workflow:
+   *   1. Verify the contribution is Completed.
+   *   2. Resolve the payment processor from the contribution.
+   *   3. Instantiate the processor object and call supportsRefund().
+   *   4. Get the gateway trxn_id from civicrm_financial_trxn.
+   *   5. Call doRefund() with trxn_id, amount and currency.
+   *   6. Record a negative payment in CiviCRM via Payment.create.
+   *   7. Write to the hash-chained audit log.
+   *
+   * @param int $contributionId  Contribution to refund.
+   * @return array ['success' => bool, 'message' => string, 'refund_trxn_id' => string]
+   */
+  public static function refundContribution(int $contributionId): array {
+    // Fetch contribution details.
+    $contribRows = CRM_Core_DAO::executeQuery(
+      "SELECT contribution_status_id, total_amount, currency, payment_processor_id
+       FROM civicrm_contribution WHERE id = %1",
+      [1 => [$contributionId, 'Integer']]
+    )->fetchAll();
+    if (empty($contribRows)) {
+      return ['success' => FALSE, 'message' => ts('Contribution not found.')];
+    }
+    $row         = $contribRows[0];
+    $statusId    = (int)   $row['contribution_status_id'];
+    $amount      = (float) $row['total_amount'];
+    $currency    = $row['currency'] ?: 'USD';
+    $processorId = (int)   $row['payment_processor_id'];
+
+    if ($statusId !== 1) {
+      return ['success' => FALSE, 'message' => ts('Contribution is not Completed — cannot issue a refund.')];
+    }
+    if (!$processorId) {
+      return ['success' => FALSE, 'message' => ts('No payment processor is associated with this contribution. Please process the refund manually through your payment gateway.')];
+    }
+
+    // Get the gateway trxn_id from the payment financial transaction.
+    $gatewayTrxnId = CRM_Core_DAO::singleValueQuery(
+      "SELECT ft.trxn_id
+       FROM civicrm_financial_trxn ft
+       JOIN civicrm_entity_financial_trxn eft
+         ON  eft.financial_trxn_id = ft.id
+         AND eft.entity_table      = 'civicrm_contribution'
+       WHERE eft.entity_id = %1
+         AND ft.is_payment  = 1
+       ORDER BY ft.id ASC
+       LIMIT 1",
+      [1 => [$contributionId, 'Integer']]
+    );
+    if (empty($gatewayTrxnId)) {
+      return ['success' => FALSE, 'message' => ts('No gateway transaction ID found. Please process the refund manually through your payment gateway.')];
+    }
+
+    // Instantiate the payment processor object.
+    try {
+      $processorRecord = CRM_Financial_BAO_PaymentProcessor::getPayment($processorId, 'live');
+      $processor       = Civi\Payment\System::singleton()->getByProcessor($processorRecord);
+    }
+    catch (Exception $e) {
+      return ['success' => FALSE, 'message' => ts('Could not load payment processor: %1', [1 => $e->getMessage()])];
+    }
+
+    // Check refund support — processors declare this via supportsRefund().
+    if (!method_exists($processor, 'supportsRefund') || !$processor->supportsRefund()) {
+      return [
+        'success' => FALSE,
+        'message' => ts(
+          'The payment processor "%1" does not support automated refunds. Please process the refund manually through your payment gateway dashboard.',
+          [1 => $processorRecord['name'] ?? $processorRecord['title'] ?? ts('Unknown')]
+        ),
+      ];
+    }
+
+    // Issue the refund at the gateway.
+    try {
+      $refundResult = $processor->doRefund([
+        'trxn_id'  => $gatewayTrxnId,
+        'amount'   => $amount,
+        'currency' => $currency,
+      ]);
+
+      // Record the negative payment in CiviCRM financials.
+      civicrm_api3('Payment', 'create', [
+        'contribution_id'                   => $contributionId,
+        'total_amount'                       => -abs($amount),
+        'payment_processor_id'              => $processorId,
+        'trxn_id'                            => $refundResult['refund_trxn_id'] ?? '',
+        'fee_amount'                         => $refundResult['fee_amount']     ?? 0,
+        'is_send_contribution_notification' => 0,
+      ]);
+
+      CRM_Civiledger_BAO_AuditLog::record(
+        'REFUND_DUPLICATE_PAYMENT',
+        'contribution',
+        $contributionId,
+        [
+          'amount'          => $amount,
+          'gateway_trxn_id' => $gatewayTrxnId,
+          'refund_trxn_id'  => $refundResult['refund_trxn_id'] ?? '',
+          'refund_status'   => $refundResult['refund_status']  ?? '',
+          'reason'          => 'Refunded as duplicate payment via CiviLedger',
+        ]
+      );
+
+      return [
+        'success'        => TRUE,
+        'message'        => ts('Refund issued for contribution #%1.', [1 => $contributionId]),
+        'refund_trxn_id' => $refundResult['refund_trxn_id'] ?? '',
+        'refund_status'  => $refundResult['refund_status']  ?? '',
+      ];
+    }
+    catch (Exception $e) {
+      return ['success' => FALSE, 'message' => $e->getMessage()];
+    }
+  }
+
+  /**
    * Cancel a contribution confirmed as a duplicate payment.
    * Uses CiviCRM API so hooks fire correctly, then logs to the audit trail.
    */

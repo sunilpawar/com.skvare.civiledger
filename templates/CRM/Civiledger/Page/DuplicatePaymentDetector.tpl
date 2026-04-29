@@ -116,6 +116,15 @@
                     <i class="crm-i fa-sitemap"></i> {ts}Audit{/ts}
                   </a>
                   {if $c.status_id eq 1}
+                    {if !$c.is_original}
+                      <button class="button small dup-refund-btn"
+                              data-cid="{$c.id}"
+                              data-amount="{$c.total_amount}"
+                              data-ajax="{$ajaxUrl}"
+                              style="background:#e67e22;color:#fff;border-color:#e67e22">
+                        <i class="crm-i fa-undo"></i> {ts}Refund{/ts}
+                      </button>
+                    {/if}
                     <button class="button small dup-cancel-btn"
                             data-cid="{$c.id}"
                             data-ajax="{$ajaxUrl}"
@@ -138,6 +147,36 @@
   {if !$sets && $totalSets == 0}{* already shown in banner *}{/if}
 
 </div>{* .civiledger-wrap *}
+
+{* ── Refund confirmation modal ─────────────────────────────────────────────── *}
+<div id="dup-refund-modal"
+     style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;align-items:center;justify-content:center">
+  <div style="background:#fff;border-radius:8px;padding:28px 32px;max-width:480px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.25)">
+    <h3 style="margin:0 0 12px;color:#7d4e00">
+      <i class="crm-i fa-undo"></i> {ts}Refund Duplicate Payment{/ts}
+    </h3>
+    <p style="margin:0 0 6px;font-size:14px">
+      {ts}You are about to issue a gateway refund for contribution{/ts}
+      <strong id="dup-refund-modal-cid"></strong>
+      {ts}(amount:{/ts} <strong id="dup-refund-modal-amount"></strong>).
+    </p>
+    <p style="margin:0 0 18px;font-size:13px;color:#6c757d">
+      {ts}This calls the payment processor's refund API and records a negative payment in CiviCRM. This action cannot be undone.{/ts}
+    </p>
+    <div id="dup-refund-modal-status"
+         style="display:none;margin-bottom:12px;padding:8px 12px;border-radius:4px;font-size:13px"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button id="dup-refund-modal-confirm"
+              style="background:#e67e22;color:#fff;border:1px solid #e67e22;padding:7px 18px;border-radius:4px;cursor:pointer;font-size:13px">
+        {ts}Yes, Issue Refund{/ts}
+      </button>
+      <button id="dup-refund-modal-close"
+              style="background:#6c757d;color:#fff;border:1px solid #6c757d;padding:7px 18px;border-radius:4px;cursor:pointer;font-size:13px">
+        {ts}No, Keep It{/ts}
+      </button>
+    </div>
+  </div>
+</div>
 
 {* ── Cancel confirmation modal ────────────────────────────────────────────── *}
 <div id="dup-cancel-modal"
@@ -167,7 +206,68 @@
 </div>
 
 <script>
+{literal}
 (function ($) {
+
+  // ── Refund modal ──────────────────────────────────────────────────────────
+  var refundCid  = null;
+  var refundAjax = '{$ajaxUrl}';
+
+  $(document).on('click', '.dup-refund-btn', function () {
+    refundCid = $(this).data('cid');
+    var amount = $(this).data('amount');
+    $('#dup-refund-modal-cid').text('#' + refundCid);
+    $('#dup-refund-modal-amount').text(amount);
+    $('#dup-refund-modal-status').hide().text('');
+    $('#dup-refund-modal-confirm').prop('disabled', false).text('{ts}Yes, Issue Refund{/ts}');
+    $('#dup-refund-modal').css('display', 'flex');
+  });
+
+  $('#dup-refund-modal-close').on('click', function () {
+    $('#dup-refund-modal').hide();
+    refundCid = null;
+  });
+
+  $('#dup-refund-modal-confirm').on('click', function () {
+    if (!refundCid) { return; }
+    var $btn = $(this);
+    $btn.prop('disabled', true).text('{ts}Processing…{/ts}');
+
+    CRM.$.ajax({
+      url: refundAjax,
+      method: 'POST',
+      data: { op: 'refund_duplicate_payment', cid: refundCid },
+      dataType: 'json',
+      success: function (resp) {
+        if (resp.success) {
+          var $row = $('#dup-row-' + refundCid);
+          $row.find('.dup-cancel-btn, .dup-refund-btn').replaceWith(
+            '<span style="color:#e67e22;font-size:12px">' +
+            '<i class="crm-i fa-check"></i> {ts}Refunded{/ts}' +
+            (resp.refund_trxn_id ? ' <code style="font-size:11px">' + resp.refund_trxn_id + '</code>' : '') +
+            '</span>'
+          );
+          $('#dup-refund-modal-status')
+              .css({ display: 'block', background: '#d4edda', color: '#155724' })
+              .text(resp.message || '{ts}Refund issued successfully.{/ts}');
+          setTimeout(function () { $('#dup-refund-modal').hide(); }, 1600);
+        } else {
+          $('#dup-refund-modal-status')
+              .css({ display: 'block', background: '#f8d7da', color: '#721c24' })
+              .text(resp.message || '{ts}An error occurred.{/ts}');
+          $btn.prop('disabled', false).text('{ts}Yes, Issue Refund{/ts}');
+        }
+      },
+      error: function () {
+        $('#dup-refund-modal-status')
+            .css({ display: 'block', background: '#f8d7da', color: '#721c24' })
+            .text('{ts}Request failed. Please try again.{/ts}');
+        $btn.prop('disabled', false).text('{ts}Yes, Issue Refund{/ts}');
+      }
+    });
+  });
+
+  // ── Cancel modal ──────────────────────────────────────────────────────────
   var pendingCid  = null;
   var pendingAjax = '{$ajaxUrl}';
 
@@ -226,4 +326,5 @@
     });
   });
 }(CRM.$));
+{/literal}
 </script>
