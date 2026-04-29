@@ -67,6 +67,7 @@
           <tr>
             <th>{ts}ID{/ts}</th>
             <th>{ts}Date / Time{/ts}</th>
+            <th>{ts}Amount{/ts}</th>
             <th>{ts}&Delta; from first{/ts}</th>
             <th>{ts}Trxn ID{/ts}</th>
             <th>{ts}Status{/ts}</th>
@@ -79,6 +80,7 @@
                 id="dup-row-{$c.id}">
               <td><strong>#{$c.id}</strong></td>
               <td style="white-space:nowrap;font-family:monospace;font-size:12px">{$c.receive_date}</td>
+              <td style="text-align:right;white-space:nowrap">{$c.total_amount|crmMoney}</td>
               <td>
                 {if $c.is_original}
                   <span class="delta-badge delta-zero">{ts}original{/ts}</span>
@@ -91,25 +93,27 @@
               <td>
                 <span class="trxn-status-badge trxn-status-{$c.status_id}">{$c.status_label}</span>
               </td>
-              <td class="dup-actions" style="white-space:nowrap">
-                <a href="{$c.view_url}" target="_blank" class="button small"
-                   title="{ts}View contribution{/ts}">
-                  <i class="crm-i fa-eye"></i> {ts}View{/ts}
-                </a>
-                <a href="{$c.audit_url}" target="_blank" class="button small"
-                   title="{ts}Audit Trail{/ts}">
-                  <i class="crm-i fa-sitemap"></i> {ts}Audit{/ts}
-                </a>
-                {if $c.status_id eq 1}
-                  <button class="button small dup-cancel-btn"
-                          data-cid="{$c.id}"
-                          data-ajax="{$ajaxUrl}"
-                          style="background:#dc3545;color:#fff;border-color:#dc3545">
-                    <i class="crm-i fa-ban"></i> {ts}Cancel{/ts}
-                  </button>
-                {elseif $c.status_id eq 3}
-                  <span class="dup-already-cancelled">{ts}Cancelled{/ts}</span>
-                {/if}
+              <td class="dup-actions">
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                  <a href="{$c.view_url}" target="_blank" class="button small"
+                     title="{ts}View contribution{/ts}">
+                    <i class="crm-i fa-eye"></i> {ts}View{/ts}
+                  </a>
+                  <a href="{$c.audit_url}" target="_blank" class="button small"
+                     title="{ts}Audit Trail{/ts}">
+                    <i class="crm-i fa-sitemap"></i> {ts}Audit{/ts}
+                  </a>
+                  {if $c.status_id eq 1}
+                    <button class="button small dup-cancel-btn"
+                            data-cid="{$c.id}"
+                            data-ajax="{$ajaxUrl}"
+                            style="background:#dc3545;color:#fff;border-color:#dc3545">
+                      <i class="crm-i fa-ban"></i> {ts}Cancel{/ts}
+                    </button>
+                  {elseif $c.status_id eq 3}
+                    <span class="dup-already-cancelled">{ts}Cancelled{/ts}</span>
+                  {/if}
+                </div>
               </td>
             </tr>
           {/foreach}

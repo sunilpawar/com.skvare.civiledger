@@ -131,6 +131,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
       SELECT
         c.id,
         c.receive_date,
+        c.total_amount,
         c.trxn_id,
         c.check_number,
         c.contribution_status_id  AS status_id,
@@ -168,6 +169,7 @@ class CRM_Civiledger_BAO_DuplicatePaymentDetector {
         $contribs[] = [
           'id'           => $cid,
           'receive_date' => $d['receive_date'],
+          'total_amount' => (float) $d['total_amount'],
           'trxn_id'      => $d['trxn_id']      ?? '',
           'check_number' => $d['check_number']  ?? '',
           'status_id'    => (int) $d['status_id'],
