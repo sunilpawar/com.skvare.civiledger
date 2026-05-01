@@ -105,6 +105,13 @@
     <page_callback>CRM_Civiledger_Page_DuplicateFinancialTrxn</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Financial Type Account Mapping Validator -->
+  <item>
+    <path>civicrm/civiledger/financial-type-mapping</path>
+    <title>Financial Type Account Mapping</title>
+    <page_callback>CRM_Civiledger_Page_FinancialTypeMapping</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
   <!-- Settings -->
   <item>
     <path>civicrm/admin/civiledger/settings</path>

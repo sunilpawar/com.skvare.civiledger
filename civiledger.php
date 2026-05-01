@@ -173,6 +173,17 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Financial Type Mapping'),
+        'name' => 'civiledger_ft_mapping',
+        'url' => 'civicrm/civiledger/financial-type-mapping',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',
