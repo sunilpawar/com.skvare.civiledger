@@ -75,13 +75,20 @@
                   </span>
                 </h3>
 
-                {* ── Duplicate warning ── *}
-                {if $li.has_fi_duplicates}
+                {* ── Duplicate / NULL-account warnings ── *}
+                {if $li.has_fi_duplicates and not $li.has_null_account_fi}
                   <div class="fi-dup-warning">
                     <i class="crm-i fa-exclamation-triangle"></i>
                     <strong>{ts}Duplicate financial items detected.{/ts}</strong>
                     {ts 1=$li.fi_total|crmMoney 2=$li.line_total|crmMoney}Sum is %1 but line total is %2.{/ts}
                     {ts}The rows marked below are candidates for deletion. Deleting them will also remove their EFT links.{/ts}
+                  </div>
+                {/if}
+                {if $li.has_null_account_fi}
+                  <div class="fi-dup-warning">
+                    <i class="crm-i fa-exclamation-triangle"></i>
+                    <strong>{ts}Malformed financial item(s) detected.{/ts}</strong>
+                    {ts}One or more financial items have no financial account assigned (financial_account_id = NULL). This is caused by a double IPN, a failed status transition, or a missing financial type → account mapping. The affected rows are marked below and can be safely deleted.{/ts}
                   </div>
                 {/if}
 
@@ -99,13 +106,20 @@
                        id="fi-row-{$fi.id}">
                     <span class="fi-id">
                       #{$fi.id}
-                      {if $fi.is_duplicate_candidate}
+                      {if $fi.is_null_account}
+                        <span class="fi-dup-tag fi-null-tag">{ts}NO ACCOUNT{/ts}</span>
+                      {elseif $fi.is_duplicate_candidate}
                         <span class="fi-dup-tag">{ts}DUP{/ts}</span>
                       {/if}
                     </span>
                     <span class="fi-account">
-                      <i class="crm-i fa-university"></i> {$fi.account_name}
-                      {if $fi.account_type_label}<em class="fi-acct-type">{$fi.account_type_label}</em>{/if}
+                      {if $fi.is_null_account}
+                        <i class="crm-i fa-exclamation-triangle" style="color:#dc3545"></i>
+                        <em style="color:#dc3545">{ts}No account assigned{/ts}</em>
+                      {else}
+                        <i class="crm-i fa-university"></i> {$fi.account_name}
+                        {if $fi.account_type_label}<em class="fi-acct-type">{$fi.account_type_label}</em>{/if}
+                      {/if}
                     </span>
                     <span class="fi-desc">{$fi.description|default:'—'}</span>
                     <span class="fi-amount">{$fi.amount|crmMoney}</span>
@@ -118,6 +132,7 @@
                                   data-fi-id="{$fi.id}"
                                   data-cid="{$contributionId}"
                                   data-amount="{$fi.amount|crmMoney}"
+                                  data-is-null-account="{if $fi.is_null_account}1{else}0{/if}"
                                   onclick="clDeleteFi(this)">
                             <i class="crm-i fa-trash"></i> {ts}Delete{/ts}
                           </button>
@@ -301,6 +316,7 @@
   display: inline-block; background: #d4edda; color: #155724;
   font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px;
 }
+.fi-null-tag { background: #6c757d; }
 .fi-delete-btn {
   background: #dc3545; color: #fff; border: none; border-radius: 4px;
   padding: 3px 10px; font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
@@ -331,10 +347,19 @@
 
   window.clDeleteFi = function (btn) {
     pendingBtn = btn;
-    var fiId   = btn.getAttribute('data-fi-id');
-    var amount = btn.getAttribute('data-amount');
-    document.getElementById('fi-modal-body').textContent =
-      'Delete financial item #' + fiId + ' (' + amount + ') and its EFT transaction links?';
+    var fiId        = btn.getAttribute('data-fi-id');
+    var amount      = btn.getAttribute('data-amount');
+    var isNullAcct  = btn.getAttribute('data-is-null-account') === '1';
+    var bodyEl      = document.getElementById('fi-modal-body');
+    if (isNullAcct) {
+      bodyEl.textContent =
+        'Delete financial item #' + fiId + ' (' + amount + ')? ' +
+        'This item has no financial account assigned. Its EFT transaction link(s) will be ' +
+        'reassigned to the valid sibling financial item so the chain remains intact.';
+    } else {
+      bodyEl.textContent =
+        'Delete financial item #' + fiId + ' (' + amount + ') and its EFT transaction links?';
+    }
     var st = document.getElementById('fi-modal-status');
     st.style.display = 'none'; st.textContent = '';
     var cb = document.getElementById('fi-modal-confirm');

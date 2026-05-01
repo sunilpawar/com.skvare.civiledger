@@ -55,7 +55,7 @@ class CRM_Civiledger_BAO_MismatchDetector {
         GROUP BY li2.contribution_id
       ) fi_sum ON fi_sum.contribution_id = c.id
 
-      -- Sum of payment transactions
+      -- Sum of payment transactions (include reversals so reversal+correction nets correctly)
       LEFT JOIN (
         SELECT eft2.entity_id AS contribution_id,
                SUM(ft2.total_amount) AS trxn_total
@@ -63,7 +63,6 @@ class CRM_Civiledger_BAO_MismatchDetector {
         INNER JOIN civicrm_financial_trxn ft2 ON ft2.id = eft2.financial_trxn_id
         WHERE eft2.entity_table = 'civicrm_contribution'
           AND ft2.is_payment = 1
-          AND ft2.total_amount > 0
         GROUP BY eft2.entity_id
       ) trxn_sum ON trxn_sum.contribution_id = c.id
 

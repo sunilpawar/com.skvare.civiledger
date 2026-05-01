@@ -39,13 +39,18 @@ class CRM_Civiledger_BAO_AuditTrail {
         $fi['trxn_links'] = self::getTrxnLinksForFinancialItem($fi['id']);
         $liFiTotal += (float) $fi['amount'];
         $fiTotal  += (float) $fi['amount'];
+        // Pre-flag FIs with no financial account — always a candidate regardless of status/amount.
+        $fi['is_null_account'] = ($fi['financial_account_id'] === NULL || $fi['financial_account_id'] === '');
       }
       unset($fi);
       $li['fi_total'] = $liFiTotal;
 
-      // Detect duplicate financial items.
+      $hasNullAccount = !empty(array_filter($li['financial_items'], fn($fi) => $fi['is_null_account']));
+      $li['has_null_account_fi'] = $hasNullAccount;
+
+      // Detect duplicate financial items (amount-based).
       // Only status_id 1 (Paid) and 2 (Partially paid) are eligible duplicate candidates.
-      // status_id 3 (Unpaid) FIs are adjustments/re-posts — never flagged as duplicates.
+      // status_id 3 (Unpaid) FIs are adjustments/re-posts — never flagged as amount duplicates.
       // Detection can be toggled off in CiviLedger Settings for high-volume sites.
       $lineTotal = (float) $li['line_total'];
       $eligibleFis = array_filter($li['financial_items'], function ($fi) {
@@ -55,7 +60,9 @@ class CRM_Civiledger_BAO_AuditTrail {
       $hasDuplicates = $dupDetectionEnabled
         && count($eligibleFis) > 1
         && ($eligibleSum - $lineTotal) > 0.01;
-      $li['has_fi_duplicates'] = $hasDuplicates;
+
+      // has_fi_duplicates drives the Action column — true for either condition.
+      $li['has_fi_duplicates'] = $hasDuplicates || $hasNullAccount;
 
       if ($hasDuplicates) {
         // Walk eligible FIs in ID order; keep enough to cover line_total, mark rest as candidates.
@@ -63,13 +70,13 @@ class CRM_Civiledger_BAO_AuditTrail {
         foreach ($li['financial_items'] as &$fi) {
           $fiStatus = (int) $fi['status_id'];
           if (!in_array($fiStatus, [1, 2], TRUE)) {
-            // Unpaid / adjustment — never a duplicate candidate.
-            $fi['is_duplicate_candidate'] = FALSE;
+            // Not eligible for amount-based detection; still deletable if account is NULL.
+            $fi['is_duplicate_candidate'] = $fi['is_null_account'];
             continue;
           }
           if (round($kept + (float) $fi['amount'], 4) <= round($lineTotal, 4) + 0.01
               && $kept < $lineTotal) {
-            $fi['is_duplicate_candidate'] = FALSE;
+            $fi['is_duplicate_candidate'] = $fi['is_null_account'];
             $kept += (float) $fi['amount'];
           }
           else {
@@ -80,7 +87,8 @@ class CRM_Civiledger_BAO_AuditTrail {
       }
       else {
         foreach ($li['financial_items'] as &$fi) {
-          $fi['is_duplicate_candidate'] = FALSE;
+          // No amount-based duplicates; still deletable if account is NULL.
+          $fi['is_duplicate_candidate'] = $fi['is_null_account'];
         }
         unset($fi);
       }
@@ -149,6 +157,7 @@ class CRM_Civiledger_BAO_AuditTrail {
     $sql = "
       SELECT fi.id, fi.amount, fi.currency, fi.created_date,
              fi.transaction_date, fi.status_id, fi.description,
+             fi.financial_account_id,
              fa.name AS account_name, fa.accounting_code,
              fat.label AS account_type_label,
              s.label AS status_label
@@ -440,20 +449,33 @@ class CRM_Civiledger_BAO_AuditTrail {
   }
 
   /**
-   * Delete a duplicate financial item and its entity_financial_trxn links.
+   * Delete a duplicate financial item and handle its entity_financial_trxn links.
    *
-   * Safety checks performed before deletion:
-   *  - FI must belong to the given contribution (security boundary)
-   *  - At least one other FI must remain on the same line item after deletion
+   * Two deletion modes depending on why the FI is being removed:
    *
-   * @param int $fiId          civicrm_financial_item.id to delete
-   * @param int $contributionId  owning contribution (used as security check)
-   * @return array  ['success' => bool, 'eft_deleted' => int, 'message' => string]
+   * A) NULL-account FI (financial_account_id IS NULL):
+   *    The EFT links may be the only chain connection and must NOT simply be
+   *    dropped. Strategy:
+   *      1. Find the valid sibling FI (same line item, financial_account_id NOT NULL).
+   *      2. Delete any EFT links that would conflict (sibling already owns that trxn).
+   *      3. Reassign remaining EFT links to the valid sibling.
+   *    This preserves the financial chain while eliminating the malformed FI.
+   *
+   * B) Amount-based duplicate (financial_account_id IS NOT NULL):
+   *    The EFT links are excess records from a double IPN — delete them outright.
+   *
+   * Safety checks:
+   *  - FI must belong to the given contribution (security boundary).
+   *  - At least one other FI must remain on the same line item after deletion.
+   *
+   * @param int $fiId           civicrm_financial_item.id to delete
+   * @param int $contributionId owning contribution (used as security check)
+   * @return array ['success' => bool, 'eft_deleted' => int, 'eft_reassigned' => int, 'message' => string]
    */
   public static function deleteFinancialItem(int $fiId, int $contributionId): array {
     // Security: verify this FI belongs to a line item of the given contribution.
-    $lineItemId = CRM_Core_DAO::singleValueQuery("
-      SELECT li.id
+    $fiRow = CRM_Core_DAO::executeQuery("
+      SELECT fi.financial_account_id, li.id AS line_item_id
       FROM civicrm_financial_item fi
       INNER JOIN civicrm_line_item li
         ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id
@@ -462,18 +484,21 @@ class CRM_Civiledger_BAO_AuditTrail {
     ", [
       1 => [$fiId, 'Integer'],
       2 => [$contributionId, 'Integer'],
-    ]);
+    ])->fetchAll();
 
-    if (!$lineItemId) {
+    if (empty($fiRow)) {
       return ['success' => FALSE, 'message' => "Financial item #{$fiId} does not belong to contribution #{$contributionId}."];
     }
+
+    $lineItemId      = (int) $fiRow[0]['line_item_id'];
+    $isNullAccount   = ($fiRow[0]['financial_account_id'] === NULL || $fiRow[0]['financial_account_id'] === '');
 
     // Safety: at least one other FI must remain on this line item after deletion.
     $siblingsCount = (int) CRM_Core_DAO::singleValueQuery("
       SELECT COUNT(*) FROM civicrm_financial_item
       WHERE entity_table = 'civicrm_line_item' AND entity_id = %1 AND id != %2
     ", [
-      1 => [(int) $lineItemId, 'Integer'],
+      1 => [$lineItemId, 'Integer'],
       2 => [$fiId, 'Integer'],
     ]);
 
@@ -483,11 +508,63 @@ class CRM_Civiledger_BAO_AuditTrail {
 
     $tx = new CRM_Core_Transaction();
     try {
-      // Remove entity_financial_trxn links pointing to this financial item.
-      $eftDeleted = CRM_Core_DAO::executeQuery("
-        DELETE FROM civicrm_entity_financial_trxn
-        WHERE entity_table = 'civicrm_financial_item' AND entity_id = %1
-      ", [1 => [$fiId, 'Integer']])->affectedRows();
+      $eftDeleted    = 0;
+      $eftReassigned = 0;
+      $siblingFiId   = NULL;
+
+      if ($isNullAccount) {
+        // Find the valid sibling (same line item, has a financial account).
+        $siblingFiId = (int) CRM_Core_DAO::singleValueQuery("
+          SELECT id FROM civicrm_financial_item
+          WHERE entity_table = 'civicrm_line_item' AND entity_id = %1
+            AND id != %2
+            AND financial_account_id IS NOT NULL
+          ORDER BY id ASC LIMIT 1
+        ", [
+          1 => [$lineItemId, 'Integer'],
+          2 => [$fiId, 'Integer'],
+        ]) ?: NULL;
+
+        if ($siblingFiId) {
+          // Step 1: drop EFT links that would conflict (sibling already owns the same trxn).
+          $eftDeleted = CRM_Core_DAO::executeQuery("
+            DELETE eft FROM civicrm_entity_financial_trxn eft
+            INNER JOIN civicrm_entity_financial_trxn eft2
+              ON  eft2.entity_table      = 'civicrm_financial_item'
+              AND eft2.entity_id         = %1
+              AND eft2.financial_trxn_id = eft.financial_trxn_id
+            WHERE eft.entity_table = 'civicrm_financial_item'
+              AND eft.entity_id    = %2
+          ", [
+            1 => [$siblingFiId, 'Integer'],
+            2 => [$fiId,        'Integer'],
+          ])->affectedRows();
+
+          // Step 2: reassign remaining EFT links to the valid sibling.
+          $eftReassigned = CRM_Core_DAO::executeQuery("
+            UPDATE civicrm_entity_financial_trxn
+            SET    entity_id = %1
+            WHERE  entity_table = 'civicrm_financial_item' AND entity_id = %2
+          ", [
+            1 => [$siblingFiId, 'Integer'],
+            2 => [$fiId,        'Integer'],
+          ])->affectedRows();
+        }
+        else {
+          // No valid sibling exists — all siblings also have NULL accounts; just drop the links.
+          $eftDeleted = CRM_Core_DAO::executeQuery("
+            DELETE FROM civicrm_entity_financial_trxn
+            WHERE entity_table = 'civicrm_financial_item' AND entity_id = %1
+          ", [1 => [$fiId, 'Integer']])->affectedRows();
+        }
+      }
+      else {
+        // Amount-based duplicate: EFT links are excess records, drop them.
+        $eftDeleted = CRM_Core_DAO::executeQuery("
+          DELETE FROM civicrm_entity_financial_trxn
+          WHERE entity_table = 'civicrm_financial_item' AND entity_id = %1
+        ", [1 => [$fiId, 'Integer']])->affectedRows();
+      }
 
       // Delete the financial item itself.
       CRM_Core_DAO::executeQuery(
@@ -495,23 +572,35 @@ class CRM_Civiledger_BAO_AuditTrail {
         [1 => [$fiId, 'Integer']]
       );
 
-      $actorId = (int) CRM_Core_Session::singleton()->get('userID');
       CRM_Civiledger_BAO_AuditLog::record(
         'DELETE_DUPLICATE_FI',
         'contribution',
         $contributionId,
         [
-          'deleted_fi_id'  => $fiId,
-          'line_item_id'   => (int) $lineItemId,
-          'eft_links_removed' => $eftDeleted,
+          'deleted_fi_id'       => $fiId,
+          'line_item_id'        => $lineItemId,
+          'reason'              => $isNullAccount ? 'NULL financial_account_id' : 'Amount-based duplicate',
+          'eft_links_removed'   => $eftDeleted,
+          'eft_links_reassigned'=> $eftReassigned,
+          'reassigned_to_fi'    => $siblingFiId,
         ]
       );
 
       $tx->commit();
+
+      $msg = "Financial item #{$fiId} deleted.";
+      if ($eftReassigned > 0) {
+        $msg .= " {$eftReassigned} EFT link(s) reassigned to financial item #{$siblingFiId}.";
+      }
+      if ($eftDeleted > 0) {
+        $msg .= " {$eftDeleted} conflicting EFT link(s) removed.";
+      }
+
       return [
-        'success'     => TRUE,
-        'eft_deleted' => $eftDeleted,
-        'message'     => "Financial item #{$fiId} and {$eftDeleted} EFT link(s) deleted.",
+        'success'        => TRUE,
+        'eft_deleted'    => $eftDeleted,
+        'eft_reassigned' => $eftReassigned,
+        'message'        => $msg,
       ];
     }
     catch (Exception $e) {
