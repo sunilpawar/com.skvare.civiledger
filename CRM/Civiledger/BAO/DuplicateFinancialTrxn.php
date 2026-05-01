@@ -7,7 +7,8 @@
  * This is the footprint of a double IPN callback that each created their own trxn row
  * for the same payment event.
  *
- * Detection: GROUP BY (contribution_id, trxn_id, status_id) WHERE COUNT > 1.
+ * Detection: GROUP BY (contribution_id, from_financial_account_id, to_financial_account_id,
+ * total_amount, trxn_id, status_id) WHERE COUNT > 1.
  * The lowest ft.id in each group is treated as the original; all others are candidates
  * for deletion.
  *
@@ -34,7 +35,7 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
       2 => [$dateTo   . ' 23:59:59', 'String'],
     ];
 
-    // Step 1 — find every (contribution, trxn_id, status_id) group with 2+ rows.
+    // Step 1 — find every (contribution, from_account, to_account, amount, trxn_id, status_id) group with 2+ rows.
     $groupSql = "
       SELECT
         c.id                                                    AS contribution_id,
@@ -43,6 +44,9 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
         c.receive_date                                          AS contribution_date,
         c.total_amount                                          AS contribution_amount,
         ftype.name                                              AS financial_type_name,
+        ft.from_financial_account_id,
+        ft.to_financial_account_id,
+        ft.total_amount                                         AS trxn_amount,
         ft.trxn_id,
         ft.status_id,
         COALESCE(MAX(cs.label), 'Unknown')                     AS status_label,
@@ -63,7 +67,7 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
             )
       WHERE c.is_test = 0
         AND c.receive_date BETWEEN %1 AND %2
-      GROUP BY c.id, ft.trxn_id, ft.status_id
+      GROUP BY c.id, ft.from_financial_account_id, ft.to_financial_account_id, ft.total_amount, ft.trxn_id, ft.status_id
       HAVING COUNT(ft.id) > 1
       ORDER BY c.receive_date DESC
     ";
@@ -86,6 +90,8 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
         ft.fee_amount,
         ft.net_amount,
         ft.status_id,
+        ft.from_financial_account_id,
+        ft.to_financial_account_id,
         ft.check_number,
         ft.trxn_result_code,
         eft.entity_id                                           AS contribution_id,
@@ -110,10 +116,10 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
       ORDER BY eft.entity_id ASC, ft.trxn_id ASC, ft.status_id ASC, ft.id ASC
     ";
 
-    // Index detail rows by contribution_id → trxn_id:status_id → [rows]
+    // Index detail rows by contribution_id → from_account:to_account:amount:trxn_id:status_id → [rows]
     $trxnIndex = [];
     foreach (CRM_Core_DAO::executeQuery($trxnSql)->fetchAll() as $row) {
-      $key = $row['trxn_id'] . ':' . $row['status_id'];
+      $key = $row['from_financial_account_id'] . ':' . $row['to_financial_account_id'] . ':' . $row['total_amount'] . ':' . $row['trxn_id'] . ':' . $row['status_id'];
       $trxnIndex[(int) $row['contribution_id']][$key][] = $row;
     }
 
@@ -121,7 +127,7 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
     $sets = [];
     foreach ($groups as $g) {
       $cid    = (int) $g['contribution_id'];
-      $key    = $g['trxn_id'] . ':' . $g['status_id'];
+      $key    = $g['from_financial_account_id'] . ':' . $g['to_financial_account_id'] . ':' . $g['trxn_amount'] . ':' . $g['trxn_id'] . ':' . $g['status_id'];
       $rows   = $trxnIndex[$cid][$key] ?? [];
       if (count($rows) < 2) {
         continue; // already resolved or data mismatch — skip
@@ -291,7 +297,7 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
            AND eft.entity_id    = c.id
          WHERE c.is_test = 0
            AND c.receive_date BETWEEN %1 AND %2
-         GROUP BY c.id, ft.trxn_id, ft.status_id
+         GROUP BY c.id, ft.from_financial_account_id, ft.to_financial_account_id, ft.total_amount, ft.trxn_id, ft.status_id
          HAVING COUNT(ft.id) > 1
        ) grouped",
       [
