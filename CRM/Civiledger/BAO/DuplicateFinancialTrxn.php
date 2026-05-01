@@ -9,7 +9,9 @@
  *
  * Detection: GROUP BY (contribution_id, from_financial_account_id, to_financial_account_id,
  * total_amount, trxn_id, status_id) WHERE COUNT > 1.
- * The lowest ft.id in each group is treated as the original; all others are candidates
+ * Groups are excluded when the contribution already has a reversal row (total_amount < 0,
+ * is_payment = 1) for the same trxn_id — that pattern is an account correction, not a double IPN.
+ * The lowest ft.id in each surviving group is treated as the original; all others are candidates
  * for deletion.
  *
  * Delete action removes:
@@ -69,6 +71,17 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
         AND c.receive_date BETWEEN %1 AND %2
       GROUP BY c.id, ft.from_financial_account_id, ft.to_financial_account_id, ft.total_amount, ft.trxn_id, ft.status_id
       HAVING COUNT(ft.id) > 1
+        AND NOT EXISTS (
+          SELECT 1
+          FROM civicrm_financial_trxn ft2
+          JOIN civicrm_entity_financial_trxn eft2
+            ON  eft2.financial_trxn_id = ft2.id
+            AND eft2.entity_table      = 'civicrm_contribution'
+            AND eft2.entity_id         = c.id
+          WHERE ft2.trxn_id      = ft.trxn_id
+            AND ft2.total_amount < 0
+            AND ft2.is_payment   = 1
+        )
       ORDER BY c.receive_date DESC
     ";
 
@@ -299,6 +312,17 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
            AND c.receive_date BETWEEN %1 AND %2
          GROUP BY c.id, ft.from_financial_account_id, ft.to_financial_account_id, ft.total_amount, ft.trxn_id, ft.status_id
          HAVING COUNT(ft.id) > 1
+           AND NOT EXISTS (
+             SELECT 1
+             FROM civicrm_financial_trxn ft2
+             JOIN civicrm_entity_financial_trxn eft2
+               ON  eft2.financial_trxn_id = ft2.id
+               AND eft2.entity_table      = 'civicrm_contribution'
+               AND eft2.entity_id         = c.id
+             WHERE ft2.trxn_id      = ft.trxn_id
+               AND ft2.total_amount < 0
+               AND ft2.is_payment   = 1
+           )
        ) grouped",
       [
         1 => [$dateFrom . ' 00:00:00', 'String'],
