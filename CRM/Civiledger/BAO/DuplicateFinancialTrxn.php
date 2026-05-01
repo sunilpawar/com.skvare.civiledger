@@ -78,7 +78,9 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
             ON  eft2.financial_trxn_id = ft2.id
             AND eft2.entity_table      = 'civicrm_contribution'
             AND eft2.entity_id         = c.id
-          WHERE ft2.trxn_id      = ft.trxn_id
+          WHERE (ft2.trxn_id                  <=> ft.trxn_id)
+            AND (ft2.from_financial_account_id <=> ft.from_financial_account_id)
+            AND (ft2.to_financial_account_id   <=> ft.to_financial_account_id)
             AND ft2.total_amount < 0
             AND ft2.is_payment   = 1
         )
@@ -319,7 +321,9 @@ class CRM_Civiledger_BAO_DuplicateFinancialTrxn {
                ON  eft2.financial_trxn_id = ft2.id
                AND eft2.entity_table      = 'civicrm_contribution'
                AND eft2.entity_id         = c.id
-             WHERE ft2.trxn_id      = ft.trxn_id
+             WHERE (ft2.trxn_id                  <=> ft.trxn_id)
+               AND (ft2.from_financial_account_id <=> ft.from_financial_account_id)
+               AND (ft2.to_financial_account_id   <=> ft.to_financial_account_id)
                AND ft2.total_amount < 0
                AND ft2.is_payment   = 1
            )
