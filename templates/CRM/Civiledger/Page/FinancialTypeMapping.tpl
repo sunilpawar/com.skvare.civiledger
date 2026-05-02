@@ -172,7 +172,11 @@
           <thead>
             <tr>
               <th>{ts}Relationship{/ts}</th>
-              <th>{ts}Required{/ts}</th>
+              <th>
+                {ts}Required{/ts}
+                <i class="crm-i fa-info-circle" style="color:#6c757d;cursor:help;margin-left:3px"
+                   title="{ts}Required: CiviCRM must have this relationship to record any financial transaction for this type (income, AR, expense, cost of sales). Missing one causes an error. Optional: only used in specific scenarios such as asset transfers, tax, discounts, or chargebacks — safe to omit if not applicable.{/ts}"></i>
+              </th>
               <th>{ts}Mapped Account{/ts}</th>
               <th>{ts}Account Type{/ts}</th>
               <th>{ts}Expected Type{/ts}</th>
@@ -189,9 +193,9 @@
                 </td>
                 <td>
                   {if $rel.is_required}
-                    <span class="ftm-req-badge">{ts}Required{/ts}</span>
+                    <span class="ftm-req-badge" title="{ts}CiviCRM needs this relationship to record financial transactions for this type. Missing it will cause an error.{/ts}">{ts}Required{/ts}</span>
                   {else}
-                    <span style="color:#aaa;font-size:11px">{ts}Optional{/ts}</span>
+                    <span style="color:#aaa;font-size:11px" title="{ts}Only used in specific scenarios (asset transfers, tax, discounts, chargebacks). Safe to omit if not applicable.{/ts}">{ts}Optional{/ts}</span>
                   {/if}
                 </td>
                 <td>
