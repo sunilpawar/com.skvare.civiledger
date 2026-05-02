@@ -1,5 +1,5 @@
 {* CiviLedger - Amount Mismatch Detector *}
-<div class="civiledger-wrap">
+<div class="civiledger-wrap civiledger-mismatch-page">
   <div class="civiledger-header">
     <h1><i class="crm-i fa-exclamation-triangle"></i> Amount Mismatch Detector</h1>
     <p>Finds contributions where amounts don't balance across line items, financial items, and transactions.</p>
@@ -79,6 +79,10 @@
                   {/foreach}
               </td>
               <td>
+                <button class="button small btn-mismatch-detail" data-cid="{$row.contribution_id}"
+                        title="{ts}Expand line-by-line breakdown{/ts}">
+                  <i class="crm-i fa-search-plus"></i> {ts}Detail{/ts}
+                </button>
                 <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
                 <a href="{crmURL p='civicrm/civiledger/repair-detail' q="reset=1&cid=`$row.contribution_id`"}" class="button small">Repair</a>
               </td>
@@ -141,3 +145,47 @@
     {/if}
 
 </div>
+
+{literal}
+<style>
+/* Mismatch detail panel */
+.mismatch-detail-row td { padding: 0 !important; background: #f8f9fa; }
+.mmd-detail-wrap { padding: 14px 16px; }
+
+.mmd-detail-header {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin-bottom: 12px; padding: 8px 12px;
+  background: #fff; border: 1px solid #dee2e6; border-radius: 5px;
+  font-size: 13px;
+}
+.mmd-detail-label { font-weight: 700; color: #212529; margin-right: 4px; }
+.mmd-detail-ref   { color: #495057; }
+.mmd-detail-sum   { padding: 3px 10px; border-radius: 12px; font-weight: 600; font-size: 12px; }
+.mmd-ok  { background: #d4edda; color: #155724; }
+.mmd-bad { background: #f8d7da; color: #721c24; }
+
+.mmd-detail-tables { display: flex; gap: 14px; flex-wrap: wrap; }
+.mmd-detail-block  { flex: 1; min-width: 260px; }
+.mmd-detail-block-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; color: #6c757d; margin-bottom: 5px;
+}
+
+.mmd-inner-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mmd-inner-table th {
+  background: #e9ecef; padding: 4px 7px; text-align: left;
+  font-weight: 600; border-bottom: 1px solid #dee2e6;
+}
+.mmd-inner-table td { padding: 3px 7px; border-bottom: 1px solid #f0f0f0; }
+.mmd-inner-table tfoot td {
+  font-weight: 700; border-top: 2px solid #dee2e6;
+  background: #f8f9fa; padding: 4px 7px;
+}
+.mmd-amt  { text-align: right; font-family: monospace; }
+.mmd-none { color: #aaa; font-style: italic; text-align: center; padding: 8px; }
+
+.mmd-tag          { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
+.mmd-tag-pay      { background: #cfe2ff; color: #084298; }
+.mmd-tag-nonpay   { background: #f0f0f0; color: #666; }
+</style>
+{/literal}

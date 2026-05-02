@@ -344,20 +344,15 @@ class CRM_Civiledger_BAO_RepairTool {
   }
 
   /**
-   * Log a repair action to civicrm_civiledger_audit_log.
+   * Log a repair action to the hash-chained audit log.
    */
   public static function logRepair(int $contributionId, array $actions): void {
-    $session = CRM_Core_Session::singleton();
-    $userId = $session->get('userID') ?? 0;
-    CRM_Core_DAO::executeQuery("
-      INSERT INTO civicrm_civiledger_audit_log
-        (contribution_id, action, notes, created_by)
-      VALUES (%1, 'repair', %2, %3)
-    ", [
-      1 => [$contributionId, 'Integer'],
-      2 => [implode('; ', $actions), 'String'],
-      3 => [$userId, 'Integer'],
-    ]);
+    CRM_Civiledger_BAO_AuditLog::record(
+      CRM_Civiledger_BAO_AuditLog::EVENT_REPAIR,
+      'contribution',
+      $contributionId,
+      ['actions' => $actions]
+    );
   }
 
 }
