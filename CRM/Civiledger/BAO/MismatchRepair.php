@@ -61,7 +61,7 @@ class CRM_Civiledger_BAO_MismatchRepair {
         'fixable' => FALSE,
         'action' => 'manual_review',
         'label' => ts('Manual review required'),
-        'warning' => ts('Payment transaction totals differ from contribution amount. This usually indicates a genuine partial payment or refund. Use the Account Correction Tool to investigate.'),
+        'warning' => ts('Manual review required'),
       ];
     }
 

@@ -41,6 +41,10 @@
       <code>contribution.total_amount == SUM(line_items) == SUM(financial_items) == SUM(payments)</code>
     </div>
   </div>
+    <div class="description">
+      When it marked as 'Manual review required':
+      Payment transaction totals differ from contribution amount. This usually indicates a genuine partial payment or refund. Use the Account Correction Tool to investigate.
+    </div>
 
     {if $mismatches}
       <div class="civiledger-section">
@@ -93,7 +97,6 @@
                   {assign var="s" value=$row.suggestions.line_items}
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
-                      <span style="font-size:11px;color:#666">{ts}Line items:{/ts}</span><br>
                       <button class="button small crm-mismatch-repair" style="display:flex;"
                         data-op="repair_mismatch_line_items"
                         data-cid="{$row.contribution_id}"
@@ -114,7 +117,6 @@
                   {assign var="s" value=$row.suggestions.financial_items}
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
-                      <span style="font-size:11px;color:#666">{ts}Financial items:{/ts}</span><br>
                       <button class="button small crm-mismatch-repair" style="display:flex;"
                         data-op="repair_mismatch_financial_items"
                         data-cid="{$row.contribution_id}"
