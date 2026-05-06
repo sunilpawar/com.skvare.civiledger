@@ -23,8 +23,11 @@
       <form method="post">
         {if $cms_type eq 'WordPress'}
           <input type="hidden" name="page" value="CiviCRM" />
+          <input type="hidden" name="q" value="civicrm/civiledger/period-close" />
+        {elseif $cms_type eq 'Joomla'}
+          <input type="hidden" name="option" value="com_civicrm" />
+          <input type="hidden" name="task" value="civicrm/civiledger/period-close" />
         {/if}
-        <input type="hidden" name="q" value="civicrm/civiledger/period-close" />
         <input type="hidden" name="operation"  value="unlock">
         <input type="hidden" name="lock_id" value="{$activeLock.id}">
         <input type="hidden" name="reset"   value="1">

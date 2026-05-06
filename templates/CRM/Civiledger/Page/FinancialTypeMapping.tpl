@@ -64,8 +64,11 @@
     <form method="get">
       {if $cms_type eq 'WordPress'}
         <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/financial-type-mapping" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/financial-type-mapping" />
       {/if}
-      <input type="hidden" name="q" value="civicrm/civiledger/financial-type-mapping" />
       <div class="ftm-tabs">
         <button type="submit" name="filter" value="all"
                 class="ftm-tab {if $filter eq 'all'}ftm-tab-active{/if}">

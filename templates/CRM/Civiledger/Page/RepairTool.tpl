@@ -57,8 +57,11 @@
             <form method="post" id="batchRepairForm">
               {if $cms_type eq 'WordPress'}
                 <input type="hidden" name="page" value="CiviCRM" />
+                <input type="hidden" name="q" value="civicrm/civiledger/chain-repair" />
+              {elseif $cms_type eq 'Joomla'}
+                <input type="hidden" name="option" value="com_civicrm" />
+                <input type="hidden" name="task" value="civicrm/civiledger/chain-repair" />
               {/if}
-              <input type="hidden" name="q" value="civicrm/civiledger/chain-repair" />
               <input type="hidden" name="action" value="repair_batch">
               <table class="civiledger-table">
                 <thead>

@@ -10,9 +10,12 @@
   <div class="civiledger-filter-bar">
     <form method="get">
       {if $cms_type eq 'WordPress'}
-        <input type="hidden" name="page"  value="CiviCRM" />
+        <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/financial-dashboard" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/financial-dashboard" />
       {/if}
-      <input type="hidden" name="q"     value="civicrm/civiledger/financial-dashboard" />
       <input type="hidden" name="reset" value="1" />
       <label>{ts}From{/ts}: <input type="date" name="date_from" value="{$dateFrom}"></label>
       <label>{ts}To{/ts}:   <input type="date" name="date_to"   value="{$dateTo}"></label>

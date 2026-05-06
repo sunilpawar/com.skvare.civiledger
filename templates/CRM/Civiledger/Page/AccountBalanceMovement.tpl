@@ -20,8 +20,11 @@
     <form method="get" action="{crmURL p='civicrm/civiledger/balancemovement'  a=1}>
       {if $cms_type eq 'WordPress'}
         <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/balancemovement" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/balancemovement" />
       {/if}
-      <input type="hidden" name="q" value="civicrm/civiledger/balancemovement" />
       <input type="hidden" name="reset" value="1">
 
       <label>{ts}Account{/ts}:

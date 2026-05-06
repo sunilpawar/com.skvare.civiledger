@@ -9,21 +9,21 @@
     {assign var=c value=$chain.contribution}
 
     {* Chain Health Badge *}
-  <div class="chain-health {if $chain.health.is_complete}health-ok{else}health-broken{/if}">
-      {if $chain.health.is_complete}
-    <div class="rd-badge rd-badge-ok" style="display: list-item;"<i class="crm-i fa-check-circle"></i> <strong>Financial chain is complete and balanced.</strong></div>
+    <div class="chain-health {if $chain.health.is_complete}health-ok{else}health-broken{/if}">
+    {if $chain.health.is_complete}
+        <div class="rd-badge rd-badge-ok" style="display: list-item;"<i class="crm-i fa-check-circle"></i> <strong>Financial chain is complete and balanced.</strong></div>
     {else}
-  <i class="crm-i fa-chain-broken"></i> <strong>Financial chain has issues.</strong>
-    {if !$chain.health.has_line_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing line items</div>{/if}
-    {if !$chain.health.has_financial_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial items</div>{/if}
-    {if !$chain.health.has_trxns}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial transactions</div>{/if}
-    {if !$chain.health.amounts_match}
-      {if $chain.health.line_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Line items do not match contribution total (diff: {$chain.health.line_item_diff|crmMoney})</div>{/if}
-      {if $chain.health.financial_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Financial items do not match contribution total (diff: {$chain.health.financial_item_diff|crmMoney})</div>{/if}
-      {if $chain.health.trxn_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Payment transactions do not match contribution total (diff: {$chain.health.trxn_diff|crmMoney})</div>{/if}
+      <i class="crm-i fa-chain-broken"></i> <strong>Financial chain has issues.</strong>
+      {if !$chain.health.has_line_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing line items</div>{/if}
+      {if !$chain.health.has_financial_items}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial items</div>{/if}
+      {if !$chain.health.has_trxns}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Missing financial transactions</div>{/if}
+      {if !$chain.health.amounts_match}
+        {if $chain.health.line_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Line items do not match contribution total (diff: {$chain.health.line_item_diff|crmMoney})</div>{/if}
+        {if $chain.health.financial_item_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Financial items do not match contribution total (diff: {$chain.health.financial_item_diff|crmMoney})</div>{/if}
+        {if $chain.health.trxn_diff > 0.01}<div class="rd-badge rd-badge-fail" style="display: list-item;">⚠ Payment transactions do not match contribution total (diff: {$chain.health.trxn_diff|crmMoney})</div>{/if}
+      {/if}
     {/if}
-  <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="cid=`$contributionId`"}" class="button small crm-button-type-delete">Check Details</a>
-    {/if}
+    <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="cid=`$contributionId`"}" class="button small crm-button-type-delete">Check Details</a>
 </div>
 
 {* Contribution Header *}
@@ -261,7 +261,7 @@
                   {if $log.detail_decoded.fixed}{$log.detail_decoded.fixed} fixed{/if}
                   {if $log.detail_decoded.skipped}, {$log.detail_decoded.skipped} skipped{/if}
                   {if $log.detail_decoded.warning}, {$log.detail_decoded.warning} warning{/if}
-                  {if $log.detail_decoded.errors}, {$log.detail_decoded.errors} errors{/if}
+                  {if !empty($log.detail_decoded.errors)}, {$log.detail_decoded.errors} errors{/if}
                 {elseif $log.event_type == 'PERIOD_LOCK'}
                   Locked before {$log.detail_decoded.lock_date|default:''}
                   {if $log.detail_decoded.reason}: {$log.detail_decoded.reason}{/if}

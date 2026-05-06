@@ -11,8 +11,11 @@
     <form method="get">
       {if $cms_type eq 'WordPress'}
         <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/duplicate-trxn" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/duplicate-trxn" />
       {/if}
-      <input type="hidden" name="q" value="civicrm/civiledger/duplicate-trxn" />
       <div class="filter-row">
         <label>{ts}Date From:{/ts} <input type="date" name="date_from" value="{$dateFrom}"></label>
         <label>{ts}Date To:{/ts}   <input type="date" name="date_to"   value="{$dateTo}"></label>

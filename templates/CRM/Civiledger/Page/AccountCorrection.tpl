@@ -18,10 +18,13 @@
       <div class="civiledger-section">
         <h2>Find a Contribution</h2>
         <form method="get">
-            {if $cms_type eq 'WordPress'}
-              <input type="hidden" name="page" value="CiviCRM" />
-            {/if}
-          <input type="hidden" name="q" value="civicrm/civiledger/account-correction" />
+          {if $cms_type eq 'WordPress'}
+            <input type="hidden" name="page" value="CiviCRM" />
+            <input type="hidden" name="q" value="civicrm/civiledger/account-correction" />
+          {elseif $cms_type eq 'Joomla'}
+            <input type="hidden" name="option" value="com_civicrm" />
+            <input type="hidden" name="task" value="civicrm/civiledger/account-correction" />
+          {/if}
           <div class="filter-row">
             <label>Contribution ID: <input type="number" name="cid" placeholder="e.g. 1234" min="1"></label>
             <button type="submit" class="button">Load Transactions</button>
@@ -72,8 +75,11 @@
                   <form method="post" class="correction-form" id="form-{$trxn.id}" style="display:none">
                     {if $cms_type eq 'WordPress'}
                       <input type="hidden" name="page" value="CiviCRM" />
+                      <input type="hidden" name="q" value="civicrm/civiledger/account-correction" />
+                    {elseif $cms_type eq 'Joomla'}
+                      <input type="hidden" name="option" value="com_civicrm" />
+                      <input type="hidden" name="task" value="civicrm/civiledger/account-correction" />
                     {/if}
-                    <input type="hidden" name="q" value="civicrm/civiledger/account-correction" />
                     <input type="hidden" name="action" value="correct">
                     <input type="hidden" name="trxn_id" value="{$trxn.id}">
                     <input type="hidden" name="cid" value="{$contributionId}">

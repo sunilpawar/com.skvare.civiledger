@@ -9,8 +9,11 @@
     <form method="get">
       {if $cms_type eq 'WordPress'}
         <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/mismatch-detector" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/mismatch-detector" />
       {/if}
-      <input type="hidden" name="q" value="civicrm/civiledger/mismatch-detector" />
       <div class="filter-row">
         <label>Date From: <input type="date" name="date_from" value="{$filters.date_from}"></label>
         <label>Date To: <input type="date" name="date_to" value="{$filters.date_to}"></label>
@@ -45,11 +48,11 @@
           <thead>
           <tr>
             <th>Contact</th>
+            <th>{ts}Date / Time{/ts}</th>
             <th class="text-right">Contribution Amount</th>
             <th class="text-right">Line Items Sum</th>
             <th class="text-right">Financial Items Sum</th>
             <th class="text-right">Payments Sum</th>
-            <th>Issues</th>
             <th>Actions</th>
             <th>Suggest Fix</th>
           </tr>
@@ -60,7 +63,8 @@
               <td>
                 <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.contact_name}</a>
               </td>
-              <td class="text-right"><strong>{$row.contribution_amount|crmMoney}</strong></td>
+              <td style="white-space:nowrap;font-family:monospace;font-size:12px">{$row.receive_date}</td>
+              <td class="text-left"><strong>{$row.contribution_amount|crmMoney}</strong></td>
               <td class="text-right {if $row.line_item_diff > 0.01}text-red{else}text-green{/if}">
                   {$row.line_item_total|crmMoney}
                   {if $row.line_item_diff > 0.01}<span class="diff-badge">Δ{$row.line_item_diff|crmMoney}</span>{/if}
@@ -74,21 +78,18 @@
                   {if $row.trxn_diff > 0.01}<span class="diff-badge">Δ{$row.trxn_diff|crmMoney}</span>{/if}
               </td>
               <td>
-                  {foreach from=$row.issues item=issue}
-                    <div class="issue-tag">{$issue}</div>
-                  {/foreach}
-              </td>
-              <td>
+                <div style="display:ruby-text;gap:4px;align-items:center;flex-wrap:wrap">
                 <button class="button small btn-mismatch-detail" data-cid="{$row.contribution_id}"
                         title="{ts}Expand line-by-line breakdown{/ts}">
                   <i class="crm-i fa-search-plus"></i> {ts}Detail{/ts}
                 </button>
                 <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
                 <a href="{crmURL p='civicrm/civiledger/repair-detail' q="reset=1&cid=`$row.contribution_id`"}" class="button small">Repair</a>
+                </div>
               </td>
               <td style="min-width:220px">
                 {* ── Suggest Fix column ── *}
-                {if $row.suggestions.line_items}
+                {if !empty($row.suggestions.line_items)}
                   {assign var="s" value=$row.suggestions.line_items}
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
@@ -109,7 +110,7 @@
                   {/if}
                 {/if}
 
-                {if $row.suggestions.financial_items}
+                {if !empty($row.suggestions.financial_items)}
                   {assign var="s" value=$row.suggestions.financial_items}
                   {if $s.fixable}
                     <div class="suggest-fix" style="margin-bottom:6px">
@@ -130,7 +131,7 @@
                   {/if}
                 {/if}
 
-                {if $row.suggestions.trxn}
+                {if !empty($row.suggestions.trxn)}
                   <div style="font-size:12px;color:#721c24">
                     <i class="crm-i fa-ban"></i>
                     {ts}Payments:{/ts} {$row.suggestions.trxn.warning}

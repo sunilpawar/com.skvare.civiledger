@@ -10,8 +10,11 @@
     <form method="get">
       {if $cms_type eq 'WordPress'}
         <input type="hidden" name="page" value="CiviCRM" />
+        <input type="hidden" name="q" value="civicrm/civiledger/integrity-check" />
+      {elseif $cms_type eq 'Joomla'}
+        <input type="hidden" name="option" value="com_civicrm" />
+        <input type="hidden" name="task" value="civicrm/civiledger/integrity-check" />
       {/if}
-      <input type="hidden" name="q" value="civicrm/civiledger/integrity-check" />
       <div class="filter-row">
         <label>Date From: <input type="date" name="date_from" value="{$filters.date_from}"></label>
         <label>Date To: <input type="date" name="date_to" value="{$filters.date_to}"></label>
@@ -56,15 +59,17 @@
           <tbody>
           {foreach from=$results.missing_contribution_trxn_link item=row}
             <tr>
-              <td>#{$row.contribution_id}</td>
+              <td><a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a></td>
               <td>{$row.contact_name}</td>
               <td class="text-right">{$row.total_amount|crmMoney}</td>
               <td>{$row.receive_date|crmDate}</td>
-              <td>{$row.financial_type}</td>
+              <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
               <td><span class="status-badge">{$row.contribution_status_id}</span></td>
               <td>
-                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair financial chain for contribution #{$row.contribution_id}?')">Repair</a>
-                <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete">Repair</a>
+                </div>
               </td>
             </tr>
           {/foreach}
@@ -89,13 +94,16 @@
           <tbody>
           {foreach from=$results.missing_financial_item item=row}
             <tr>
-              <td>#{$row.contribution_id}</td>
+              <td><a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a></td>
               <td>#{$row.line_item_id}</td>
               <td class="text-right">{$row.line_total|crmMoney}</td>
-              <td>{$row.financial_type}</td>
+              <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
               <td>{$row.receive_date|crmDate}</td>
               <td>
-                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete">Repair</a>
+                </div>
               </td>
             </tr>
           {/foreach}
@@ -122,14 +130,17 @@
           {foreach from=$results.missing_financial_item_trxn_link item=row}
             <tr class="row-critical">
               <td>#{$row.financial_item_id}</td>
-              <td>{$row.contact_name}</td>
-              <td class="text-right">{$row.amount|crmMoney}</td>
-              <td>{$row.financial_account}</td>
-              <td>{$row.transaction_date|crmDate}</td>
-              <td>{if $row.contribution_id}<a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}">#{$row.contribution_id}</a>{else}—{/if}</td>
+              <td><a target="_blank" href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.contact_name}</a></td>
+              <td class="text-right">{if !empty($row.amount)}{$row.amount|crmMoney}{/if}</td>
+              <td>{if !empty($row.financial_account)}{$row.financial_account}{/if}</td>
+              <td>{if !empty($row.transaction_date)}{$row.transaction_date|crmDate}{/if}</td>
+              <td>{if $row.contribution_id}<a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a>{else}—{/if}</td>
               <td>
                   {if $row.contribution_id}
-                    <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
+                    <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                    <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                    <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete">Repair</a>
+                    </div>
                   {/if}
               </td>
             </tr>
@@ -149,16 +160,19 @@
     </h2>
       {if $results.missing_line_items}
         <table class="civiledger-table">
-          <thead><tr><th>ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Contribution ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody>
           {foreach from=$results.missing_line_items item=row}
             <tr>
-              <td>#{$row.contribution_id}</td>
+              <td><a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a></td>
               <td class="text-right">{$row.total_amount|crmMoney}</td>
-              <td>{$row.financial_type}</td>
+              <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
               <td>{$row.receive_date|crmDate}</td>
               <td>
-                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete" onclick="return confirm('Repair?')">Repair</a>
+                <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
+                <a target="_blank" href="{crmURL p='civicrm/civiledger/repair-detail' q="operation=repair_one&cid=`$row.contribution_id`"}" class="button small crm-button-type-delete">Repair</a>
+                </div>
               </td>
             </tr>
           {/foreach}
