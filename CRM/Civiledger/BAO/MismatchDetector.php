@@ -17,6 +17,10 @@ class CRM_Civiledger_BAO_MismatchDetector {
    */
   public static function detect(array $filters = []): array {
     $where = self::buildWhere($filters);
+    $whereC2 = str_replace('c.', 'c2.', $where); // for the subquery joins
+    $whereC3 = str_replace('c.', 'c3.', $where); // for the subquery joins
+    $whereC4 = str_replace('c.', 'c4.', $where); // for the subquery joins
+
     $sql = "
       SELECT
         c.id                             AS contribution_id,
@@ -41,7 +45,8 @@ class CRM_Civiledger_BAO_MismatchDetector {
       LEFT JOIN (
         SELECT contribution_id, SUM(line_total) AS line_total
         FROM civicrm_line_item
-        WHERE qty <> 0
+        inner join civicrm_contribution c2 on c2.id = civicrm_line_item.contribution_id
+        WHERE {$whereC2} AND qty <> 0
         GROUP BY contribution_id
       ) li_sum ON li_sum.contribution_id = c.id
 
@@ -52,6 +57,8 @@ class CRM_Civiledger_BAO_MismatchDetector {
         INNER JOIN civicrm_line_item li2
                ON fi2.entity_table = 'civicrm_line_item'
               AND fi2.entity_id = li2.id
+        inner join civicrm_contribution c3 on c3.id = li2.contribution_id
+        WHERE {$whereC3}
         GROUP BY li2.contribution_id
       ) fi_sum ON fi_sum.contribution_id = c.id
 
@@ -61,14 +68,14 @@ class CRM_Civiledger_BAO_MismatchDetector {
                SUM(ft2.total_amount) AS trxn_total
         FROM civicrm_entity_financial_trxn eft2
         INNER JOIN civicrm_financial_trxn ft2 ON ft2.id = eft2.financial_trxn_id
+        inner join civicrm_contribution c4 on c4.id = eft2.entity_id
         WHERE eft2.entity_table = 'civicrm_contribution'
           AND ft2.is_payment = 1
+          AND {$whereC4}
         GROUP BY eft2.entity_id
       ) trxn_sum ON trxn_sum.contribution_id = c.id
 
-      WHERE c.is_test = 0
-        AND c.contribution_status_id = 1
-        {$where}
+      WHERE {$where}
       HAVING line_item_diff > 0.01
           OR financial_item_diff > 0.01
           OR trxn_diff > 0.01
@@ -203,10 +210,10 @@ class CRM_Civiledger_BAO_MismatchDetector {
   }
 
   private static function buildWhere(array $filters): string {
-    $where = '';
+    $where = ' c.is_test = 0 AND c.contribution_status_id = 1 ';
     if (!empty($filters['date_from'])) {
       $d = CRM_Utils_Type::escape($filters['date_from'], 'String');
-      $where .= " AND c.receive_date >= '{$d}'";
+      $where .= " AND c.receive_date >= '{$d} 00:00:00'";
     }
     if (!empty($filters['date_to'])) {
       $d = CRM_Utils_Type::escape($filters['date_to'], 'String');
