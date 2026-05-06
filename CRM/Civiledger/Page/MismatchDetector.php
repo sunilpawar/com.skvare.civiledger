@@ -11,8 +11,8 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
     CRM_Utils_System::setTitle(ts('CiviLedger — Amount Mismatch Detector'));
 
     $filters = [
-      'date_from' => CRM_Utils_Request::retrieve('date_from', 'String') ?? '',
-      'date_to' => CRM_Utils_Request::retrieve('date_to', 'String') ?? '',
+      'date_from' => CRM_Utils_Request::retrieve('date_from', 'String') ?? date('Y-m-d', strtotime('-30 days')),
+      'date_to' => CRM_Utils_Request::retrieve('date_to', 'String') ?? date('Y-m-d'),
     ];
 
     $mismatches = CRM_Civiledger_BAO_MismatchDetector::detect($filters);

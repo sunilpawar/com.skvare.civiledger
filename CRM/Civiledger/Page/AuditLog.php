@@ -17,8 +17,8 @@ class CRM_Civiledger_Page_AuditLog extends CRM_Core_Page {
     CRM_Core_Resources::singleton()
       ->addStyleFile('com.skvare.civiledger', 'css/civiledger.css');
 
-    $dateFrom  = CRM_Utils_Request::retrieve('date_from',  'String') ?: '';
-    $dateTo    = CRM_Utils_Request::retrieve('date_to',    'String') ?: '';
+    $dateFrom  = CRM_Utils_Request::retrieve('date_from',  'String') ?: date('Y-m-d', strtotime('-30 days'));
+    $dateTo    = CRM_Utils_Request::retrieve('date_to',    'String') ?: date('Y-m-d');
     $eventType = CRM_Utils_Request::retrieve('event_type', 'String') ?: '';
     $page      = max(1, (int) CRM_Utils_Request::retrieve('page', 'Positive') ?: 1);
     $verify    = (bool) CRM_Utils_Request::retrieve('verify', 'Boolean');
