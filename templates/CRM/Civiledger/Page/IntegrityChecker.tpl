@@ -22,7 +22,7 @@
           <select name="status_id">
             <option value="">— All —</option>
               {foreach from=$statusOptions key=val item=label}
-                <option value="{$val}" {if $filters.contribution_status_id == $val}selected{/if}>{$label}</option>
+                <option value="{$val}" {if $filters.status_id == $val}selected{/if}>{$label}</option>
               {/foreach}
           </select>
         </label>

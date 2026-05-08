@@ -301,16 +301,17 @@ class CRM_Civiledger_BAO_IntegrityChecker {
     $i = 1;
     if (!empty($filters['date_from'])) {
       $where .= " AND $alias.receive_date >= %$i";
-      $params[$i++] = [$filters['date_from'], 'String'];
+      $params[$i++] = [$filters['date_from'] . ' 00:00:00', 'String'];
     }
     if (!empty($filters['date_to'])) {
       $where .= " AND $alias.receive_date <= %$i";
-      $params[$i++] = [$filters['date_to'], 'String'];
+      $params[$i++] = [$filters['date_to'] . ' 23:59:59', 'String'];
     }
     if (!empty($filters['status_id'])) {
       $where .= " AND $alias.contribution_status_id = %$i";
       $params[$i++] = [(int) $filters['status_id'], 'Integer'];
     }
+
     return [$where, $params];
   }
 
