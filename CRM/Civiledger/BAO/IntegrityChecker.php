@@ -88,10 +88,16 @@ class CRM_Civiledger_BAO_IntegrityChecker {
              c.currency,
              c.receive_date,
              c.contribution_status_id,
+             cs.label AS status_label,
              c.contact_id,
              ct.display_name AS contact_name
       FROM civicrm_contribution c
       LEFT JOIN civicrm_contact ct ON ct.id = c.contact_id
+      LEFT JOIN civicrm_option_value cs
+        ON cs.value = c.contribution_status_id
+        AND cs.option_group_id = (
+          SELECT id FROM civicrm_option_group WHERE name = 'contribution_status'
+        )
       LEFT JOIN civicrm_line_item li ON li.contribution_id = c.id
       WHERE li.id IS NULL
         AND c.is_test = 0
@@ -113,12 +119,18 @@ class CRM_Civiledger_BAO_IntegrityChecker {
              c.currency,
              c.receive_date,
              c.contribution_status_id,
+             cs.label AS status_label,
              c.contact_id,
              ct.display_name AS contact_name,
              li.id AS line_item_id,
              li.line_total AS line_total
       FROM civicrm_contribution c
       LEFT JOIN civicrm_contact ct ON ct.id = c.contact_id
+      LEFT JOIN civicrm_option_value cs
+        ON cs.value = c.contribution_status_id
+        AND cs.option_group_id = (
+          SELECT id FROM civicrm_option_group WHERE name = 'contribution_status'
+        )
       INNER JOIN civicrm_line_item li ON li.contribution_id = c.id
       LEFT JOIN civicrm_financial_item fi
         ON fi.entity_table = 'civicrm_line_item' AND fi.entity_id = li.id

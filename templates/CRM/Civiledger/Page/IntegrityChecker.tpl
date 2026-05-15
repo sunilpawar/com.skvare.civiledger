@@ -88,7 +88,7 @@
       {if $results.missing_financial_items}
         <table class="civiledger-table">
           <thead>
-          <tr><th>Contribution</th><th>Line Item ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr>
+          <tr><th>Contribution</th><th>Line Item ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
           {foreach from=$results.missing_financial_items item=row}
@@ -98,6 +98,7 @@
               <td class="text-right">{$row.line_total|crmMoney}</td>
               <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
               <td>{$row.receive_date|crmDate}</td>
+              <td><span class="contrib-status-badge contrib-status-{$row.contribution_status_id}">{$row.status_label|default:'—'}</span></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
                 <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
