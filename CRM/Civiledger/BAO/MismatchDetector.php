@@ -27,6 +27,7 @@ class CRM_Civiledger_BAO_MismatchDetector {
         c.total_amount                   AS contribution_amount,
         c.receive_date,
         c.contribution_status_id,
+        cs.label                         AS status_label,
         CONCAT(ct.first_name, ' ', ct.last_name) AS contact_name,
         ct.id                            AS contact_id,
         ft.name                          AS financial_type,
@@ -40,6 +41,11 @@ class CRM_Civiledger_BAO_MismatchDetector {
       FROM civicrm_contribution c
       LEFT JOIN civicrm_contact ct ON ct.id = c.contact_id
       LEFT JOIN civicrm_financial_type ft ON ft.id = c.financial_type_id
+      LEFT JOIN civicrm_option_value cs
+        ON cs.value = c.contribution_status_id
+        AND cs.option_group_id = (
+          SELECT id FROM civicrm_option_group WHERE name = 'contribution_status'
+        )
 
       -- Sum of line items
       LEFT JOIN (

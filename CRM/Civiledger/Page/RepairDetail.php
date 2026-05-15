@@ -36,6 +36,11 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
 
     CRM_Utils_System::setTitle(ts('CiviLedger — Repair Contribution #%1', [1 => $contributionId]));
 
+    $activeLock = CRM_Civiledger_BAO_PeriodClose::getActiveLock();
+    $contributionLocked = $activeLock
+      && !empty($contribution['receive_date'])
+      && substr($contribution['receive_date'], 0, 10) < $activeLock['lock_date'];
+
     $preChain = $this->analyzeChain($contributionId);
     $action = CRM_Utils_Request::retrieve('operation', 'String');
     $repairRan = FALSE;
@@ -44,23 +49,28 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     $postChain = NULL;
 
     if ($action == 'run') {
-      // Execute repair and capture the detailed log
-      $repairLog = CRM_Civiledger_BAO_ChainRepair::repairContribution($contributionId);
-      $postChain = $this->analyzeChain($contributionId);
-      $repairRan = TRUE;
-      $logSummary = [
-        'fixed' => count(array_filter($repairLog, fn($l) => isset($l['fixed']))),
-        'skipped' => count(array_filter($repairLog, fn($l) => isset($l['skip']))),
-        'warning' => count(array_filter($repairLog, fn($l) => isset($l['warning']))),
-        'error' => count(array_filter($repairLog, fn($l) => isset($l['error']))),
-        'info' => count(array_filter($repairLog, fn($l) => isset($l['info']))),
-      ];
+      if ($contributionLocked) {
+        // Repair blocked — contribution is within the locked period.
+        // $repairRan stays FALSE so the template shows the pre-chain + lock notice.
+      }
+      else {
+        // Execute repair and capture the detailed log
+        $repairLog = CRM_Civiledger_BAO_ChainRepair::repairContribution($contributionId);
+        $postChain = $this->analyzeChain($contributionId);
+        $repairRan = TRUE;
+        $logSummary = [
+          'fixed' => count(array_filter($repairLog, fn($l) => isset($l['fixed']))),
+          'skipped' => count(array_filter($repairLog, fn($l) => isset($l['skip']))),
+          'warning' => count(array_filter($repairLog, fn($l) => isset($l['warning']))),
+          'error' => count(array_filter($repairLog, fn($l) => isset($l['error']))),
+          'info' => count(array_filter($repairLog, fn($l) => isset($l['info']))),
+        ];
+      }
     }
 
     // URLs
     $runUrl = CRM_Utils_System::url('civicrm/civiledger/repair-detail',
       "cid={$contributionId}&operation=run");
-    $backUrl = CRM_Utils_System::url('civicrm/civiledger/chain-repair', 'reset=1');
     $auditUrl = CRM_Utils_System::url('civicrm/civiledger/audit-trail',
       "reset=1&contribution_id={$contributionId}");
     $contribUrl = CRM_Civiledger_BAO_Utils::getContributionUrl($contributionId);
@@ -73,9 +83,11 @@ class CRM_Civiledger_Page_RepairDetail extends CRM_Core_Page {
     $this->assign('logSummary', $logSummary);
     $this->assign('postChain', $postChain);
     $this->assign('runUrl', $runUrl);
-    $this->assign('backUrl', $backUrl);
     $this->assign('auditUrl', $auditUrl);
     $this->assign('contribUrl', $contribUrl);
+    $this->assign('activeLock', $activeLock);
+    $this->assign('contributionLocked', $contributionLocked);
+    $this->assign('periodCloseUrl', CRM_Utils_System::url('civicrm/civiledger/period-close'));
     $this->assign('cms_type', CIVICRM_UF);
     $this->assign('repairHistory', $this->loadRepairHistory($contributionId));
 

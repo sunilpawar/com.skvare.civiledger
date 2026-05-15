@@ -37,8 +37,7 @@
         <i class="crm-i fa-check-circle"></i> <strong>All clear!</strong> No financial integrity issues found.
       {else}
         <i class="crm-i fa-exclamation-triangle"></i>
-        <strong>{$totalIssues} issue(s) found.</strong>
-        <a href="{$repairUrl}" class="button small">Go to Repair Tool →</a>
+        <strong>{$totalIssues} issue(s) found.</strong> Please review the details below.
       {/if}
   </div>
 
@@ -64,7 +63,7 @@
               <td class="text-right">{$row.total_amount|crmMoney}</td>
               <td>{$row.receive_date|crmDate}</td>
               <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
-              <td><span class="status-badge">{$row.contribution_status_id}</span></td>
+              <td><span class="contrib-status-badge contrib-status-{$row.contribution_status_id}">{$row.status_label|default:'—'}</span></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
                 <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
@@ -124,7 +123,7 @@
       {if $results.missing_financial_item_trxn_link}
         <table class="civiledger-table">
           <thead>
-          <tr><th>Financial Item ID</th><th>Contact</th><th>Amount</th><th>Account</th><th>Date</th><th>Contribution</th><th>Actions</th></tr>
+          <tr><th>Financial Item ID</th><th>Contact</th><th>Amount</th><th>Account</th><th>Date</th><th>Contribution</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
           {foreach from=$results.missing_financial_item_trxn_link item=row}
@@ -135,6 +134,7 @@
               <td>{if !empty($row.financial_account)}{$row.financial_account}{/if}</td>
               <td>{if !empty($row.transaction_date)}{$row.transaction_date|crmDate}{/if}</td>
               <td>{if $row.contribution_id}<a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a>{else}—{/if}</td>
+              <td><span class="contrib-status-badge contrib-status-{$row.contribution_status_id}">{$row.status_label|default:'—'}</span></td>
               <td>
                   {if $row.contribution_id}
                     <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
@@ -160,7 +160,7 @@
     </h2>
       {if $results.missing_line_items}
         <table class="civiledger-table">
-          <thead><tr><th>Contribution ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Contribution ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody>
           {foreach from=$results.missing_line_items item=row}
             <tr>
@@ -168,6 +168,7 @@
               <td class="text-right">{$row.total_amount|crmMoney}</td>
               <td>{if !empty($row.financial_type)}{$row.financial_type}{/if}</td>
               <td>{$row.receive_date|crmDate}</td>
+              <td><span class="contrib-status-badge contrib-status-{$row.contribution_status_id}">{$row.status_label|default:'—'}</span></td>
               <td>
                 <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">
                 <a target="_blank" href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$row.contribution_id`"}" class="button small">Audit Trail</a>
@@ -182,3 +183,26 @@
   </div>
 
 </div>
+
+<style>
+{literal}
+.contrib-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  background: #e2e3e5;
+  color: #383d41;
+}
+.contrib-status-1 { background: #d4edda; color: #155724; } /* Completed */
+.contrib-status-2 { background: #fff3cd; color: #856404; } /* Pending */
+.contrib-status-3 { background: #f8d7da; color: #721c24; } /* Cancelled */
+.contrib-status-4 { background: #f8d7da; color: #721c24; } /* Failed */
+.contrib-status-5 { background: #cfe2ff; color: #084298; } /* In Progress */
+.contrib-status-6 { background: #e2e3e5; color: #383d41; } /* Overdue */
+.contrib-status-7 { background: #d1ecf1; color: #0c5460; } /* Refunded */
+.contrib-status-8 { background: #fce8d8; color: #7c3c00; } /* Partially paid */
+{/literal}
+</style>

@@ -5,6 +5,18 @@
     <p>Finds contributions where amounts don't balance across line items, financial items, and transactions.</p>
   </div>
 
+  {* Period lock banner *}
+  {if $activeLock}
+    <div class="crm-container period-lock-banner">
+      <i class="crm-i fa-lock"></i>
+      <strong>Financial Period Locked</strong> — Repairs for contributions before
+      <strong>{$activeLock.lock_date}</strong> are blocked.
+      Locked by {$activeLock.locked_by_name|default:'System'} on {$activeLock.locked_at|crmDate}.
+      {if $activeLock.lock_reason}<em>Reason: {$activeLock.lock_reason}</em>{/if}
+      <a href="{$periodCloseUrl}" class="button small">Manage Lock</a>
+    </div>
+  {/if}
+
   <div class="civiledger-section civiledger-filters">
     <form method="get">
       {if $cms_type eq 'WordPress'}
@@ -53,6 +65,7 @@
           <tr>
             <th>Contact</th>
             <th>{ts}Date / Time{/ts}</th>
+            <th>{ts}Status{/ts}</th>
             <th class="text-right">Contribution Amount</th>
             <th class="text-right">Line Items Sum</th>
             <th class="text-right">Financial Items Sum</th>
@@ -68,6 +81,7 @@
                 <a href="{crmURL p='civicrm/contact/view' q="reset=1&cid=`$row.contact_id`"}">{$row.contact_name}</a>
               </td>
               <td style="white-space:nowrap;font-family:monospace;font-size:12px">{$row.receive_date}</td>
+              <td><span class="contrib-status-badge contrib-status-{$row.contribution_status_id}">{$row.status_label|default:'—'}</span></td>
               <td class="text-left"><strong>{$row.contribution_amount|crmMoney}</strong></td>
               <td class="text-right {if $row.line_item_diff > 0.01}text-red{else}text-green{/if}">
                   {$row.line_item_total|crmMoney}
@@ -93,51 +107,58 @@
               </td>
               <td style="min-width:220px">
                 {* ── Suggest Fix column ── *}
-                {if !empty($row.suggestions.line_items)}
-                  {assign var="s" value=$row.suggestions.line_items}
-                  {if $s.fixable}
-                    <div class="suggest-fix" style="margin-bottom:6px">
-                      <button class="button small crm-mismatch-repair" style="display:flex;"
-                        data-op="repair_mismatch_line_items"
-                        data-cid="{$row.contribution_id}"
-                        data-ajax="{$ajaxUrl}"
-                        title="{$s.warning}">
-                        <i class="crm-i fa-wrench"></i> {$s.label}
-                      </button>
-                    </div>
-                  {else}
-                    <div style="margin-bottom:6px;font-size:12px;color:#856404">
-                      <i class="crm-i fa-exclamation-triangle"></i>
-                      {ts}Line items:{/ts} {$s.warning}
+                {if $row.is_locked}
+                  <span class="mismatch-period-locked-badge"
+                        title="This contribution falls within the locked financial period (before {$activeLock.lock_date}). Repairs are not allowed.">
+                    <i class="crm-i fa-lock"></i> {ts}Period Locked — repairs blocked{/ts}
+                  </span>
+                {else}
+                  {if !empty($row.suggestions.line_items)}
+                    {assign var="s" value=$row.suggestions.line_items}
+                    {if $s.fixable}
+                      <div class="suggest-fix" style="margin-bottom:6px">
+                        <button class="button small crm-mismatch-repair" style="display:flex;"
+                          data-op="repair_mismatch_line_items"
+                          data-cid="{$row.contribution_id}"
+                          data-ajax="{$ajaxUrl}"
+                          title="{$s.warning}">
+                          <i class="crm-i fa-wrench"></i> {$s.label}
+                        </button>
+                      </div>
+                    {else}
+                      <div style="margin-bottom:6px;font-size:12px;color:#856404">
+                        <i class="crm-i fa-exclamation-triangle"></i>
+                        {ts}Line items:{/ts} {$s.warning}
+                      </div>
+                    {/if}
+                  {/if}
+
+                  {if !empty($row.suggestions.financial_items)}
+                    {assign var="s" value=$row.suggestions.financial_items}
+                    {if $s.fixable}
+                      <div class="suggest-fix" style="margin-bottom:6px">
+                        <button class="button small crm-mismatch-repair" style="display:flex;"
+                          data-op="repair_mismatch_financial_items"
+                          data-cid="{$row.contribution_id}"
+                          data-ajax="{$ajaxUrl}"
+                          title="{$s.warning}">
+                          <i class="crm-i fa-wrench"></i> {$s.label}
+                        </button>
+                      </div>
+                    {else}
+                      <div style="margin-bottom:6px;font-size:12px;color:#856404">
+                        <i class="crm-i fa-exclamation-triangle"></i>
+                        {ts}Financial items:{/ts} {$s.warning}
+                      </div>
+                    {/if}
+                  {/if}
+
+                  {if !empty($row.suggestions.trxn)}
+                    <div style="font-size:12px;color:#721c24">
+                      <i class="crm-i fa-ban"></i>
+                      {ts}Payments:{/ts} {$row.suggestions.trxn.warning}
                     </div>
                   {/if}
-                {/if}
-
-                {if !empty($row.suggestions.financial_items)}
-                  {assign var="s" value=$row.suggestions.financial_items}
-                  {if $s.fixable}
-                    <div class="suggest-fix" style="margin-bottom:6px">
-                      <button class="button small crm-mismatch-repair" style="display:flex;"
-                        data-op="repair_mismatch_financial_items"
-                        data-cid="{$row.contribution_id}"
-                        data-ajax="{$ajaxUrl}"
-                        title="{$s.warning}">
-                        <i class="crm-i fa-wrench"></i> {$s.label}
-                      </button>
-                    </div>
-                  {else}
-                    <div style="margin-bottom:6px;font-size:12px;color:#856404">
-                      <i class="crm-i fa-exclamation-triangle"></i>
-                      {ts}Financial items:{/ts} {$s.warning}
-                    </div>
-                  {/if}
-                {/if}
-
-                {if !empty($row.suggestions.trxn)}
-                  <div style="font-size:12px;color:#721c24">
-                    <i class="crm-i fa-ban"></i>
-                    {ts}Payments:{/ts} {$row.suggestions.trxn.warning}
-                  </div>
                 {/if}
               </td>
             </tr>
@@ -151,6 +172,31 @@
 
 {literal}
 <style>
+.period-lock-banner {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.period-lock-banner strong { font-weight: 700; }
+.period-lock-banner .button.small { margin-left: auto; padding: 2px 10px; font-size: 11px; }
+.mismatch-period-locked-badge {
+  display: inline-block;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
 /* Mismatch detail panel */
 .mismatch-detail-row td { padding: 0 !important; background: #f8f9fa; }
 .mmd-detail-wrap { padding: 14px 16px; }
@@ -190,5 +236,24 @@
 .mmd-tag          { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; }
 .mmd-tag-pay      { background: #cfe2ff; color: #084298; }
 .mmd-tag-nonpay   { background: #f0f0f0; color: #666; }
+
+.contrib-status-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  white-space: nowrap;
+  background: #e2e3e5;
+  color: #383d41;
+}
+.contrib-status-1  { background: #d4edda; color: #155724; } /* Completed */
+.contrib-status-2  { background: #fff3cd; color: #856404; } /* Pending */
+.contrib-status-3  { background: #f8d7da; color: #721c24; } /* Cancelled */
+.contrib-status-4  { background: #f8d7da; color: #721c24; } /* Failed */
+.contrib-status-5  { background: #cfe2ff; color: #084298; } /* In Progress */
+.contrib-status-6  { background: #e2e3e5; color: #383d41; } /* Overdue */
+.contrib-status-7  { background: #d1ecf1; color: #0c5460; } /* Refunded */
+.contrib-status-8  { background: #fce8d8; color: #7c3c00; } /* Partially paid */
 </style>
 {/literal}

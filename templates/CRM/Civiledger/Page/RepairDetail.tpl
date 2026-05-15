@@ -11,10 +11,29 @@
 
     {* ── Navigation ──────────────────────────────────────────────────────── *}
   <div class="rd-nav">
-    <a href="{$backUrl}" class="button small">← {ts}Back to Repair Tool{/ts}</a>
     <a href="{$auditUrl}" class="button small">📊 {ts}Audit Trail{/ts}</a>
     <a href="{$contribUrl}" class="button small" target="_blank">🔗 {ts}View Contribution{/ts}</a>
   </div>
+
+  {* ── Period lock banners ─────────────────────────────────────────────── *}
+  {if $activeLock}
+    <div class="crm-container period-lock-banner">
+      <i class="crm-i fa-lock"></i>
+      <strong>{ts}Financial Period Locked{/ts}</strong> — {ts}Transactions before{/ts}
+      <strong>{$activeLock.lock_date}</strong> {ts}are locked and cannot be repaired.{/ts}
+      {ts 1=$activeLock.locked_by_name|default:'System' 2=$activeLock.locked_at|crmDate}Locked by %1 on %2.{/ts}
+      {if $activeLock.lock_reason}<em>{ts}Reason:{/ts} {$activeLock.lock_reason}</em>{/if}
+      <a href="{$periodCloseUrl}" class="button small">{ts}Manage Lock{/ts}</a>
+    </div>
+  {/if}
+  {if $contributionLocked}
+    <div class="crm-container period-lock-contrib-notice">
+      <i class="crm-i fa-lock"></i>
+      {ts}This contribution's receive date falls within the{/ts}
+      <strong>{ts}locked financial period{/ts}</strong>
+      ({ts}before{/ts} {$activeLock.lock_date}). {ts}Repair is not allowed.{/ts}
+    </div>
+  {/if}
 
     {* ── Page header ─────────────────────────────────────────────────────── *}
   <div class="civiledger-header">
@@ -197,7 +216,17 @@
 
     {* ── Confirm / run button (shown ONLY before repair) ─────────────────── *}
     {if !$repairRan}
-        {if $preChain.checks.is_complete}
+        {if $contributionLocked}
+          <div class="civiledger-section rd-confirm-box rd-locked-box">
+            <i class="crm-i fa-lock" style="font-size:18px;color:#856404"></i>
+            <div>
+              <strong>{ts}Repair Blocked — Locked Financial Period{/ts}</strong><br>
+              {ts}This contribution falls within the locked period (before{/ts} <strong>{$activeLock.lock_date}</strong>).
+              {ts}Unlock the period before running a repair.{/ts}
+              <br><a href="{$periodCloseUrl}" class="button small" style="margin-top:8px;display:inline-block">{ts}Manage Lock{/ts}</a>
+            </div>
+          </div>
+        {elseif $preChain.checks.is_complete}
           <div class="civiledger-section rd-already-ok">
             <span class="rd-badge rd-badge-ok" style="font-size:15px">✔</span>
             <strong>{ts}This contribution's financial chain is already complete.{/ts}</strong>
@@ -451,9 +480,16 @@
           {/if}
 
         <div class="rd-final-actions">
-          <a href="{$auditUrl}"  class="button">📊 {ts}View Audit Trail{/ts}</a>
-          <a href="{$runUrl}"    class="button">{ts}↺ Run Repair Again{/ts}</a>
-          <a href="{$backUrl}"   class="button">{ts}← Back to Repair Tool{/ts}</a>
+          <a href="{$auditUrl}" class="button">📊 {ts}View Audit Trail{/ts}</a>
+          {if $contributionLocked}
+            <span class="button rd-locked-action-btn"
+                  title="{ts}Repair Again is blocked — this contribution falls within the locked period (before{/ts} {$activeLock.lock_date}).">
+              <i class="crm-i fa-lock"></i> {ts}Repair Locked{/ts}
+            </span>
+          {else}
+            <a href="{$runUrl}" class="button">{ts}↺ Run Repair Again{/ts}</a>
+          {/if}
+          <a href="{$backUrl}" class="button">{ts}← Back to Repair Tool{/ts}</a>
         </div>
       </div>
 
@@ -508,6 +544,46 @@
 
 {* ── Page-specific styles ──────────────────────────────────────────────── *}
 <style>
+.period-lock-banner {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.period-lock-banner strong { font-weight: 700; }
+.period-lock-banner .button.small { margin-left: auto; padding: 2px 10px; font-size: 11px; }
+.period-lock-contrib-notice {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.rd-locked-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 14px 16px;
+  color: #856404;
+}
+.rd-locked-action-btn {
+  background: #6c757d !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  opacity: 0.75;
+}
 .rd-sum-strip {
   font-size: 12px;
   padding: 4px 9px;

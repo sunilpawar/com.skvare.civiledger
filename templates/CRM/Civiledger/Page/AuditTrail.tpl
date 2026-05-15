@@ -5,6 +5,27 @@
     <p>Full financial chain drill-down for Contribution #{$contributionId}</p>
   </div>
 
+  {* Period lock banner — shown when any lock is active *}
+  {if $activeLock}
+    <div class="crm-container period-lock-banner">
+      <i class="crm-i fa-lock"></i>
+      <strong>Financial Period Locked</strong> — Transactions before
+      <strong>{$activeLock.lock_date}</strong> are read-only; account corrections are blocked.
+      Locked by {$activeLock.locked_by_name|default:'System'} on {$activeLock.locked_at|crmDate}.
+      {if $activeLock.lock_reason}<em>Reason: {$activeLock.lock_reason}</em>{/if}
+      <a href="{$periodCloseUrl}" class="button small">Manage Lock</a>
+    </div>
+  {/if}
+
+  {* Contribution-level locked notice *}
+  {if $contributionLocked}
+    <div class="crm-container period-lock-contrib-notice">
+      <i class="crm-i fa-lock"></i>
+      This contribution's receive date falls within the <strong>locked financial period</strong>
+      (before {$activeLock.lock_date}). Its financial records are read-only.
+    </div>
+  {/if}
+
     {if !empty($chain.contribution)}
     {assign var=c value=$chain.contribution}
 
@@ -167,11 +188,23 @@
               {else}
                 <span class="badge-fee" title="This transaction records a processor fee or account transfer, not a direct payment.">PROCESSOR FEE / TRANSFER</span>
               {/if}
+              {if $trxn.is_locked}
+                <span class="trxn-period-locked-badge float-right">
+                  <i class="crm-i fa-lock"></i> Period Locked
+                </span>
+              {/if}
             <span class="amount-badge">{$trxn.total_amount|crmMoney:$trxn.currency}</span>
               {if $trxn.total_amount >= 0}
-                <a href="{crmURL p='civicrm/civiledger/account-correction' q="cid=`$contributionId`&trxn_id=`$trxn.id`"}" class="button small float-right">
-                  <i class="crm-i fa-exchange"></i> Correct Accounts
-                </a>
+                {if $trxn.is_locked}
+                  <span class="button small float-right trxn-locked-btn"
+                        title="Account correction is blocked — this transaction falls within the locked period (before {$activeLock.lock_date}).">
+                    <i class="crm-i fa-lock"></i> Correction Locked
+                  </span>
+                {else}
+                  <a href="{crmURL p='civicrm/civiledger/account-correction' q="cid=`$contributionId`&trxn_id=`$trxn.id`"}" class="button small float-right">
+                    <i class="crm-i fa-exchange"></i> Correct Accounts
+                  </a>
+                {/if}
               {/if}
           </div>
           {if !$trxn.is_payment}
@@ -298,6 +331,47 @@
 </div>
 {literal}
 <style>
+.period-lock-banner {
+  background: #fff3cd;
+  border-left: 4px solid #ffc107;
+  color: #856404;
+  padding: 10px 14px;
+  border-radius: 0 4px 4px 0;
+  font-size: 13px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.period-lock-banner strong { font-weight: 700; }
+.period-lock-banner .button.small { margin-left: auto; padding: 2px 10px; font-size: 11px; }
+.period-lock-contrib-notice {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+.trxn-period-locked-badge {
+  display: inline-block;
+  background: #ffc107;
+  color: #212529;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 3px;
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+.trxn-locked-btn {
+  background: #6c757d !important;
+  color: #fff !important;
+  cursor: not-allowed !important;
+  opacity: 0.8;
+}
 .fi-dup-warning {
   background: #fff3cd; border-left: 4px solid #ffc107; color: #856404;
   padding: 8px 12px; border-radius: 0 4px 4px 0; font-size: 12px;

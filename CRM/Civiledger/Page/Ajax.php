@@ -31,13 +31,21 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
         break;
 
       case 'repair_mismatch_line_items':
-        $cid    = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        if ($msg = self::periodLockMessage($cid)) {
+          CRM_Utils_JSON::output(['success' => FALSE, 'message' => $msg]);
+          break;
+        }
         $result = CRM_Civiledger_BAO_MismatchRepair::repairLineItems($cid);
         CRM_Utils_JSON::output($result);
         break;
 
       case 'repair_mismatch_financial_items':
-        $cid    = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
+        if ($msg = self::periodLockMessage($cid)) {
+          CRM_Utils_JSON::output(['success' => FALSE, 'message' => $msg]);
+          break;
+        }
         $result = CRM_Civiledger_BAO_MismatchRepair::repairFinancialItems($cid);
         CRM_Utils_JSON::output($result);
         break;
@@ -206,6 +214,28 @@ class CRM_Civiledger_Page_Ajax extends CRM_Core_Page {
       default:
         CRM_Utils_JSON::output(['error' => 'Unknown action']);
     }
+  }
+
+  /**
+   * Returns a lock error message if the contribution falls within the locked
+   * period, or NULL if the operation is allowed.
+   */
+  private static function periodLockMessage(int $cid): ?string {
+    $lock = CRM_Civiledger_BAO_PeriodClose::getActiveLock();
+    if (!$lock) {
+      return NULL;
+    }
+    $receiveDate = CRM_Core_DAO::singleValueQuery(
+      'SELECT receive_date FROM civicrm_contribution WHERE id = %1',
+      [1 => [$cid, 'Integer']]
+    );
+    if ($receiveDate && substr($receiveDate, 0, 10) < $lock['lock_date']) {
+      return ts('Contribution #%1 falls within the locked financial period (before %2). This repair is not allowed.', [
+        1 => $cid,
+        2 => $lock['lock_date'],
+      ]);
+    }
+    return NULL;
   }
 
 }

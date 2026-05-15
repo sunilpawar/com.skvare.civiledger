@@ -18,9 +18,14 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
     $mismatches = CRM_Civiledger_BAO_MismatchDetector::detect($filters);
     $summary = CRM_Civiledger_BAO_MismatchDetector::getSummary($filters);
 
-    // Attach "Suggest Fix" data to each row
+    $activeLock = CRM_Civiledger_BAO_PeriodClose::getActiveLock();
+
+    // Attach "Suggest Fix" data and period-lock flag to each row.
     foreach ($mismatches as &$row) {
       $row['suggestions'] = CRM_Civiledger_BAO_MismatchRepair::suggestFix($row);
+      $row['is_locked'] = $activeLock
+        && !empty($row['receive_date'])
+        && substr($row['receive_date'], 0, 10) < $activeLock['lock_date'];
     }
     unset($row);
 
@@ -29,6 +34,8 @@ class CRM_Civiledger_Page_MismatchDetector extends CRM_Core_Page {
     $this->assign('ajaxUrl', CRM_Utils_System::url('civicrm/civiledger/ajax'));
     $this->assign('filters', $filters);
     $this->assign('auditUrl', CRM_Utils_System::url('civicrm/civiledger/audit-trail'));
+    $this->assign('activeLock', $activeLock);
+    $this->assign('periodCloseUrl', CRM_Utils_System::url('civicrm/civiledger/period-close'));
     $this->assign('cms_type', CIVICRM_UF);
 
     parent::run();
