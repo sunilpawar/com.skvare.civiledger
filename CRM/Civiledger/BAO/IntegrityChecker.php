@@ -168,7 +168,6 @@ class CRM_Civiledger_BAO_IntegrityChecker {
           SELECT id FROM civicrm_option_group WHERE name = 'contribution_status'
         )
       WHERE eft.id IS NULL
-        AND c.contribution_status_id = 1
         AND c.is_test = 0
         $where
       ORDER BY c.receive_date DESC
@@ -204,7 +203,6 @@ class CRM_Civiledger_BAO_IntegrityChecker {
       LEFT JOIN civicrm_entity_financial_trxn eft
         ON eft.entity_table = 'civicrm_financial_item' AND eft.entity_id = fi.id
       WHERE eft.id IS NULL
-        AND c.contribution_status_id = 1
         AND c.is_test = 0
         $where
       ORDER BY c.receive_date DESC
@@ -296,7 +294,6 @@ class CRM_Civiledger_BAO_IntegrityChecker {
       LEFT JOIN civicrm_entity_financial_trxn eft
         ON eft.entity_table = 'civicrm_contribution' AND eft.entity_id = c.id
       WHERE eft.id IS NULL
-        AND c.contribution_status_id = 1
         AND c.is_test = 0
       ORDER BY c.id DESC
       LIMIT $limit
