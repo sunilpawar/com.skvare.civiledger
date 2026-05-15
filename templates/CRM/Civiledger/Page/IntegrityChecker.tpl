@@ -91,7 +91,7 @@
           <tr><th>Contribution</th><th>Line Item ID</th><th>Amount</th><th>Financial Type</th><th>Date</th><th>Actions</th></tr>
           </thead>
           <tbody>
-          {foreach from=$results.missing_financial_item item=row}
+          {foreach from=$results.missing_financial_items item=row}
             <tr>
               <td><a target="_blank" href="{crmURL p='civicrm/contact/view/contribution' q="reset=1&action=view&context=contribution&id=`$row.contribution_id`&cid=`$row.contact_id`"}">#{$row.contribution_id}</a></td>
               <td>#{$row.line_item_id}</td>
