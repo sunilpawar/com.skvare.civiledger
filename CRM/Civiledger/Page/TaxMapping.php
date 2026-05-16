@@ -16,7 +16,7 @@ class CRM_Civiledger_Page_TaxMapping extends CRM_Core_Page {
     CRM_Core_Resources::singleton()
       ->addStyleFile('com.skvare.civiledger', 'css/civiledger.css')
       ->addScriptFile('com.skvare.civiledger', 'js/civiledger.js')
-      ->addScriptUrl('https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js');
+      ->addScriptFile('com.skvare.civiledger', 'js/chart.umd.min.js');
 
     $dateFrom = CRM_Utils_Request::retrieve('date_from', 'String') ?: date('Y-01-01');
     $dateTo   = CRM_Utils_Request::retrieve('date_to',   'String') ?: date('Y-m-d');

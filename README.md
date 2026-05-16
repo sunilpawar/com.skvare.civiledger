@@ -370,8 +370,6 @@ Three Chart.js 4.x visualisations rendered from live financial data:
 
 KPI stat cards at the top show total payments, total refunds, net movement, and active account count for the selected period.
 
-Chart.js 4.4.4 is loaded from jsDelivr CDN. If offline operation is required, replace `addScriptUrl()` with a local file reference in `CRM/Civiledger/Page/FinancialDashboard.php`.
-
 ---
 
 ### Feature 9 — 🧾 Tax Mapping
@@ -555,7 +553,6 @@ civicrm_civiledger_period_lock
 - Chain Repair creates financial items using the **current** income account mapping for a financial type. If the account mapping has changed since the original contribution, the repaired records will reflect the current mapping, not the historical one. Review with an accountant before bulk-repairing old contributions.
 - The Mismatch Detector runs on `contribution_status_id = 1` (Completed) only. Pending, Partially Paid, and Cancelled contributions are excluded.
 - Account Correction creates two additional `civicrm_financial_trxn` rows per correction. On a heavily corrected system this may add rows to the bookkeeping batch reports; these can be filtered by the `REVERSAL-` and `CORRECTION-` prefixes on `trxn_id`.
-- The Financial Dashboard and Tax Mapping charts require an internet connection to load Chart.js from jsDelivr CDN. For air-gapped environments, host `chart.umd.min.js` locally and update the `addScriptUrl()` call in the respective Page class.
 - Tax Mapping's non-deductible breakdown correctly handles contributions with no line items and line items with `non_deductible_amount=0` by falling back to the contribution-level field proportionally. However, if both the contribution and line items have mismatched values, the `getIssues()` function should be consulted to resolve the discrepancy before relying on Tax Mapping totals.
 
 ---
