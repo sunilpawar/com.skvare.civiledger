@@ -36,25 +36,16 @@ function civiledger_civicrm_enable() {
 
 /**
  * Implements hook_civicrm_navigationMenu().
- * Adds CiviLedger menu items under Contributions.
+ * Adds CiviLedger as a top-level item in the main navigation bar.
  */
 function civiledger_civicrm_navigationMenu(&$menu) {
-  // Find the Contributions menu parent
-  $contributionsKey = NULL;
-  foreach ($menu as $key => $item) {
-    if (!empty($item['attributes']['name']) && $item['attributes']['name'] === 'Contributions') {
-      $contributionsKey = $key;
-      break;
-    }
-  }
-
-  // Build CiviLedger sub-menu
   $civiledgerItems = [
     [
       'attributes' => [
         'label' => ts('CiviLedger Dashboard'),
         'name' => 'civiledger_dashboard',
         'url' => 'civicrm/civiledger/dashboard',
+        'icon' => 'crm-i fa-tachometer',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -66,6 +57,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Integrity Checker'),
         'name' => 'civiledger_integrity',
         'url' => 'civicrm/civiledger/integrity-check',
+        'icon' => 'crm-i fa-check-circle',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -77,6 +69,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Mismatch Detector'),
         'name' => 'civiledger_mismatch',
         'url' => 'civicrm/civiledger/mismatch-detector',
+        'icon' => 'crm-i fa-exclamation-triangle',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -88,6 +81,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Duplicate Payment Detector'),
         'name' => 'civiledger_duplicate_payments',
         'url' => 'civicrm/civiledger/duplicate-payments',
+        'icon' => 'crm-i fa-clone',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -99,6 +93,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Duplicate Financial Trxn Detector'),
         'name' => 'civiledger_duplicate_trxn',
         'url' => 'civicrm/civiledger/duplicate-trxn',
+        'icon' => 'crm-i fa-copy',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -110,6 +105,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Account Balance Dashboard'),
         'name' => 'civiledger_balance',
         'url' => 'civicrm/civiledger/balance',
+        'icon' => 'crm-i fa-balance-scale',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -121,6 +117,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Account Correction Tool'),
         'name' => 'civiledger_correction',
         'url' => 'civicrm/civiledger/account-correction',
+        'icon' => 'crm-i fa-exchange',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -132,17 +129,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Period Close / Lock'),
         'name' => 'civiledger_period_close',
         'url' => 'civicrm/civiledger/period-close',
-        'permission' => 'administer CiviCRM',
-        'operator' => NULL,
-        'separator' => NULL,
-        'active' => 1,
-      ],
-    ],
-    [
-      'attributes' => [
-        'label' => ts('Financial Dashboard'),
-        'name' => 'civiledger_financial_dashboard',
-        'url' => 'civicrm/civiledger/financial-dashboard',
+        'icon' => 'crm-i fa-lock',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => 1,
@@ -151,9 +138,22 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Financial Dashboard'),
+        'name' => 'civiledger_financial_dashboard',
+        'url' => 'civicrm/civiledger/financial-dashboard',
+        'icon' => 'crm-i fa-bar-chart',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Tax Mapping'),
         'name' => 'civiledger_tax_mapping',
         'url' => 'civicrm/civiledger/tax-mapping',
+        'icon' => 'crm-i fa-percent',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -165,6 +165,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Audit Log'),
         'name' => 'civiledger_audit_log',
         'url' => 'civicrm/civiledger/audit-log',
+        'icon' => 'crm-i fa-history',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -176,6 +177,7 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Financial Type Mapping'),
         'name' => 'civiledger_ft_mapping',
         'url' => 'civicrm/civiledger/financial-type-mapping',
+        'icon' => 'crm-i fa-sitemap',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
         'separator' => NULL,
@@ -187,35 +189,33 @@ function civiledger_civicrm_navigationMenu(&$menu) {
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',
+        'icon' => 'crm-i fa-cog',
         'permission' => 'administer CiviCRM',
         'operator' => NULL,
-        'separator' => 1,
+        'separator' => NULL,
         'active' => 1,
       ],
     ],
   ];
 
-  // Add CiviLedger parent menu item
-  $civiledgerParent = [
+  // Add CiviLedger as a top-level main nav bar item.
+  $parentMenu = [[
     'attributes' => [
       'label' => ts('CiviLedger'),
       'name' => 'civiledger',
-      'url' => 'civicrm/civiledger/dashboard',
+      'url' => NULL,
+      'icon' => 'crm-i fa-calculator',
       'permission' => 'administer CiviCRM',
       'operator' => NULL,
-      'separator' => 1,
+      'separator' => NULL,
       'active' => 1,
+      'weight' => 35,
     ],
     'child' => $civiledgerItems,
-  ];
+  ]];
+  array_splice($menu, 3, 0, $parentMenu);
 
-  if ($contributionsKey !== NULL) {
-    $menu[$contributionsKey]['child'][] = $civiledgerParent;
-  }
-  else {
-    // Fallback: add at top level
-    $menu[] = $civiledgerParent;
-  }
+  _civiledger_civix_navigationMenu($menu);
 }
 
 /**
