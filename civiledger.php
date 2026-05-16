@@ -186,6 +186,18 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Soft Credit Check'),
+        'name' => 'civiledger_soft_credit',
+        'url' => 'civicrm/civiledger/soft-credit-check',
+        'icon' => 'crm-i fa-users',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',
