@@ -12,7 +12,7 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
       ->addScriptFile('com.skvare.civiledger', 'js/civiledger.js');
     CRM_Utils_System::setTitle(ts('CiviLedger — Account Correction Tool'));
 
-    $action = CRM_Utils_Request::retrieve('action', 'String') ?? '';
+    $action = CRM_Utils_Request::retrieve('method', 'String') ?? '';
     $contributionId = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
     $trxnId = (int) CRM_Utils_Request::retrieve('trxn_id', 'Integer');
     $this->assign('cms_type', CIVICRM_UF);
@@ -78,15 +78,14 @@ class CRM_Civiledger_Page_AccountCorrection extends CRM_Core_Page {
       return;
     }
 
-    $newFromId = (int) CRM_Utils_Request::retrieve('from_account_id', 'Integer');
-    $newToId = (int) CRM_Utils_Request::retrieve('to_account_id', 'Integer');
+    $newFromId = (int) CRM_Utils_Request::retrieve('from_financial_account_id', 'Integer');
+    $newToId = (int) CRM_Utils_Request::retrieve('to_financial_account_id', 'Integer');
     $notes = CRM_Utils_Request::retrieve('notes', 'String') ?? '';
     $cid = (int) CRM_Utils_Request::retrieve('cid', 'Integer');
-
     $result = CRM_Civiledger_BAO_AccountCorrection::correctAccounts(
       $trxnId,
-      $newFromId ?: NULL,
-      $newToId ?: NULL,
+      $newFromId,
+      $newToId,
       $notes
     );
 

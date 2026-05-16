@@ -80,7 +80,7 @@
                       <input type="hidden" name="option" value="com_civicrm" />
                       <input type="hidden" name="task" value="civicrm/civiledger/account-correction" />
                     {/if}
-                    <input type="hidden" name="action" value="correct">
+                    <input type="hidden" name="method" value="correct">
                     <input type="hidden" name="trxn_id" value="{$trxn.id}">
                     <input type="hidden" name="cid" value="{$contributionId}">
 
