@@ -198,6 +198,18 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Recurring Health'),
+        'name' => 'civiledger_recurring_health',
+        'url' => 'civicrm/civiledger/recurring-health',
+        'icon' => 'crm-i fa-refresh',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',

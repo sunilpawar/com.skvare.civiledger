@@ -139,4 +139,11 @@
     <page_callback>CRM_Civiledger_Page_SoftCreditChecker</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Recurring Contribution Health Monitor -->
+  <item>
+    <path>civicrm/civiledger/recurring-health</path>
+    <title>Recurring Contribution Health Monitor</title>
+    <page_callback>CRM_Civiledger_Page_RecurringHealthMonitor</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>

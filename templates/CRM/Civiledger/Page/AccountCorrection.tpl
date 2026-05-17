@@ -133,7 +133,7 @@
 
       <div class="correction-nav" style="display:flex;">
         <a href="{crmURL p='civicrm/civiledger/audit-trail' q="reset=1&contribution_id=`$contributionId`"}" class="button small">View Full Audit Trail</a>
-        <a href="?" class="button">Search Another Contribution</a>
+        <a href="{crmURL p='civicrm/civiledger/account-correction' q="reset=1"}" class="button">Search Another Contribution</a>
       </div>
     {/if}
 
