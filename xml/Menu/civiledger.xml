@@ -153,4 +153,18 @@
     <page_callback>CRM_Civiledger_Page_RefundIntegrityChecker</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Donor Cohort Retention -->
+  <item>
+    <path>civicrm/civiledger/cohort-retention</path>
+    <title>Donor Cohort Retention</title>
+    <page_callback>CRM_Civiledger_Page_CohortRetention</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
+  <!-- Payment Card Expiry Tracker -->
+  <item>
+    <path>civicrm/civiledger/card-expiry</path>
+    <title>Payment Card Expiry Tracker</title>
+    <page_callback>CRM_Civiledger_Page_CardExpiryTracker</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>

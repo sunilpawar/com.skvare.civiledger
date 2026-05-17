@@ -222,6 +222,30 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Cohort Retention'),
+        'name' => 'civiledger_cohort_retention',
+        'url' => 'civicrm/civiledger/cohort-retention',
+        'icon' => 'crm-i fa-th',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
+        'label' => ts('Card Expiry Tracker'),
+        'name' => 'civiledger_card_expiry',
+        'url' => 'civicrm/civiledger/card-expiry',
+        'icon' => 'crm-i fa-credit-card',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',
