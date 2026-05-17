@@ -210,6 +210,18 @@ function civiledger_civicrm_navigationMenu(&$menu) {
     ],
     [
       'attributes' => [
+        'label' => ts('Refund Integrity'),
+        'name' => 'civiledger_refund_integrity',
+        'url' => 'civicrm/civiledger/refund-integrity',
+        'icon' => 'crm-i fa-undo',
+        'permission' => 'administer CiviCRM',
+        'operator' => NULL,
+        'separator' => NULL,
+        'active' => 1,
+      ],
+    ],
+    [
+      'attributes' => [
         'label' => ts('Settings'),
         'name' => 'civiledger_settings',
         'url' => 'civicrm/admin/civiledger/settings',

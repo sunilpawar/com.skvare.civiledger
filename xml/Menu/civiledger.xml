@@ -146,4 +146,11 @@
     <page_callback>CRM_Civiledger_Page_RecurringHealthMonitor</page_callback>
     <access_arguments>administer CiviCRM</access_arguments>
   </item>
+  <!-- Refund / Reversal Integrity Check -->
+  <item>
+    <path>civicrm/civiledger/refund-integrity</path>
+    <title>Refund / Reversal Integrity Check</title>
+    <page_callback>CRM_Civiledger_Page_RefundIntegrityChecker</page_callback>
+    <access_arguments>administer CiviCRM</access_arguments>
+  </item>
 </menu>
