@@ -550,7 +550,7 @@ class CRM_Civiledger_BAO_RecurringHealthMonitor {
   private static function buildRecurUrl(int $recurId, int $contactId): string {
     return CRM_Utils_System::url(
       'civicrm/contact/view/contributionrecur',
-      "reset=1&action=view&crid={$recurId}&cid={$contactId}&context=contribution"
+      "reset=1&action=view&id={$recurId}&cid={$contactId}&context=contribution"
     );
   }
 
