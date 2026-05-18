@@ -465,10 +465,11 @@ class CRM_Civiledger_BAO_RecurringHealthMonitor {
         cr.frequency_interval,
         cr.frequency_unit,
         cr.contribution_status_id,
+        ANY_VALUE(cs.label)                                           AS status_label,
         cr.start_date,
         ct.id                                                         AS contact_id,
         ct.display_name                                               AS contact_name,
-        COALESCE(pp.name, 'Unknown / Direct')                        AS processor_name,
+        COALESCE(ANY_VALUE(pp.name), 'Unknown / Direct')             AS processor_name,
         MAX(c_prev.receive_date)                                      AS last_payment_date,
         COUNT(c_month.id)                                             AS paid_this_month,
         CASE cr.frequency_unit
@@ -481,6 +482,11 @@ class CRM_Civiledger_BAO_RecurringHealthMonitor {
       FROM  civicrm_contribution_recur cr
       INNER JOIN civicrm_contact ct         ON ct.id = cr.contact_id AND ct.is_deleted = 0
       LEFT  JOIN civicrm_payment_processor pp ON pp.id = cr.payment_processor_id
+      LEFT  JOIN civicrm_option_value cs
+                 ON  cs.value = cr.contribution_status_id
+                 AND cs.option_group_id = (
+                       SELECT id FROM civicrm_option_group WHERE name = 'contribution_recur_status'
+                     )
       LEFT  JOIN civicrm_contribution c_prev
                  ON  c_prev.contribution_recur_id = cr.id
                  AND c_prev.contribution_status_id = 1

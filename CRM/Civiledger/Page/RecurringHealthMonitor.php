@@ -15,8 +15,8 @@ class CRM_Civiledger_Page_RecurringHealthMonitor extends CRM_Core_Page {
       ->addScriptFile('com.skvare.civiledger', 'js/chart.umd.min.js');
 
     $filters = [
-      'date_from'             => CRM_Utils_Request::retrieve('date_from', 'String') ?: '',
-      'date_to'               => CRM_Utils_Request::retrieve('date_to', 'String') ?: '',
+      'date_from'             => CRM_Utils_Request::retrieve('date_from', 'String') ?: date('Y-01-01'),
+      'date_to'               => CRM_Utils_Request::retrieve('date_to', 'String') ?: date('Y-m-d'),
       'frequency_unit'        => CRM_Utils_Request::retrieve('frequency_unit', 'String') ?: '',
       'payment_instrument_id' => CRM_Utils_Request::retrieve('payment_instrument_id', 'Integer') ?: '',
       'status_id'             => CRM_Utils_Request::retrieve('status_id', 'Integer') ?: '',
