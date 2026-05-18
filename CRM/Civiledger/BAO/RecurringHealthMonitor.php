@@ -441,6 +441,75 @@ class CRM_Civiledger_BAO_RecurringHealthMonitor {
   }
 
   // -----------------------------------------------------------------------
+  // Gap Analysis
+  // -----------------------------------------------------------------------
+
+  /**
+   * Active recurring series that were expected to pay in $month but did not.
+   *
+   * A series "should have paid" if it was active during the month (started
+   * before month-end, not cancelled/ended before month-start) AND no
+   * successful contribution was received during that month.
+   *
+   * @param string $month  Y-m format, e.g. '2026-04'
+   */
+  public static function getMissedExpectedSeries(string $month): array {
+    $monthStart = $month . '-01';
+    $monthEnd   = date('Y-m-t', strtotime($monthStart));
+
+    $sql = "
+      SELECT
+        cr.id                                                         AS recur_id,
+        cr.amount,
+        cr.currency,
+        cr.frequency_interval,
+        cr.frequency_unit,
+        cr.contribution_status_id,
+        cr.start_date,
+        ct.id                                                         AS contact_id,
+        ct.display_name                                               AS contact_name,
+        COALESCE(pp.name, 'Unknown / Direct')                        AS processor_name,
+        MAX(c_prev.receive_date)                                      AS last_payment_date,
+        COUNT(c_month.id)                                             AS paid_this_month,
+        CASE cr.frequency_unit
+          WHEN 'month' THEN cr.amount / cr.frequency_interval
+          WHEN 'year'  THEN cr.amount / (cr.frequency_interval * 12.0)
+          WHEN 'week'  THEN cr.amount * 52.0 / (12.0 * cr.frequency_interval)
+          WHEN 'day'   THEN cr.amount * 365.0 / (12.0 * cr.frequency_interval)
+          ELSE cr.amount
+        END                                                           AS monthly_value
+      FROM  civicrm_contribution_recur cr
+      INNER JOIN civicrm_contact ct         ON ct.id = cr.contact_id AND ct.is_deleted = 0
+      LEFT  JOIN civicrm_payment_processor pp ON pp.id = cr.payment_processor_id
+      LEFT  JOIN civicrm_contribution c_prev
+                 ON  c_prev.contribution_recur_id = cr.id
+                 AND c_prev.contribution_status_id = 1
+                 AND c_prev.receive_date < %1
+      LEFT  JOIN civicrm_contribution c_month
+                 ON  c_month.contribution_recur_id = cr.id
+                 AND c_month.contribution_status_id = 1
+                 AND c_month.receive_date BETWEEN %1 AND %2
+      WHERE cr.contribution_status_id IN (2, 5)
+        AND cr.cancel_date IS NULL
+        AND cr.start_date <= %2
+        AND (cr.end_date IS NULL OR cr.end_date >= %1)
+      GROUP BY cr.id, cr.amount, cr.currency, cr.frequency_interval,
+               cr.frequency_unit, cr.contribution_status_id, cr.start_date,
+               ct.id, ct.display_name
+      HAVING paid_this_month = 0
+      ORDER BY monthly_value DESC
+      LIMIT 500
+    ";
+
+    $rows = CRM_Core_DAO::executeQuery($sql, [
+      1 => [$monthStart . ' 00:00:00', 'String'],
+      2 => [$monthEnd   . ' 23:59:59', 'String'],
+    ])->fetchAll();
+
+    return self::addRecurUrl($rows);
+  }
+
+  // -----------------------------------------------------------------------
   // Helpers
   // -----------------------------------------------------------------------
 
