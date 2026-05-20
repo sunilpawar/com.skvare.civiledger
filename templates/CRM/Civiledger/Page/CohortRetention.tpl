@@ -222,117 +222,117 @@
 <style>
 /* KPI cards */
 .cohort-kpi-row {
-  display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px;
+  display: flex !important; gap: 14px !important; flex-wrap: wrap !important; margin-bottom: 18px !important;
 }
 .cohort-kpi-card {
-  background: #fff; border: 1px solid #dee2e6; border-radius: 6px;
-  padding: 14px 20px; min-width: 140px; text-align: center;
-  border-top: 4px solid #6c757d;
+  background: #fff !important; border: 1px solid #dee2e6 !important; border-radius: 6px !important;
+  padding: 14px 20px !important; min-width: 140px !important; text-align: center !important;
+  border-top: 4px solid #6c757d !important;
 }
-.cohort-kpi-card.kpi-good  { border-top-color: #28a745; }
-.cohort-kpi-card.kpi-warn  { border-top-color: #ffc107; }
-.cohort-kpi-card.kpi-bad   { border-top-color: #dc3545; }
-.cohort-kpi-value { font-size: 26px; font-weight: 700; color: #212529; line-height: 1.2; }
-.cohort-kpi-label { font-size: 11px; color: #6c757d; margin-top: 4px; }
+.cohort-kpi-card.kpi-good  { border-top-color: #28a745 !important; }
+.cohort-kpi-card.kpi-warn  { border-top-color: #ffc107 !important; }
+.cohort-kpi-card.kpi-bad   { border-top-color: #dc3545 !important; }
+.cohort-kpi-value { font-size: 26px !important; font-weight: 700 !important; color: #212529 !important; line-height: 1.2 !important; }
+.cohort-kpi-label { font-size: 11px !important; color: #6c757d !important; margin-top: 4px !important; }
 
 /* Legend */
 .cohort-legend {
-  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
-  margin-bottom: 14px; font-size: 11px;
+  display: flex !important; align-items: center !important; gap: 6px !important; flex-wrap: wrap !important;
+  margin-bottom: 14px !important; font-size: 11px !important;
 }
-.cohort-legend-title { font-weight: 600; color: #495057; margin-right: 4px; }
+.cohort-legend-title { font-weight: 600 !important; color: #495057 !important; margin-right: 4px !important; }
 .cohort-legend-cell {
-  display: inline-block; padding: 3px 8px; border-radius: 3px;
-  font-size: 11px; font-weight: 600;
+  display: inline-block !important; padding: 3px 8px !important; border-radius: 3px !important;
+  font-size: 11px !important; font-weight: 600 !important;
 }
 
 /* Scrollable table wrapper */
 .cohort-table-wrap {
-  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  overflow-x: auto !important; -webkit-overflow-scrolling: touch !important;
 }
 .cohort-table {
-  border-collapse: collapse; font-size: 12px; white-space: nowrap; width: 100%;
+  border-collapse: collapse !important; font-size: 12px !important; white-space: nowrap !important; width: 100% !important;
 }
 .cohort-table th, .cohort-table td {
-  border: 1px solid #dee2e6; padding: 0;
+  border: 1px solid #dee2e6 !important; padding: 0 !important;
 }
-.cohort-th-month  { padding: 6px 10px; background: #f8f9fa; font-weight: 700; min-width: 90px; }
-.cohort-th-size   { padding: 6px 10px; background: #f8f9fa; font-weight: 700; min-width: 54px; }
-.cohort-th-offset { padding: 6px 8px;  background: #f8f9fa; font-weight: 700; min-width: 64px; text-align: center; }
-.cohort-th-m0     { background: #d4edda; }
+.cohort-th-month  { padding: 6px 10px !important; background: #f8f9fa !important; font-weight: 700 !important; min-width: 90px !important; }
+.cohort-th-size   { padding: 6px 10px !important; background: #f8f9fa !important; font-weight: 700 !important; min-width: 54px !important; }
+.cohort-th-offset { padding: 6px 8px !important;  background: #f8f9fa !important; font-weight: 700 !important; min-width: 64px !important; text-align: center !important; }
+.cohort-th-m0     { background: #d4edda !important; }
 
-.cohort-month-cell { padding: 5px 10px; font-weight: 600; color: #212529; background: #f8f9fa; }
-.cohort-size-cell  { padding: 5px 10px; color: #495057; background: #f8f9fa; }
+.cohort-month-cell { padding: 5px 10px !important; font-weight: 600 !important; color: #212529 !important; background: #f8f9fa !important; }
+.cohort-size-cell  { padding: 5px 10px !important; color: #495057 !important; background: #f8f9fa !important; }
 
 /* Heatmap cells */
 .cohort-cell {
-  padding: 5px 6px; text-align: center; font-size: 11px;
-  font-weight: 600; cursor: default; min-width: 64px;
+  padding: 5px 6px !important; text-align: center !important; font-size: 11px !important;
+  font-weight: 600 !important; cursor: default !important; min-width: 64px !important;
 }
 
 /* Color scale — low to high retention */
-.cohort-m0     { background: #155724; color: #fff; }
+.cohort-m0     { background: #155724 !important; color: #fff !important; }
 .cohort-future {
   background: repeating-linear-gradient(
     45deg, #f8f9fa, #f8f9fa 3px, #e9ecef 3px, #e9ecef 6px
-  );
-  color: transparent;
+  ) !important;
+  color: transparent !important;
 }
-.cohort-zero   { background: #f1f3f5; color: #adb5bd; }
-.cohort-p10    { background: #f8d7da; color: #721c24; }
-.cohort-p20    { background: #ffd8b1; color: #7c3c00; }
-.cohort-p35    { background: #fff3cd; color: #856404; }
-.cohort-p50    { background: #d4f0c0; color: #2d6a1c; }
-.cohort-p70    { background: #9fd8a0; color: #155724; }
-.cohort-p100   { background: #28a745; color: #fff; }
+.cohort-zero   { background: #f1f3f5 !important; color: #adb5bd !important; }
+.cohort-p10    { background: #f8d7da !important; color: #721c24 !important; }
+.cohort-p20    { background: #ffd8b1 !important; color: #7c3c00 !important; }
+.cohort-p35    { background: #fff3cd !important; color: #856404 !important; }
+.cohort-p50    { background: #d4f0c0 !important; color: #2d6a1c !important; }
+.cohort-p70    { background: #9fd8a0 !important; color: #155724 !important; }
+.cohort-p100   { background: #28a745 !important; color: #fff !important; }
 
 /* Average footer row */
-.cohort-avg-row td { border-top: 2px solid #495057; }
+.cohort-avg-row td { border-top: 2px solid #495057 !important; }
 .cohort-avg-row .cohort-month-cell,
-.cohort-avg-row .cohort-size-cell  { background: #e9ecef; }
+.cohort-avg-row .cohort-size-cell  { background: #e9ecef !important; }
 
 /* Guide panel */
 .cohort-guide-wrap { padding: 0 !important; }
 .cohort-guide-toggle {
-  width: 100%; text-align: left; background: #f0f4ff;
-  border: 1px solid #c5d0f5; border-radius: 6px;
-  padding: 10px 16px; font-size: 13px; font-weight: 600;
-  color: #084298; cursor: pointer; display: flex;
-  align-items: center; gap: 8px;
+  width: 100% !important; text-align: left !important; background: #f0f4ff !important;
+  border: 1px solid #c5d0f5 !important; border-radius: 6px !important;
+  padding: 10px 16px !important; font-size: 13px !important; font-weight: 600 !important;
+  color: #084298 !important; cursor: pointer !important; display: flex !important;
+  align-items: center !important; gap: 8px !important;
 }
-.cohort-guide-toggle:hover { background: #e2eafc; }
-.cohort-guide-caret { margin-left: auto; font-size: 11px; }
+.cohort-guide-toggle:hover { background: #e2eafc !important; }
+.cohort-guide-caret { margin-left: auto !important; font-size: 11px !important; }
 #cohort-guide-body {
-  border: 1px solid #c5d0f5; border-top: none;
-  border-radius: 0 0 6px 6px; background: #f8f9ff;
-  padding: 18px 20px;
+  border: 1px solid #c5d0f5 !important; border-top: none !important;
+  border-radius: 0 0 6px 6px !important; background: #f8f9ff !important;
+  padding: 18px 20px !important;
 }
 .cohort-guide-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)) !important;
+  gap: 20px !important;
 }
 .cohort-guide-block h4 {
-  font-size: 13px; font-weight: 700; color: #212529;
-  margin: 0 0 8px; display: flex; align-items: center; gap: 6px;
+  font-size: 13px !important; font-weight: 700 !important; color: #212529 !important;
+  margin: 0 0 8px !important; display: flex !important; align-items: center !important; gap: 6px !important;
 }
 .cohort-guide-block p, .cohort-guide-block li {
-  font-size: 12px; color: #495057; line-height: 1.6; margin: 0 0 6px;
+  font-size: 12px !important; color: #495057 !important; line-height: 1.6 !important; margin: 0 0 6px !important;
 }
-.cohort-guide-block ul { padding-left: 18px; margin: 0 0 6px; }
-.cohort-guide-block li { margin-bottom: 4px; }
+.cohort-guide-block ul { padding-left: 18px !important; margin: 0 0 6px !important; }
+.cohort-guide-block li { margin-bottom: 4px !important; }
 
 /* Benchmark table */
 .cohort-bench-table {
-  width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px;
+  width: 100% !important; border-collapse: collapse !important; font-size: 12px !important; margin-top: 6px !important;
 }
 .cohort-bench-table th {
-  background: #e9ecef; padding: 5px 8px;
-  border: 1px solid #dee2e6; font-weight: 700; text-align: left;
+  background: #e9ecef !important; padding: 5px 8px !important;
+  border: 1px solid #dee2e6 !important; font-weight: 700 !important; text-align: left !important;
 }
-.cohort-bench-table td { padding: 5px 8px; border: 1px solid #dee2e6; }
-.bench-good { color: #155724; font-weight: 700; }
-.bench-warn { color: #856404; font-weight: 700; }
-.bench-bad  { color: #721c24; font-weight: 700; }
+.cohort-bench-table td { padding: 5px 8px !important; border: 1px solid #dee2e6 !important; }
+.bench-good { color: #155724 !important; font-weight: 700 !important; }
+.bench-warn { color: #856404 !important; font-weight: 700 !important; }
+.bench-bad  { color: #721c24 !important; font-weight: 700 !important; }
 </style>
 {/literal}
